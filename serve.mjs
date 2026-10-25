@@ -1,7 +1,7 @@
 // Static server for the heritage site. node serve.mjs  ->  http://localhost:3000
 import http from "node:http"; import fs from "node:fs"; import path from "node:path";
 const ROOT = path.resolve("."); const PORT = 3000;
-const T = {".html":"text/html; charset=utf-8",".css":"text/css; charset=utf-8",".js":"text/javascript; charset=utf-8",".webp":"image/webp",".png":"image/png",".jpg":"image/jpeg",".svg":"image/svg+xml",".json":"application/json",".pdf":"application/pdf"};
+const T = {".html":"text/html; charset=utf-8",".css":"text/css; charset=utf-8",".js":"text/javascript; charset=utf-8",".webp":"image/webp",".png":"image/png",".jpg":"image/jpeg",".svg":"image/svg+xml",".json":"application/json",".pdf":"application/pdf",".ico":"image/x-icon",".webmanifest":"application/manifest+json"};
 http.createServer((req,res)=>{
   let u = decodeURIComponent(req.url.split("?")[0]);
   if (u === "/guides/five-numbers.pdf") {

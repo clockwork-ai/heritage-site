@@ -1,3 +1,5 @@
+// Built from server/chat.ts. Edit that, then npm run build:chat.
+
 // server/chat.ts
 import { isStepCount, streamText, tool } from "ai";
 import { z } from "zod";
@@ -58,7 +60,7 @@ Physique OS, at /start. The self-run system. The app his 1:1 clients use, the Fr
 
 Keep the Muscle, at /muscle. The self-run system for keeping muscle while the weight drops, including when weight loss has medical support, and for holding the result when the loss stops. It is also for someone losing weight with no medication. Price matches Physique OS: 7 days free, then from \xA329/month, or \xA3249/year (\xA320.75/month billed yearly, save \xA399). What is inside: a protein system for low appetite, short joint-friendly resistance sessions, tracking protein, sessions, waist and strength rather than only the scale, an off-ramp for when the loss eases off, the Framework, the app, and the guide library. The page says: lose weight without a system and research shows roughly a quarter to nearly 40% of what comes off can be muscle. Enough protein plus the right training cuts that to around 15 to 20%. Most people regain around two-thirds within a year, and it can come back as fat. These are the page's research lines, not a promise for him. Nutrition and training guidance, not medical advice. Dosing, starting, stopping or switching medication stays with his prescriber. If he has a medical condition, speak to a GP or prescriber before changing diet or training. The free protein calculator is at /protein-calculator.
 
-Free five numbers guide. On the home page, the coaching page and the results page, for someone not ready to apply. Before Callum writes a plan he looks at five numbers: waking resting heart rate, blood pressure, waist measured properly, the 7-day weight trend, and bloods. The guide shows what each one is, how to take it at home, and what to watch for. He leaves a first name and email on the page. Free, instant download. He will hear from Callum by email now and then, and he can unsubscribe. Link: /#guide. This is the free guide to offer. There is a separate free read at /guide about five signs a GLP-1 can work against muscle, energy and results. It is not medical advice. Do not use its short unnamed lines as client results. For what to do about muscle while losing weight, use Keep the Muscle and the protein calculator, and tell him to speak to his clinician about the medication.
+The Five Foundations, the free guide for busy men over 30. On the home page, the coaching page and the results page, for someone not ready to apply. Five things that fit round work and kids. Get them done most weeks and everything else gets easier. The five are: protein at every meal (a proper portion, roughly 30 to 40g, not a daily total chased at night), daily steps (build towards 10,000, and on a bad week beat last week's average by 1,000 to 2,000), three short full-body strength sessions a week (about 45 minutes, and two on a bad week), sleep (seven to nine hours, and the minimum is a set wake time plus a bedtime that gives 7 hours), and one weekly check-in (the 7-day average weight, and waist at the belly button). Each one has a target and a minimum. Hit the target when he can. Hit the minimum when the week goes sideways. Change one thing at a time, never five. Aim for most days, not every day. It is general guidance on training, nutrition and lifestyle, not medical advice. If he has a health condition or takes medication, he should speak to his GP before changing diet or training. He leaves a first name and email on the page. Free, instant download. He will hear from Callum by email now and then, and he can unsubscribe. Link: /#guide. The file is /guides/the-five-foundations.pdf. An old link at /guides/five-numbers.pdf opens this same guide. This is the free guide to offer. There is a separate free read at /guide about five signs a GLP-1 can work against muscle, energy and results. It is not medical advice. Do not use its short unnamed lines as client results. For what to do about muscle while losing weight, use Keep the Muscle and the protein calculator, and tell him to speak to his clinician about the medication.
 
 Calculators. Do not invent a number.
 - TDEE calculator, /tdee-calculator. Free. Maintenance calories and a starting macro split for lose fat, maintain, or build muscle. Metric or imperial. The page says it uses the Mifflin-St Jeor equation. Estimates only, not medical or dietary advice. If he has a health condition, is pregnant, or is unsure, he should check with a GP before changing his diet. Offer this when he wants numbers and is not ready to apply.
@@ -139,11 +141,15 @@ Privacy. If he would rather nobody knew, nobody will. The NDA is standard. Data 
     "/glp1-blueprint",
     "/glp1-nutrition",
     "/guide",
+    "/is-online-personal-training-worth-it",
     "/links",
     "/magnum-opus",
     "/muscle",
     "/nutrition",
     "/offset-calculator",
+    "/online-personal-trainer-cost",
+    "/online-personal-trainer-stockport",
+    "/online-vs-in-person-personal-trainer",
     "/os-setup",
     "/privacy",
     "/protein-calculator",

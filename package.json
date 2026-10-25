@@ -12,10 +12,11 @@
     "test:ui": "playwright test --ui",
     "test:desktop": "playwright test --project=desktop",
     "test:phone": "playwright test --project=phone",
-    "test:chat": "node --experimental-strip-types --test lib/*.test.ts",
+    "test:chat": "node --experimental-strip-types --test lib/*.test.ts server/*.test.ts",
     "report": "playwright show-report",
     "build": "python3 tools/build_pages.py && python3 tools/version_assets.py",
     "build:chat": "node scripts/build.mjs",
+    "build:cpanel": "node scripts/cpanel.mjs",
     "typecheck": "tsc --noEmit",
     "test:live": "BASE_URL=https://callumbcoaching.co.uk playwright test"
   },

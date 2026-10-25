@@ -14,6 +14,8 @@ The committed HTML is the source of truth. Do not run `npm run build`. `tools/bu
 
 The site is the Vercel project `callumb-coaching` on team `clockwork-ai1`. `vercel.json` uses clean URLs, so a page is served at `/about`.
 
+Until the domain points at Vercel, the same files can be uploaded to the cPanel host. `npm run build:cpanel` builds that pack. The steps are in `CPANEL.md`. Do not put the MailerLite key on cPanel.
+
 The domain and DNS stay on Cloudflare. Do not change DNS records. Email for callum@callumbcoaching.co.uk is on layerip, so do not touch the MX records.
 
 ## Style
@@ -36,14 +38,16 @@ Do not change prices or Stripe links unless Callum asks. Those links live in `as
 
 ## Guide signup
 
-`components.js` posts the free-guide form to `/api/lead.php`. `vercel.json` rewrites that URL to `api/lead.js`, which sends the subscriber to MailerLite.
+The free guide is The Five Foundations, at `/guides/the-five-foundations.pdf`. `/guides/five-numbers.pdf` redirects there. The file at the old path is the same PDF.
+
+`components.js` posts the free-guide form to `/api/lead.php`. On `callumbcoaching.co.uk` and `www.callumbcoaching.co.uk` that post goes to `https://callumb-coaching.vercel.app/api/lead.php`. On any other host it stays on the same origin. `vercel.json` rewrites `/api/lead.php` to `/api/lead`, and `npm run build:chat` also writes `api/lead.php.js`, so both paths answer. OPTIONS from those two origins is allowed on both. The MailerLite key stays on Vercel. See `CPANEL.md`.
 
 Set these on the Vercel project. Do not commit them.
 
 - `MAILERLITE_API_KEY` (required)
 - `MAILERLITE_GROUP_ID` (optional; if it is unset, the subscriber is created and not added to a group)
 
-Leave that post URL and `api/lead.js` alone unless Callum asks for a change.
+The group id is a number. The group name is not in this repo. Do not change the MailerLite account from here.
 
 ## Calculators
 
@@ -51,7 +55,7 @@ The TDEE, protein, offset, and Physique OS calculators must keep returning the s
 
 ## Chatbot
 
-A coaching chat assistant is being added on a separate branch. It is not part of this site yet. Once that branch is merged, its wording and rules live in `lib/business.ts`. Edit the assistant there.
+The coaching chat is on the site. Its wording and rules live in `lib/business.ts`. Edit the assistant there, then run `npm run build:chat` so `api/chat.js`, `api/lead.js`, and `api/lead.php.js` match. The widget calls `https://callumb-coaching.vercel.app/api/chat` when the hostname is `callumbcoaching.co.uk` or `www.callumbcoaching.co.uk`, and `/api/chat` on any other host. See `CPANEL.md`.
 
 ## Tests
 

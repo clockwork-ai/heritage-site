@@ -133,6 +133,73 @@ test.describe("with Reduce Motion on", () => {
   });
 });
 
+for (const path of ["/", "/coaching", "/results"]) {
+  test(`five foundations guide on ${path}`, async ({ page }) => {
+    await page.goto(path + "#guide");
+    const section = page.locator("#guide");
+    await expect(section).toContainText("five foundations");
+    await expect(section).toContainText("Protein at every meal");
+    await expect(section).toContainText("Daily steps");
+    await expect(section).toContainText("Three short sessions a week");
+    await expect(section).toContainText("Sleep");
+    await expect(section).toContainText("One weekly check-in");
+    await expect(section.locator('a[data-ev="Guide download"]')).toHaveAttribute("href", "/guides/the-five-foundations.pdf");
+    const text = await section.innerText();
+    expect(text.toLowerCase()).not.toContain("five numbers");
+    expect(text).not.toContain("Blood pressure");
+    expect(text).not.toContain("\u2014");
+    expect(text).not.toContain("\u2013");
+  });
+}
+
+test("old guide address redirects to the new pdf", async ({ request }) => {
+  const next = await request.get("/guides/the-five-foundations.pdf");
+  expect(next.status()).toBe(200);
+  expect(next.headers()["content-type"] || "").toMatch(/pdf/);
+  const bytes = await next.body();
+  expect(Buffer.from(bytes.subarray(0, 5)).toString()).toBe("%PDF-");
+  const old = await request.get("/guides/five-numbers.pdf", { maxRedirects: 0 });
+  expect(old.status()).toBe(301);
+  expect(old.headers().location).toBe("/guides/the-five-foundations.pdf");
+});
+
+test("cPanel hostname calls the vercel chat and lead paths", async ({ request }) => {
+  const widget = await (await request.get("/chat/widget.js")).text();
+  const components = await (await request.get("/components.js")).text();
+  const rule = "/(^|\\.)callumbcoaching\\.co\\.uk$/";
+  expect(widget).toContain(rule);
+  expect(widget).toContain("https://callumb-coaching.vercel.app/api/chat");
+  expect(widget).toContain('"/api/chat"');
+  expect(components).toContain(rule);
+  expect(components).toContain("https://callumb-coaching.vercel.app/api/lead.php");
+  expect(components).toContain('"/api/lead.php"');
+  expect(widget).not.toContain("api-base.js");
+  expect(components).not.toContain("api-base.js");
+});
+
+test("guide form posts to lead.php on this origin", async ({ page }) => {
+  let posted = "";
+  await page.route("**/api/lead.php", async (route) => {
+    posted = route.request().url();
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, download: "/guides/the-five-foundations.pdf" }),
+    });
+  });
+  await page.goto("/#guide");
+  await page.locator("#guide input[name=name]").fill("Test");
+  await page.locator("#guide input[name=email]").fill("test@example.com");
+  await page.locator("#guide button[type=submit]").click();
+  await expect(page.locator("#guide .leadok")).toBeVisible();
+  await expect(page.locator('#guide a[data-ev="Guide download"]')).toHaveAttribute(
+    "href",
+    "/guides/the-five-foundations.pdf",
+  );
+  expect(posted).toMatch(/\/api\/lead\.php$/);
+  expect(posted).not.toContain("vercel.app");
+});
+
 test("phone menu opens and navigates", async ({ page, isMobile }) => {
   test.skip(!isMobile, "phone only");
   await page.goto("/coaching");

@@ -3,6 +3,9 @@
   "rewrites": [
     { "source": "/api/lead.php", "destination": "/api/lead" }
   ],
+  "redirects": [
+    { "source": "/guides/five-numbers.pdf", "destination": "/guides/the-five-foundations.pdf", "permanent": true }
+  ],
   "framework": null,
   "installCommand": "npm install",
   "buildCommand": "node scripts/build.mjs",

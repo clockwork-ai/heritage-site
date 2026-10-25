@@ -8,4 +8,6 @@ assets/client-src/
 test-results/
 playwright-report/
 deploy/
+cpanel/
+cpanel-upload.zip
 old-site-backup-2026-10-20/

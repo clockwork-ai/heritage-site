@@ -16,9 +16,13 @@ The committed HTML is the source of truth. It was mirrored from https://callumbc
 
 ## Free-guide signup
 
-`components.js` posts JSON to `/api/lead.php`. `api/lead.js` is the Vercel function, and `vercel.json` rewrites `/api/lead.php` to `/api/lead`.
+The free guide is The Five Foundations: `guides/the-five-foundations.pdf`. `guides/five-numbers.pdf` is the same file, and `/guides/five-numbers.pdf` redirects to the new name.
+
+`components.js` posts JSON to `/api/lead.php`. On `callumbcoaching.co.uk` that post goes to `https://callumb-coaching.vercel.app/api/lead.php`. Elsewhere it stays on the same origin. `api/lead.js` and `api/lead.php.js` are the same Vercel function (built from `server/lead.ts`), and `vercel.json` also rewrites `/api/lead.php` to `/api/lead`. Both paths answer OPTIONS from the public site. A successful signup answers with `download` set to `/guides/the-five-foundations.pdf`.
 
 Set these on the Vercel project (Settings → Environment Variables). Do not commit them.
 
 - `MAILERLITE_API_KEY` (required). MailerLite → Integrations → API → Generate new token. This is a Connect API token for `connect.mailerlite.com`, not a legacy v2 key.
-- `MAILERLITE_GROUP_ID` (optional). MailerLite → Subscribers → Groups → open the group. The group ID is the long number in the URL. If it is unset, the subscriber is created and not added to a group.
+- `MAILERLITE_GROUP_ID` (optional). MailerLite → Subscribers → Groups → open the group. The group ID is the long number in the URL. If it is unset, the subscriber is created and not added to a group. The group name is not stored in this repo.
+
+On the cPanel upload, the form posts to the Vercel function instead. There is no key to add on cPanel. See `CPANEL.md`.

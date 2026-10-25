@@ -3,6 +3,9 @@
   const api = /(^|\.)callumbcoaching\.co\.uk$/.test(location.hostname)
     ? "https://callumb-coaching.vercel.app/api/chat"
     : "/api/chat";
+  const track = (name) => {
+    try { window.plausible && window.plausible(name, { props: { page: location.pathname } }); } catch {}
+  };
   const defaults = {
     title: "Ask CALLUM.B",
     launcherLabel: "Open the chat",
@@ -376,6 +379,7 @@
   }
 
   function setOpen(open) {
+    if (open && !root.classList.contains("is-open")) track("Chat open");
     root.classList.toggle("is-open", open);
     panel.hidden = !open;
     launch.setAttribute("aria-expanded", open ? "true" : "false");
@@ -405,6 +409,7 @@
     send.disabled = true;
     hideChips();
     messages.push({ role: "user", content });
+    if (messages.filter((message) => message.role === "user").length === 1) track("Chat message");
     add("user", content);
     input.value = "";
     const bubble = add("assistant", "...");
@@ -499,6 +504,7 @@
       const line = payload.message || payload.error || "Sorry, that didn't send.";
       add(response.ok ? "assistant" : "note", response.ok ? line : line);
       if (response.ok) {
+        track("Chat lead");
         form.reset();
         form.hidden = true;
         form.classList.remove("is-open");

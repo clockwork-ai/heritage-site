@@ -64,7 +64,7 @@ document.addEventListener("click", e => {
   const a = e.target.closest("a, button"); if (!a) return;
   const href = a.getAttribute("href") || "";
   const sec = a.closest("section[id]");
-  const where = sec ? sec.id : a.closest(".nav") ? "nav" : a.closest(".mnav") ? "menu" : a.closest("footer") ? "footer" : "page";
+  const where = a.closest(".cw-chat") ? "chat" : sec ? sec.id : a.closest(".nav") ? "nav" : a.closest(".mnav") ? "menu" : a.closest("footer") ? "footer" : "page";
   if (a.dataset.ev) track(a.dataset.ev, { page: location.pathname });
   else if (/^\/apply(\b|$|#|\?)/.test(href) && location.pathname !== "/apply") track("Apply click", { page: location.pathname, from: where });
   else if (href.startsWith("https://wa.me") && !a.id) track("WhatsApp click", { page: location.pathname, from: where });

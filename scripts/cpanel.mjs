@@ -37,7 +37,10 @@ const skip = new Set([
 ]);
 
 function skipped(name) {
-  if (name === ".htaccess") return false;
+  // The live cPanel .htaccess is larger than this repo file. Extracting the
+  // zip must not replace it. The repo copy stays in git for the Vercel host
+  // and for the guide redirect Callum can add by hand. See CPANEL.md.
+  if (name === ".htaccess") return true;
   if (name.startsWith(".")) return true;
   if (skip.has(name)) return true;
   if (name.endsWith(".md") || name.endsWith(".zip")) return true;
@@ -84,8 +87,10 @@ await walk(out, async (full) => {
   if (full.endsWith(".html")) htmlCount += 1;
 });
 
-const ht = await readFile(path.join(out, ".htaccess"), "utf8");
-if (!ht.includes("the-five-foundations.pdf")) throw new Error(".htaccess is missing the guide redirect");
+const packedNames = await readdir(out);
+if (packedNames.includes(".htaccess")) throw new Error("cPanel pack must not include .htaccess");
+const sourceHt = await readFile(path.join(root, ".htaccess"), "utf8");
+if (!sourceHt.includes("the-five-foundations.pdf")) throw new Error("repo .htaccess is missing the guide redirect");
 
 const banned = ["node_modules", "api", "lib", "server", "scripts"];
 for (const name of banned) {
@@ -100,9 +105,12 @@ if (zip.status !== 0) process.exit(zip.status ?? 1);
 const artifactDir = process.env.CPANEL_ARTIFACT_DIR || "/opt/cursor/artifacts";
 await mkdir(artifactDir, { recursive: true });
 const artifact = path.join(artifactDir, "cpanel-upload.zip");
+const named = path.join(artifactDir, "cpanel-upload-with-start.zip");
 await cp(zipPath, artifact);
+await cp(zipPath, named);
 
 console.log(`cPanel folder: ${out}`);
 console.log(`HTML files: ${htmlCount}`);
 console.log(`Zip: ${zipPath}`);
 console.log(`Artifact: ${artifact}`);
+console.log(`Artifact: ${named}`);

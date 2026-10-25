@@ -59,15 +59,27 @@
 })();
 
 /* ---------- lead tracking (Plausible custom events) ---------- */
+function campaignProps() {
+  const props = {};
+  const q = new URLSearchParams(location.search);
+  for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"]) {
+    const raw = q.get(key);
+    if (!raw) continue;
+    const value = raw.replace(/[^\w.+~-]/g, "").slice(0, 80);
+    if (value) props[key] = value;
+  }
+  return props;
+}
 window.track = (name, props) => { try { window.plausible && window.plausible(name, props ? { props } : undefined); } catch (e) {} };
 document.addEventListener("click", e => {
   const a = e.target.closest("a, button"); if (!a) return;
   const href = a.getAttribute("href") || "";
   const sec = a.closest("section[id]");
   const where = a.closest(".cw-chat") ? "chat" : sec ? sec.id : a.closest(".nav") ? "nav" : a.closest(".mnav") ? "menu" : a.closest("footer") ? "footer" : "page";
-  if (a.dataset.ev) track(a.dataset.ev, { page: location.pathname });
-  else if (/^\/apply(\b|$|#|\?)/.test(href) && location.pathname !== "/apply") track("Apply click", { page: location.pathname, from: where });
-  else if (href.startsWith("https://wa.me") && !a.id) track("WhatsApp click", { page: location.pathname, from: where });
+  const campaign = campaignProps();
+  if (a.dataset.ev) track(a.dataset.ev, { page: location.pathname, ...campaign });
+  else if (/^\/apply(\b|$|#|\?)/.test(href) && location.pathname !== "/apply") track("Apply click", { page: location.pathname, from: where, ...campaign });
+  else if (href.startsWith("https://wa.me") && !a.id) track("WhatsApp click", { page: location.pathname, from: where, ...campaign });
 }, { capture: true });
 
 /* ---------- free guide signup -> /api/lead.php -> MailerLite ---------- */
@@ -89,7 +101,7 @@ document.querySelectorAll(".leadf").forEach(f => {
       if (!r.ok || data.ok === false) throw new Error(r.status);
       const link = ok.querySelector('a[data-ev="Guide download"]');
       if (link && typeof data.download === "string" && /^\/guides\/[a-z0-9-]+\.pdf$/.test(data.download)) link.href = data.download;
-      track("Guide signup", { page: location.pathname });
+      track("Guide signup", { page: location.pathname, src: String(d.src || "site").slice(0, 40), ...campaignProps() });
       f.hidden = true; ok.hidden = false;
     } catch (err) {
       btn.disabled = false; msg.classList.add("bad");

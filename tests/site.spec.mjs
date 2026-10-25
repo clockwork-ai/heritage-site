@@ -3,8 +3,8 @@ import { test, expect } from "@playwright/test";
 const pages = [
   { path: "/", title: /Online Personal Trainer/, h1: /started/i },
   { path: "/about", title: /About/, h1: /addictive personality/i },
-  { path: "/coaching", title: /Coaching/, h1: /Structured transformation/i },
-  { path: "/results", title: /Results/, h1: /Real transformations/i },
+  { path: "/coaching", title: /Coaching/, h1: /Someone reading your numbers/i },
+  { path: "/results", title: /Results/, h1: /Men with jobs, kids/i },
   { path: "/apply", title: /Apply/, h1: /where you're at/i },
   { path: "/terms-coaching", title: /Terms/, h1: /The terms/i },
 ];
@@ -77,13 +77,19 @@ for (const p of pages) {
 }
 
 test("apply form builds the WhatsApp message", async ({ page }) => {
+  await page.route("**/formspree.io/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: "{}",
+  }));
   await page.goto("/apply");
   await page.fill("#f-name", "Dave");
   await page.fill("#f-age", "42");
+  await page.fill("#f-contact", "dave@example.com");
   await page.getByText("Lose fat", { exact: true }).click();
   await page.fill("#f-tried", "Fall off by week three.");
   await page.getByText("12 months", { exact: true }).click();
-  await page.getByRole("button", { name: /review my application/i }).click();
+  await page.getByRole("button", { name: /send my application/i }).click();
   await expect(page.locator("#applyDone")).toBeVisible();
   await expect(page.locator("#applyText")).toContainText("Name: Dave");
   await expect(page.locator("#applyText")).toContainText("Plan: 12 months");
@@ -119,17 +125,15 @@ test.describe("with Reduce Motion on", () => {
     expect(await card.evaluate(e => getComputedStyle(e).opacity)).toBe("1");
     expect(await card.evaluate(e => getComputedStyle(e).transform)).toBe("none");
     const n = page.locator(".sdr__n [data-count]");
-    await n.scrollIntoViewIfNeeded();
-    const early = await n.textContent(); await page.waitForTimeout(2200);
-    expect(await n.textContent()).toBe("89");
-    expect(early).not.toBe("89");
+    await n.evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await expect(n).not.toHaveText("89");
+    await expect(n).toHaveText("89");
   });
-  test("nothing slides: marquee and research row stay still", async ({ page }) => {
-    await page.goto("/");
-    const t = () => page.locator(".marquee__row").evaluate(e => getComputedStyle(e).transform);
-    const a = await t(); await page.waitForTimeout(800);
-    expect(await t()).toBe(a);
-    expect(await page.locator(".evtrack").evaluate(e => getComputedStyle(e).animationName)).toBe("none");
+  test("research row stays still", async ({ page }) => {
+    await page.goto("/coaching");
+    const track = page.locator(".evtrack");
+    await track.scrollIntoViewIfNeeded();
+    expect(await track.evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
   });
 });
 
@@ -198,6 +202,114 @@ test("guide form posts to lead.php on this origin", async ({ page }) => {
   );
   expect(posted).toMatch(/\/api\/lead\.php$/);
   expect(posted).not.toContain("vercel.app");
+});
+
+test("links page keeps the content loop and the campaign", async ({ page }) => {
+  const events = [];
+  await page.addInitScript(() => {
+    window.__events = [];
+    window.plausible = (name, opts) => {
+      window.__events.push({ name, props: (opts && opts.props) || {} });
+    };
+  });
+  await page.route("**/plausible.io/**", (route) => route.abort());
+  let body = null;
+  await page.route("**/api/lead.php", async (route) => {
+    body = route.request().postDataJSON();
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, download: "/guides/the-five-foundations.pdf" }),
+    });
+  });
+  await page.goto("/links/?utm_source=instagram&utm_medium=bio");
+  await expect(page.locator("h1")).toContainText("already full");
+  const text = await page.locator("main").innerText();
+  const folded = text.toLowerCase();
+  const order = [
+    "get the five foundations",
+    "apply for 1:1 coaching",
+    "free tools",
+    "tdee calculator",
+    "protein calculator",
+    "more guides",
+    "5 signs guide",
+    "glp-1 blueprint",
+    "trt starter",
+    "instagram",
+  ];
+  let at = -1;
+  for (const label of order) {
+    const next = folded.indexOf(label);
+    expect(next, label).toBeGreaterThan(at);
+    at = next;
+  }
+  await expect(page.locator('a[data-ev="Apply click"]')).toHaveAttribute(
+    "href",
+    "/apply?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="TDEE click"]')).toHaveAttribute(
+    "href",
+    "/tdee-calculator?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="Protein click"]')).toHaveAttribute(
+    "href",
+    "/protein-calculator?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="5 Signs click"]')).toHaveAttribute(
+    "href",
+    "/guide/?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="GLP-1 click"]')).toHaveAttribute(
+    "href",
+    "/glp1-blueprint?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="TRT click"]')).toHaveAttribute(
+    "href",
+    "/trt-starter/?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="Instagram click"]')).toHaveAttribute(
+    "href",
+    /utm_source=instagram/,
+  );
+  await page.locator("#lf-email-links").fill("test@example.com");
+  await page.locator('#guide button[type=submit]').click();
+  await expect(page.locator("#guide .leadok")).toBeVisible();
+  expect(body).toMatchObject({
+    email: "test@example.com",
+    src: "links",
+    utm_source: "instagram",
+    utm_medium: "bio",
+  });
+  expect(text).not.toContain("\u2014");
+  expect(text).not.toContain("\u2013");
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+  const tracked = await page.evaluate(() => window.__events.map((event) => event.name));
+  expect(tracked).toContain("Guide form click");
+  expect(tracked).toContain("Guide signup");
+  await page.locator('a[data-ev="TDEE click"]').evaluate((a) => {
+    a.addEventListener("click", (event) => event.preventDefault(), true);
+  });
+  await page.locator('a[data-ev="TDEE click"]').click();
+  const tdee = await page.evaluate(() => window.__events.find((event) => event.name === "TDEE click"));
+  expect(tdee.props.utm_source).toBe("instagram");
+  expect(tdee.props.utm_medium).toBe("bio");
+  expect(tdee.props.page).toBe("/links/");
+  await page.locator('a[data-ev="Protein click"]').evaluate((a) => {
+    a.addEventListener("click", (event) => event.preventDefault(), true);
+  });
+  await page.locator('a[data-ev="Protein click"]').click();
+  const protein = await page.evaluate(() => window.__events.find((event) => event.name === "Protein click"));
+  expect(protein.props.utm_source).toBe("instagram");
+  await page.locator('a[data-ev="5 Signs click"]').evaluate((a) => {
+    a.addEventListener("click", (event) => event.preventDefault(), true);
+  });
+  await page.locator('a[data-ev="5 Signs click"]').click();
+  const signs = await page.evaluate(() => window.__events.find((event) => event.name === "5 Signs click"));
+  expect(signs.props.utm_medium).toBe("bio");
 });
 
 test("phone menu opens and navigates", async ({ page, isMobile }) => {

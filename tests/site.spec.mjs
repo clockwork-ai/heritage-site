@@ -635,7 +635,8 @@ test("book page has no Stripe checkout", async ({ page, request }) => {
   await expect(page.getByRole("link", { name: /get the book/i })).toHaveCount(0);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
   const sitemap = await (await request.get("/sitemap.xml")).text();
-  expect(sitemap).not.toMatch(/<loc>[^<]*the-inches-you-keep/);
+  const liveSitemap = sitemap.replace(/<!--[\s\S]*?-->/g, "");
+  expect(liveSitemap).not.toContain("the-inches-you-keep");
 });
 
 test("phone menu opens and navigates", async ({ page, isMobile }) => {

@@ -49,6 +49,7 @@
     .pc-big .n small{font-size:16px;font-weight:600;color:var(--muted);}
     .pc-big.accent .n{color:var(--green);}
     .pc-big .k{font-size:12.5px;color:var(--muted);margin-top:6px;}
+    .pc-big .s{font-size:13px;line-height:1.5;color:var(--body);margin:8px 0 0;}
     .pc-sub{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
     .pc-stat{flex:1;min-width:120px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;}
     .pc-stat .n{font-family:"Cinzel",Georgia,serif;font-size:22px;font-weight:700;color:#F3EAD6;}
@@ -61,6 +62,15 @@
     .pc-more{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
     .pc-more a{font-size:13px;color:var(--muted);text-decoration:none;border:1px solid var(--line2);border-radius:8px;padding:8px 14px;}
     .pc-more a:hover{border-color:var(--green);color:var(--ink);}
+    .bf-must{background:rgba(201,169,110,.07);border:1px solid rgba(201,169,110,.45);border-radius:12px;padding:16px;}
+    .bf-req{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#09150F;background:var(--gold,#C9A96E);border-radius:6px;padding:2px 7px;vertical-align:middle;}
+    .bf-must .note b{color:var(--ink);}
+    .bf-err{color:var(--red,#e07a6a);margin-top:6px;}
+    #pcBfMsg{color:#E8806F !important;font-weight:600;margin-top:8px;}
+    .bf-help{margin-top:10px;font-size:13.5px;color:var(--body);}
+    .bf-help summary{cursor:pointer;color:var(--green);font-weight:600;}
+    .bf-help ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;}
+    .bf-help b{color:var(--ink);}
   </style>
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-ARVew5Fljzfvc-hdK57GS.js"></script>
@@ -92,7 +102,7 @@
         <div class="center">
           <p class="eyebrow" style="justify-content:center;">Free tool</p>
           <h1>Protein &amp; Muscle Calculator</h1>
-          <p class="pc-lede">Losing weight, including with medical support? The scale isn&#8217;t the whole story. See the daily protein target that <b class="green">protects your muscle</b> while the weight comes off. The per-meal split is in the breakdown.</p>
+          <p class="pc-lede">Losing weight, including with medical support? The scale isn&#8217;t the whole story. Add your weight and body fat % and see the daily protein target that <b class="green">protects your muscle</b> while the weight comes off. The per-meal split is in the breakdown.</p>
         </div>
 
         <!-- ===== CALCULATOR ===== -->
@@ -115,9 +125,26 @@
           <div style="margin-top:18px;">
             <label for="pcMeals">Meals you can realistically hit per day <span class="note" style="font-weight:400;">(appetite&#8217;s often low, so be honest)</span></label>
             <div class="pc-mealrow">
-              <input type="range" id="pcMeals" min="2" max="5" value="4" step="1" />
-              <span class="pc-mealval" id="pcMealval">4</span>
+              <input type="range" id="pcMeals" min="3" max="6" value="5" step="1" />
+              <span class="pc-mealval" id="pcMealval">5</span>
             </div>
+          </div>
+
+          <div class="bf-must" id="pcBfWrap" style="margin-top:18px;">
+            <label for="pcBf">Body fat % <span class="bf-req">needed for your numbers</span></label>
+            <input class="pc-num" type="number" id="pcBf" inputmode="decimal" placeholder="e.g. 25" min="3" max="60" required aria-describedby="pcBfWhy" />
+            <p class="note" id="pcBfWhy" style="margin-top:8px;"><b>Why I need it:</b> your target is worked out from it. Two men can both weigh 95kg, but if one is carrying a lot more fat, setting protein off his full weight runs it far too high. At 15% body fat or under, I use your full weight. From 25% up, I use your lean mass. In between, it shifts gradually from one to the other, so there's no sudden jump.</p>
+            <p class="note bf-err" id="pcBfMsg" hidden></p>
+            <details class="bf-help">
+              <summary>Not sure? How to estimate it</summary>
+              <ul>
+                <li><b>Smart scale:</b> weigh first thing in the morning, after the toilet and before food or drink. It is a rough read, so treat it as a guide.</li>
+                <li><b>Tape measure:</b> use the <a href="/tdee-calculator#bodyfat" style="color:var(--green);text-decoration:underline;">tape method on my TDEE calculator</a>. Neck and waist, about two minutes.</li>
+                <li><b>Mirror check (men, rough guide):</b> abs clearly showing, roughly 10 to 14%. Flat stomach with a faint ab outline in good light, roughly 15 to 19%. Soft stomach with no outline, roughly 20 to 25%. Stomach over the belt, 25% and up.</li>
+                <li><b>Women:</b> add roughly 8 to 10 points to those mirror ranges.</li>
+                <li>Stuck between two? Pick the higher one. Guessing low pushes your numbers up.</li>
+              </ul>
+            </details>
           </div>
 
           <button class="btn btn-pri" id="pcCalc" type="button" style="width:100%;margin-top:20px;">Calculate my targets</button>
@@ -155,19 +182,20 @@
               <div class="pc-bignums">
                 <div class="pc-big">
                   <div class="n" id="pcProtMeal">…<small> g</small></div>
-                  <div class="k">Protein per meal (across <span id="pcMealsEcho">4</span> meals)</div>
+                  <div class="k">Protein per meal (across <span id="pcMealsEcho">5</span> meals)</div>
+                  <p class="s" id="pcMealBand"></p>
                 </div>
               </div>
               <div class="calc-versions">
                 <div class="calc-version">
                   <div class="n" id="pcFat">…</div>
                   <div class="k">Fat-loss version</div>
-                  <p class="s">1.2 to 1.6 g per kg, the range this page uses while you lose weight. The number above is the 1.6 g end of it.</p>
+                  <p class="s" id="pcFatNote">1.3 to 1.5 g per lb (about 2.9 to 3.3 g per kg), the range I use in a fat loss phase. The number above is the start of it.</p>
                 </div>
                 <div class="calc-version">
                   <div class="n" id="pcGain">…</div>
                   <div class="k">Muscle-gain version</div>
-                  <p class="s">2 g per kg, the top figure this calculator already works out, for when you are eating to build.</p>
+                  <p class="s">1.0 to 1.3 g per lb (about 2.2 to 2.9 g per kg), for when you are eating to build.</p>
                 </div>
               </div>
               <div class="pc-sub">
@@ -198,7 +226,7 @@
         </div>
 
         <div class="pc-disclaimer">
-          This calculator provides general nutrition and training guidance, not medical advice. Protein needs vary with health status and kidney function. If you&#8217;re losing weight with the support of any medication, always follow your prescriber&#8217;s instructions and speak to your healthcare provider before making changes to your diet or training. Targets are based on published guidance of ~1.2 to 1.6 g of protein per kg of body weight per day for muscle preservation during weight loss.
+          This calculator provides general nutrition and training guidance, not medical advice. Protein needs vary with health status and kidney function. If you&#8217;re losing weight with the support of any medication, always follow your prescriber&#8217;s instructions and speak to your healthcare provider before making changes to your diet or training. Targets follow the J3U coaching method: 1.3 to 1.5 g of protein per lb of body weight (about 2.9 to 3.3 g per kg) in a fat loss phase, 1.0 to 1.3 g per lb (about 2.2 to 2.9 g per kg) when building, and 0.4 to 0.65 g per kg per meal across 4 to 6 meals. Body fat % is required. At 15% body fat or under, targets use total body weight. From 25% up, they use lean mass (fat-free mass). In between, they blend gradually from one to the other.
         </div>
 
         <div class="pc-more">
@@ -247,11 +275,24 @@
       var raw=parseFloat($('pcWeight').value);
       if(!raw||raw<=0){ $('pcWeight').focus(); return; }
       var kg=toKg(raw,unit), n=parseInt(meals.value,10);
-      var target=Math.round(kg*1.6), low=Math.round(kg*1.2), high=Math.round(kg*2.0), perMeal=Math.round(target/n);
+      // J3U (M03-S26, M03-S12): cut 1.3 to 1.5 g/lb, mass 1.0 to 1.3 g/lb, per meal 0.4 to 0.65 g/kg over 4 to 6 meals.
+      var bfRaw=$('pcBf').value.trim(), bf=parseFloat(bfRaw), msg=$('pcBfMsg');
+      if(!(bf>=3&&bf<=60)){   // body fat is required: no numbers without it
+        msg.textContent=bfRaw?'Check that number. It needs to be between 3 and 60.':'Add your body fat % first. Your target depends on it.';
+        msg.hidden=false; $('pcResults').classList.remove('show'); $('pcBf').focus(); return;
+      }
+      msg.hidden=true;
+      // Reference weight (J3U M03-S12): 15% or under full bodyweight, 25% or over lean mass, linear blend between (no jump).
+      var mode=bf<=15?'bw':(bf>=25?'lean':'blend'), t=mode==='bw'?0:(mode==='lean'?1:(bf-15)/10);
+      var leanKg=kg*(1-bf/100), refKg=kg*(1-t)+leanKg*t, lb=refKg*2.2046;
+      var target=Math.round(lb*1.3), cutTop=Math.round(lb*1.5), gainLow=Math.round(lb*1.0), perMeal=Math.round(target/n);
+      var bandLo=Math.round(refKg*0.4), bandHi=Math.round(refKg*0.65);
       $('pcProtDay').innerHTML=target+'<small> g/day</small>';
       $('pcProtMeal').innerHTML=perMeal+'<small> g</small>';
-      $('pcFat').textContent=low+' to '+target+' g';
-      $('pcGain').textContent=high+' g';
+      $('pcMealBand').textContent='The aim per meal is 0.4 to 0.65 g per kg, so '+bandLo+' to '+bandHi+' g for you.'+(perMeal>bandHi?' Yours is over that, so add a meal if you can.':'');
+      $('pcFat').textContent=target+' to '+cutTop+' g';
+      $('pcGain').textContent=gainLow+' to '+target+' g';
+      $('pcFatNote').textContent='1.3 to 1.5 g per lb (about 2.9 to 3.3 g per kg), the range I use in a fat loss phase. The number above is the start of it.'+(mode==='lean'?' Worked off your lean mass ('+Math.round(refKg)+' kg), as your body fat is 25% or over.':mode==='bw'?' Worked off your full body weight, as your body fat is 15% or under.':' Adjusted for your body fat: worked off a reference weight of '+Math.round(refKg)+' kg, between your full weight and your lean mass ('+Math.round(leanKg)+' kg).');
       $('pcMealsEcho').textContent=n;
       var r=$('pcResults'); r.classList.add('show');
       r.scrollIntoView({behavior:'smooth',block:'start'});

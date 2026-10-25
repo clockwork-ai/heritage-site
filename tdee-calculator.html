@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Free TDEE, Macro &amp; Body-Fat Calculator | CALLUM.B</title>
-  <meta name="description" content="Free TDEE calculator: see your daily calories straight away. The macro split, plus a fat-loss and a muscle-gain version, unlock with your name and email." />
+  <meta name="description" content="Free TDEE calculator: add your weight and body fat % and see your daily calories straight away. The macro split, plus a fat-loss and a muscle-gain version, unlock with your name and email." />
   <meta name="robots" content="index,follow" />
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -18,6 +18,19 @@
 <link rel="stylesheet" href="/components.css?v=a9aa471a">
 <meta name="theme-color" content="#09150F">
 <link rel="stylesheet" href="/assets/css/tools.css?v=2">
+<style>
+  .bf-must{background:rgba(201,169,110,.07);border:1px solid rgba(201,169,110,.45);border-radius:12px;padding:16px;}
+  .bf-req{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#09150F;background:var(--gold,#C9A96E);border-radius:6px;padding:2px 7px;vertical-align:middle;}
+  .bf-must .note b{color:var(--ink);}
+  .bf-err{color:var(--red,#e07a6a);margin-top:6px;}
+    #bf-msg{color:#E8806F !important;font-weight:600;margin-top:8px;}
+  .bf-help{margin-top:10px;font-size:13.5px;color:var(--body);}
+  .bf-help summary{cursor:pointer;color:var(--green);font-weight:600;}
+  .bf-help ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;}
+  .bf-help b{color:var(--ink);}
+  .calc-wait{border:1px dashed rgba(201,169,110,.45);border-radius:12px;padding:18px;color:var(--body);}
+  .calc-wait b{color:var(--ink);}
+</style>
 
   <script async src="https://plausible.io/js/pa-ARVew5Fljzfvc-hdK57GS.js"></script>
   <script>
@@ -55,7 +68,7 @@
       <div class="wrap center">
         <p class="eyebrow" style="justify-content:center;">Free Tool</p>
         <h1 style="max-width:18ch;margin-inline:auto;">Know your <span class="grad">numbers</span> in 30 seconds.</h1>
-        <p class="lead" style="margin:0 auto;">See your daily calories straight away. The macro split, a fat-loss and a muscle-gain version, and what to do next come with your name and email. Turning the number into real results is where the structure comes in.</p>
+        <p class="lead" style="margin:0 auto;">Add your body fat % and see your daily calories straight away. The macro split, a fat-loss and a muscle-gain version, and what to do next come with your name and email. Turning the number into real results is where the structure comes in.</p>
       </div>
     </section>
 
@@ -92,6 +105,23 @@
               </div>
             </div>
 
+            <div class="field bf-must" id="bf-must" style="margin-bottom:18px;">
+              <label for="user-bf">Body fat % <span class="bf-req">needed for your numbers</span></label>
+              <input class="input" id="user-bf" type="number" inputmode="decimal" placeholder="e.g. 25" min="3" max="60" required aria-describedby="bf-why" />
+              <p class="note" id="bf-why" style="margin-top:8px;"><b>Why I need it:</b> your macros are worked out from it. Two men can both weigh 95kg, but if one is carrying a lot more fat, setting protein off his full weight runs it far too high. At 15% body fat or under, I use your full weight. From 25% up, I use your lean mass. In between, it shifts gradually from one to the other, so there's no sudden jump.</p>
+              <p class="note bf-err" id="bf-msg" hidden></p>
+              <details class="bf-help">
+                <summary>Not sure? How to estimate it</summary>
+                <ul>
+                  <li><b>Smart scale:</b> weigh first thing in the morning, after the toilet and before food or drink. It is a rough read, so treat it as a guide.</li>
+                  <li><b>Tape measure:</b> use the <a href="#bodyfat" style="color:var(--green);text-decoration:underline;">tape method further down this page</a>. Neck and waist, about two minutes.</li>
+                  <li><b>Mirror check (men, rough guide):</b> abs clearly showing, roughly 10 to 14%. Flat stomach with a faint ab outline in good light, roughly 15 to 19%. Soft stomach with no outline, roughly 20 to 25%. Stomach over the belt, 25% and up.</li>
+                  <li><b>Women:</b> add roughly 8 to 10 points to those mirror ranges.</li>
+                  <li>Stuck between two? Pick the higher one. Guessing low pushes your numbers up.</li>
+                </ul>
+              </details>
+            </div>
+
             <!-- height: metric -->
             <div class="field" id="height-metric" style="margin-bottom:18px;">
               <label for="height-cm">Height (cm)</label>
@@ -125,10 +155,16 @@
                 <option value="0.1">Build muscle</option>
               </select>
             </div>
+
           </div>
 
           <!-- RESULTS -->
           <div class="calc-result">
+            <div class="calc-wait" id="tdee-wait">
+              <p class="tagline" style="color:var(--green);margin-top:0;">Your numbers</p>
+              <p style="margin:0;"><b>Add your body fat % to see your numbers.</b> It changes your protein, fat and carbs, so I don't show anything without it. Not sure what yours is? Open "How to estimate it" under the box.</p>
+            </div>
+            <div id="tdee-out" hidden>
             <p class="tagline" id="goal-label" style="color:var(--green);">Your fat-loss target</p>
             <div class="calc-big"><span id="target-cals">…</span> <span style="font-size:20px;color:var(--body);">kcal/day</span></div>
             <p class="calc-sub">Maintenance (TDEE): <b id="tdee" style="color:var(--ink);">…</b> kcal · BMR: <span id="bmr">…</span></p>
@@ -159,6 +195,8 @@
                   <div class="macro"><div class="g"><span id="m-carbs">…</span>g</div><div class="l">Carbs</div></div>
                   <div class="macro"><div class="g"><span id="m-fat">…</span>g</div><div class="l">Fat</div></div>
                 </div>
+                <p class="note" id="m-basis"></p>
+                <p class="note" id="m-floor" hidden></p>
                 <h3>Fat loss and muscle gain</h3>
                 <div class="calc-versions">
                   <div class="calc-version">
@@ -170,7 +208,7 @@
                     <div class="k">Muscle-gain version</div>
                   </div>
                 </div>
-                <p class="note">Fat loss is maintenance minus 20%. Muscle gain is maintenance plus 10%. Choose either in the goal menu and the calories at the top match it.</p>
+                <p class="note">Fat loss is maintenance minus 20%, the gentle end of the 20 to 30% I use with clients. Muscle gain is maintenance plus 10%, inside the 5 to 20% range. Choose either in the goal menu and the calories and macros at the top match it.</p>
                 <h3>What to do next</h3>
                 <ol class="calc-steps">
                   <li>Hold the calorie target above for two weeks. Judge it on the weekly average, not one heavy day.</li>
@@ -181,6 +219,7 @@
                 <a class="btn calc-guide" href="/guides/the-five-foundations.pdf" target="_blank" rel="noopener">Open the guide</a>
                 <p class="note">You won't see this form again on this device.</p>
               </div>
+            </div>
             </div>
 
             <div class="callout" style="margin:22px 0;">
@@ -281,6 +320,7 @@
               <div class="macro"><div class="g"><span id="bf-range">…</span></div><div class="l">Range</div></div>
             </div>
             <p class="note" id="bf-note" hidden style="margin-bottom:16px;"></p>
+            <button class="btn btn-dark" id="bf-use" type="button" hidden style="width:100%;justify-content:center;margin-bottom:16px;">Use this in my calculator</button>
             <div class="callout" style="margin-bottom:22px;">
               An estimate is a <i>starting point</i>. The real magic is watching it trend down week after week. That's exactly what structured coaching tracks.
             </div>
@@ -365,10 +405,35 @@
         var goal = parseFloat($('goal').value);
         var target = tdee * (1 + goal);
 
-        var protein = 2.0 * kg;            // g
-        var fat = 0.8 * kg;                // g
-        var carbCals = target - (protein * 4) - (fat * 9);
-        var carbs = Math.max(0, carbCals / 4);
+        // J3U macro setup (M03-S26 macro summary, M03-S12, M03-S16, M03-S22). Written in g per lb.
+        // Order: protein, then fat, then carbs take the rest.
+        var lb = kg * 2.2046;
+        var bf = parseFloat($('user-bf').value);
+        var bfOk = bf >= 3 && bf <= 60;              // body fat is required: no numbers without it
+        $('tdee-out').hidden = !bfOk;
+        $('tdee-wait').hidden = bfOk;
+        var raw = $('user-bf').value.trim();
+        $('bf-msg').hidden = bfOk || !raw;
+        $('bf-msg').textContent = (!bfOk && raw) ? 'Check that number. It needs to be between 3 and 60.' : '';
+        if (!bfOk) return;
+        // Reference weight (J3U M03-S12: total bodyweight for lean clients, fat-free mass for clearly overfat ones).
+        // 15% or under: full bodyweight. 25% or over: lean mass. In between: linear blend, so no jump anywhere.
+        var mode = bf <= 15 ? 'bw' : (bf >= 25 ? 'lean' : 'blend');
+        var t = mode === 'bw' ? 0 : (mode === 'lean' ? 1 : (bf - 15) / 10);
+        var leanLb = lb * (1 - bf / 100);
+        var ref = lb * (1 - t) + leanLb * t;          // reference weight in lb
+        var proteinPerLb = goal < 0 ? 1.3 : 1.0;     // cut 1.3 to 1.5 g/lb, mass 1.0 to 1.3 g/lb (start of each range)
+        var protein = proteinPerLb * ref;
+        var carbFloor = 1.0 * ref;                   // hold carbs at 1 g/lb or more
+        var fat = 0.4 * ref;                         // 0.3 to 0.7 g/lb, start at 0.4
+        var carbs = (target - protein * 4 - fat * 9) / 4;
+        if (carbs < carbFloor) {                     // drop fat (not below 0.3 g/lb) before carbs go under 1 g/lb
+          fat = Math.max(0.3 * ref, (target - protein * 4 - carbFloor * 4) / 9);
+          carbs = (target - protein * 4 - fat * 9) / 4;
+        }
+        carbs = Math.max(0, carbs);
+        var perLb = function (g) { return (g / ref).toFixed(1); };            // per lb of the reference weight
+        var perKg = function (g) { return (g / (ref / 2.2046)).toFixed(1); }; // per kg of the reference weight
 
         $('bmr').textContent = r10(bmr);
         $('tdee').textContent = r10(tdee);
@@ -376,13 +441,23 @@
         $('m-protein').textContent = Math.round(protein);
         $('m-carbs').textContent = Math.round(carbs);
         $('m-fat').textContent = Math.round(fat);
+        var basis = mode === 'lean' ? 'lean mass' : (mode === 'bw' ? 'body weight' : 'reference weight');
+        var refKgTxt = Math.round(ref / 2.2046), leanKgTxt = Math.round(leanLb / 2.2046);
+        $('m-basis').textContent = 'Per kg of ' + basis + ': protein ' + perKg(protein) + 'g, carbs ' + perKg(carbs) + 'g, fat ' + perKg(fat) +
+          'g. Per lb: protein ' + perLb(protein) + 'g, carbs ' + perLb(carbs) + 'g, fat ' + perLb(fat) + 'g.' +
+          (mode === 'lean' ? ' Worked off your lean mass (' + refKgTxt + ' kg), as your body fat is 25% or over.'
+            : mode === 'bw' ? ' Worked off your full body weight, as your body fat is 15% or under.'
+            : ' Adjusted for your body fat: worked off a reference weight of ' + refKgTxt + ' kg, between your full weight and your lean mass (' + leanKgTxt + ' kg).');
+        var under = carbs < carbFloor - 0.5;
+        $('m-floor').hidden = !under;
+        $('m-floor').textContent = under ? 'Your carbs come out under 1g per lb, the floor I hold in a fat loss phase. That usually means the maintenance estimate is low for you, or your body fat is higher than the number entered. ' + 'This is where coaching sets it from your real weekly data.' : '';
         $('cut-cals').textContent = r10(tdee * 0.8);
         $('gain-cals').textContent = r10(tdee * 1.1);
         $('goal-label').textContent =
           goal < 0 ? 'Your fat-loss target' : (goal > 0 ? 'Your muscle-gain target' : 'Your maintenance target');
       }
 
-      ['age', 'weight', 'height-cm', 'height-ft', 'height-in', 'activity', 'goal'].forEach(function (id) {
+      ['age', 'weight', 'height-cm', 'height-ft', 'height-in', 'activity', 'goal', 'user-bf'].forEach(function (id) {
         var el = $(id); if (el) el.addEventListener('input', calc);
       });
       calc();
@@ -480,6 +555,7 @@
           $('bf-fat').textContent=Math.round(f*cv)+u;
         } else { $('bf-lean').textContent='…'; $('bf-fat').textContent='…'; }
         $('bf-range').textContent=rangeTxt;
+        var use=$('bf-use'); use.hidden=false; use.setAttribute('data-bf', String(bf)); use.textContent='Use '+bf+'% in my calculator';
         var n=$('bf-note');
         if(extraNote){ n.textContent='🧠 '+extraNote; n.hidden=false; } else { n.hidden=true; }
         $('bf-result-card').scrollIntoView({behavior:'smooth', block:'center'});
@@ -513,6 +589,12 @@
         else { var r=tapeCompute(); if(r.err){ fail(r.err); return false; } }
         return true;
       }
+
+      $('bf-use').addEventListener('click', function(){
+        var v=this.getAttribute('data-bf'); if(!v) return;
+        var inp=$('user-bf'); inp.value=v; inp.dispatchEvent(new Event('input'));
+        $('bf-must').scrollIntoView({behavior:'smooth', block:'center'});
+      });
 
       var savedEmail='';
       $('bf-go').addEventListener('click', function(){

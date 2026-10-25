@@ -351,6 +351,17 @@ test("calculator gate uses the guide lead endpoint", async ({ request }) => {
 test("TDEE keeps the calorie result and gates the breakdown", async ({ page }) => {
   const posted = await watchLead(page);
   await page.goto("/tdee-calculator?utm_source=instagram&utm_medium=bio");
+  await expect(page.locator("#tdee-wait")).toBeVisible();
+  await expect(page.locator("#tdee-wait")).toContainText("Add your body fat %");
+  await expect(page.locator("#target-cals")).toBeHidden();
+  await expect(page.getByRole("button", { name: "See the full breakdown" })).toBeHidden();
+  await expect(page.locator("#user-bf")).toHaveAttribute("required", "");
+  await page.locator("#user-bf").fill("70");
+  await expect(page.locator("#bf-msg")).toContainText("between 3 and 60");
+  await expect(page.locator("#target-cals")).toBeHidden();
+  await page.locator("#user-bf").fill("25");
+  await expect(page.locator("#tdee-wait")).toBeHidden();
+  await expect(page.locator("#bf-msg")).toBeHidden();
   await expect(page.locator("#target-cals")).toHaveText("2250");
   await expect(page.locator("#tdee")).toHaveText("2820");
   await expect(page.locator("#bmr")).toHaveText("1820");
@@ -382,9 +393,10 @@ test("TDEE keeps the calorie result and gates the breakdown", async ({ page }) =
   await page.locator("#tdee-email").fill("sam@example.com");
   await page.getByRole("button", { name: "Show my breakdown" }).click();
   await expect(page.locator(".calc-gate .calc-detail")).toBeVisible();
-  await expect(page.locator("#m-protein")).toHaveText("170");
-  await expect(page.locator("#m-carbs")).toHaveText("240");
-  await expect(page.locator("#m-fat")).toHaveText("68");
+  await expect(page.locator("#m-protein")).toHaveText("183");
+  await expect(page.locator("#m-carbs")).toHaveText("254");
+  await expect(page.locator("#m-fat")).toHaveText("56");
+  await expect(page.locator("#m-basis")).toContainText("lean mass (64 kg)");
   await expect(page.locator("#cut-cals")).toHaveText("2250");
   await expect(page.locator("#gain-cals")).toHaveText("3100");
   await expect(page.locator(".calc-guide")).toHaveAttribute("href", "/guides/the-five-foundations.pdf");
@@ -404,11 +416,38 @@ test("TDEE keeps the calorie result and gates the breakdown", async ({ page }) =
   await page.locator("#goal").selectOption("0.1");
   await expect(page.locator("#target-cals")).toHaveText("3100");
   await expect(page.locator("#goal-label")).toHaveText("Your muscle-gain target");
-  await expect(page.locator("#m-protein")).toHaveText("170");
-  await expect(page.locator("#m-fat")).toHaveText("68");
-  await expect(page.locator("#m-carbs")).toHaveText("452");
+  await expect(page.locator("#m-protein")).toHaveText("141");
+  await expect(page.locator("#m-fat")).toHaveText("56");
+  await expect(page.locator("#m-carbs")).toHaveText("508");
   await expect(page.locator("#cut-cals")).toHaveText("2250");
   await expect(page.locator("#gain-cals")).toHaveText("3100");
+
+  // 20% or under works off full body weight
+  await page.locator("#goal").selectOption("-0.2");
+  await page.locator("#user-bf").fill("15");
+  await expect(page.locator("#m-protein")).toHaveText("244");
+  await expect(page.locator("#m-carbs")).toHaveText("187");
+  await expect(page.locator("#m-fat")).toHaveText("59");
+  await expect(page.locator("#m-basis")).toContainText("full body weight");
+  await page.locator("#goal").selectOption("0.1");
+  await expect(page.locator("#m-protein")).toHaveText("187");
+  await expect(page.locator("#m-fat")).toHaveText("75");
+  await expect(page.locator("#m-carbs")).toHaveText("419");
+
+  // 15 to 25% blends from full weight to lean mass
+  await page.locator("#goal").selectOption("-0.2");
+  await page.locator("#user-bf").fill("20");
+  await expect(page.locator("#m-protein")).toHaveText("219");
+  await expect(page.locator("#m-carbs")).toHaveText("192");
+  await expect(page.locator("#m-fat")).toHaveText("67");
+  await expect(page.locator("#m-basis")).toContainText("Adjusted for your body fat");
+  await page.locator("#goal").selectOption("0.1");
+
+  // clearing body fat hides the numbers again
+  await page.locator("#user-bf").fill("");
+  await expect(page.locator("#tdee-wait")).toBeVisible();
+  await expect(page.locator("#m-protein")).toBeHidden();
+  await page.locator("#user-bf").fill("15");
 
   const events = await page.evaluate(() => window.__events);
   expect(events.map((event) => event.name).filter((name) => name.startsWith("TDEE"))).toEqual([
@@ -428,10 +467,12 @@ test("TDEE keeps the calorie result and gates the breakdown", async ({ page }) =
   expect(overflow).toBeLessThanOrEqual(1);
 
   await page.reload();
+  await expect(page.locator("#target-cals")).toBeHidden();
+  await page.locator("#user-bf").fill("25");
   await expect(page.locator("#target-cals")).toHaveText("2250");
   await expect(page.locator("#tdee-gate-form")).toBeHidden();
   await expect(page.locator(".calc-gate .calc-detail")).toBeVisible();
-  await expect(page.locator("#m-protein")).toHaveText("170");
+  await expect(page.locator("#m-protein")).toHaveText("183");
   expect(posted).toHaveLength(1);
 });
 
@@ -449,6 +490,7 @@ test("a failed TDEE signup leaves the free calories in place", async ({ page }) 
     body: JSON.stringify({ ok: false }),
   }));
   await page.goto("/tdee-calculator");
+  await page.locator("#user-bf").fill("25");
   await page.getByRole("button", { name: "See the full breakdown" }).click();
   await page.locator("#tdee-name").fill("Sam");
   await page.locator("#tdee-email").fill("sam@example.com");
@@ -468,8 +510,18 @@ test("protein keeps the daily target and gates the breakdown", async ({ page }) 
   await page.goto("/protein-calculator?utm_source=instagram&utm_medium=bio");
   await expect(page.locator("#pcResults")).toBeHidden();
   await page.locator("#pcWeight").fill("82");
+  await expect(page.locator("#pcBf")).toHaveAttribute("required", "");
   await page.locator("#pcCalc").click();
-  await expect(page.locator("#pcProtDay")).toContainText("131");
+  await expect(page.locator("#pcBfMsg")).toContainText("Add your body fat % first");
+  await expect(page.locator("#pcResults")).toBeHidden();
+  await page.locator("#pcBf").fill("80");
+  await page.locator("#pcCalc").click();
+  await expect(page.locator("#pcBfMsg")).toContainText("between 3 and 60");
+  await expect(page.locator("#pcResults")).toBeHidden();
+  await page.locator("#pcBf").fill("25");
+  await page.locator("#pcCalc").click();
+  await expect(page.locator("#pcBfMsg")).toBeHidden();
+  await expect(page.locator("#pcProtDay")).toContainText("176");
   await expect(page.locator(".calc-gate .calc-detail")).toBeHidden();
   await expect(page.locator("#pcProtMeal")).toBeHidden();
 
@@ -478,7 +530,7 @@ test("protein keeps the daily target and gates the breakdown", async ({ page }) 
   await expect(page.locator('#pc-gate-form a[href="/privacy"]')).toBeVisible();
   await page.getByRole("button", { name: "Not now" }).click();
   await expect(page.locator("#pc-gate-form")).toBeHidden();
-  await expect(page.locator("#pcProtDay")).toContainText("131");
+  await expect(page.locator("#pcProtDay")).toContainText("176");
   await expect(page.locator(".calc-gate .calc-detail")).toBeHidden();
   expect(posted).toHaveLength(0);
 
@@ -487,11 +539,13 @@ test("protein keeps the daily target and gates the breakdown", async ({ page }) 
   await page.locator("#pc-email").fill("sam@example.com");
   await page.getByRole("button", { name: "Show my breakdown" }).click();
   await expect(page.locator(".calc-gate .calc-detail")).toBeVisible();
-  await expect(page.locator("#pcProtMeal")).toContainText("33");
-  await expect(page.locator("#pcFat")).toHaveText("98 to 131 g");
-  await expect(page.locator("#pcGain")).toHaveText("164 g");
+  await expect(page.locator("#pcProtMeal")).toContainText("35");
+  await expect(page.locator("#pcMealBand")).toContainText("25 to 40 g");
+  await expect(page.locator("#pcFat")).toHaveText("176 to 203 g");
+  await expect(page.locator("#pcGain")).toHaveText("136 to 176 g");
+  await expect(page.locator("#pcFatNote")).toContainText("lean mass (62 kg)");
   await expect(page.locator(".calc-guide")).toHaveAttribute("href", "/guides/the-five-foundations.pdf");
-  await expect(page.locator("#pcProtDay")).toContainText("131");
+  await expect(page.locator("#pcProtDay")).toContainText("176");
   expect(posted).toHaveLength(1);
   expect(posted[0].body).toEqual({
     name: "Sam",
@@ -515,12 +569,43 @@ test("protein keeps the daily target and gates the breakdown", async ({ page }) 
 
   await page.reload();
   await page.locator("#pcWeight").fill("82");
+  await page.locator("#pcBf").fill("15");
   await page.locator("#pcCalc").click();
   await expect(page.locator("#pc-gate-form")).toBeHidden();
   await expect(page.locator(".calc-gate .calc-detail")).toBeVisible();
-  await expect(page.locator("#pcProtDay")).toContainText("131");
-  await expect(page.locator("#pcFat")).toHaveText("98 to 131 g");
+  await expect(page.locator("#pcProtDay")).toContainText("235");
+  await expect(page.locator("#pcProtMeal")).toContainText("47");
+  await expect(page.locator("#pcFat")).toHaveText("235 to 271 g");
+  await expect(page.locator("#pcGain")).toHaveText("181 to 235 g");
+  await expect(page.locator("#pcFatNote")).toContainText("full body weight");
   expect(posted).toHaveLength(1);
+});
+
+test("protein target moves smoothly with body fat, no cliff", async ({ page }) => {
+  await page.route("**/plausible.io/**", (route) => route.abort());
+  await page.goto("/protein-calculator");
+  await page.locator("#pcWeight").fill("82");
+  const read = async (bf) => {
+    await page.locator("#pcBf").fill(String(bf));
+    await page.locator("#pcCalc").dispatchEvent("click");
+    return parseInt((await page.locator("#pcProtDay").innerText()).replace(/\D/g, ""), 10);
+  };
+  expect(await read(10)).toBe(235);
+  expect(await read(15)).toBe(235);
+  expect(await read(20)).toBe(212);
+  expect(await read(21)).toBe(205);
+  expect(await read(25)).toBe(176);
+  const a = await read(19.9);
+  const b = await read(20.1);
+  expect(a - b).toBeGreaterThanOrEqual(0);
+  expect(a - b).toBeLessThanOrEqual(3);
+  let prev = await read(5);
+  for (let bf = 5.5; bf <= 40; bf += 0.5) {
+    const now = await read(bf);
+    expect(now, `at ${bf}%`).toBeLessThanOrEqual(prev);
+    expect(prev - now, `step into ${bf}%`).toBeLessThanOrEqual(5);
+    prev = now;
+  }
 });
 
 test("phone menu opens and navigates", async ({ page, isMobile }) => {

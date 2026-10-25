@@ -62,8 +62,9 @@ function cleanName(value: unknown): string {
 }
 
 // MailerLite rejects subscriber fields it does not already know, and that
-// fails the signup. Source and UTM values are logged here and sent to
-// Plausible from the browser. They are not added to the MailerLite body.
+// fails the signup. Only src goes to MailerLite, as the signup_source text
+// field (created in MailerLite on 25 Oct 2026). UTM values are logged here and
+// sent to Plausible from the browser. They are not added to the MailerLite body.
 const SOURCE_KEYS = ["src", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
 
 export function cleanToken(value: unknown): string {
@@ -80,9 +81,28 @@ export function leadSource(data: Record<string, unknown>): Record<string, string
   return source;
 }
 
-export function subscriberPayload(email: string, name: string, group: string) {
-  const payload: { email: string; fields?: { name: string }; groups?: string[] } = { email };
-  if (name) payload.fields = { name };
+// Each calculator has its own MailerLite group, so each signup gets a first
+// email about what it asked for. Anything else (guide forms, unknown or missing
+// src) goes to MAILERLITE_GROUP_ID. If a calculator variable is unset or blank,
+// that calculator also falls back to MAILERLITE_GROUP_ID, which is the old behaviour.
+export const SOURCE_GROUP_ENV: Readonly<Record<string, string>> = {
+  "tdee-calculator": "MAILERLITE_GROUP_TDEE",
+  "protein-calculator": "MAILERLITE_GROUP_PROTEIN",
+};
+
+export function groupForSource(src: string | undefined, env: Record<string, string | undefined> = process.env): string {
+  const fallback = (env.MAILERLITE_GROUP_ID || "").trim();
+  const key = src && Object.prototype.hasOwnProperty.call(SOURCE_GROUP_ENV, src) ? SOURCE_GROUP_ENV[src] : "";
+  const specific = key ? (env[key] || "").trim() : "";
+  return specific || fallback;
+}
+
+export function subscriberPayload(email: string, name: string, group: string, src?: string) {
+  const payload: { email: string; fields?: Record<string, string>; groups?: string[] } = { email };
+  const fields: Record<string, string> = {};
+  if (name) fields.name = name;
+  if (src) fields.signup_source = src;
+  if (Object.keys(fields).length) payload.fields = fields;
   if (group) payload.groups = [group];
   return payload;
 }
@@ -119,11 +139,11 @@ export async function POST(request: Request): Promise<Response> {
     return json(request, { ok: false, error: "mailerlite_not_configured" }, 500);
   }
 
-  const group = (process.env.MAILERLITE_GROUP_ID || "").trim();
   const name = cleanName(data.name);
   const source = leadSource(data);
   if (Object.keys(source).length) console.log("lead source", JSON.stringify(source));
-  const payload = subscriberPayload(email, name, group);
+  const group = groupForSource(source.src);
+  const payload = subscriberPayload(email, name, group, source.src);
 
   let upstream: Response;
   try {

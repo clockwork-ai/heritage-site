@@ -267,9 +267,22 @@ function leadSource(data) {
   }
   return source;
 }
-function subscriberPayload(email, name, group) {
+var SOURCE_GROUP_ENV = {
+  "tdee-calculator": "MAILERLITE_GROUP_TDEE",
+  "protein-calculator": "MAILERLITE_GROUP_PROTEIN"
+};
+function groupForSource(src, env = process.env) {
+  const fallback = (env.MAILERLITE_GROUP_ID || "").trim();
+  const key = src && Object.prototype.hasOwnProperty.call(SOURCE_GROUP_ENV, src) ? SOURCE_GROUP_ENV[src] : "";
+  const specific = key ? (env[key] || "").trim() : "";
+  return specific || fallback;
+}
+function subscriberPayload(email, name, group, src) {
   const payload = { email };
-  if (name) payload.fields = { name };
+  const fields = {};
+  if (name) fields.name = name;
+  if (src) fields.signup_source = src;
+  if (Object.keys(fields).length) payload.fields = fields;
   if (group) payload.groups = [group];
   return payload;
 }
@@ -298,11 +311,11 @@ async function POST(request) {
     console.error("MAILERLITE_API_KEY is not set; refusing to call MailerLite");
     return json(request, { ok: false, error: "mailerlite_not_configured" }, 500);
   }
-  const group = (process.env.MAILERLITE_GROUP_ID || "").trim();
   const name = cleanName(data.name);
   const source = leadSource(data);
   if (Object.keys(source).length) console.log("lead source", JSON.stringify(source));
-  const payload = subscriberPayload(email, name, group);
+  const group = groupForSource(source.src);
+  const payload = subscriberPayload(email, name, group, source.src);
   let upstream;
   try {
     upstream = await fetch(MAILERLITE_URL, {
@@ -336,7 +349,9 @@ export {
   PATCH,
   POST,
   PUT,
+  SOURCE_GROUP_ENV,
   cleanToken,
+  groupForSource,
   leadSource,
   subscriberPayload
 };

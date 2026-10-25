@@ -159,7 +159,7 @@ Privacy. If he would rather nobody knew, nobody will. The NDA is standard. Data 
     "/tdee-calculator",
     "/terms",
     "/terms-coaching",
-    "/the-inches-you-keep",
+    // BOOK HIDDEN: restore "/the-inches-you-keep" when the book is for sale again.
     "/the-ninety",
     "/trt-starter"
   ],

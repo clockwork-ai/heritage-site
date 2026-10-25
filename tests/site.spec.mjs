@@ -225,26 +225,48 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
   await page.goto("/links/?utm_source=instagram&utm_medium=bio");
   await expect(page.locator("h1")).toContainText("already full");
   const text = await page.locator("main").innerText();
+  const folded = text.toLowerCase();
   const order = [
-    "Get The Five Foundations",
-    "Try the TDEE calculator",
-    "Apply for coaching",
-    "Latest on the site",
-    "Instagram",
+    "get the five foundations",
+    "apply for 1:1 coaching",
+    "free tools",
+    "tdee calculator",
+    "protein calculator",
+    "more guides",
+    "5 signs guide",
+    "glp-1 blueprint",
+    "trt starter",
+    "instagram",
   ];
   let at = -1;
   for (const label of order) {
-    const next = text.indexOf(label);
+    const next = folded.indexOf(label);
     expect(next, label).toBeGreaterThan(at);
     at = next;
   }
+  await expect(page.locator('a[data-ev="Apply click"]')).toHaveAttribute(
+    "href",
+    "/apply?utm_source=instagram&utm_medium=bio",
+  );
   await expect(page.locator('a[data-ev="TDEE click"]')).toHaveAttribute(
     "href",
     "/tdee-calculator?utm_source=instagram&utm_medium=bio",
   );
-  await expect(page.locator('a[data-ev="Apply click"]')).toHaveAttribute(
+  await expect(page.locator('a[data-ev="Protein click"]')).toHaveAttribute(
     "href",
-    "/apply?utm_source=instagram&utm_medium=bio",
+    "/protein-calculator?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="5 Signs click"]')).toHaveAttribute(
+    "href",
+    "/guide/?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="GLP-1 click"]')).toHaveAttribute(
+    "href",
+    "/glp1-blueprint?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="TRT click"]')).toHaveAttribute(
+    "href",
+    "/trt-starter/?utm_source=instagram&utm_medium=bio",
   );
   await expect(page.locator('a[data-ev="Instagram click"]')).toHaveAttribute(
     "href",
@@ -276,6 +298,18 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
   expect(tdee.props.utm_source).toBe("instagram");
   expect(tdee.props.utm_medium).toBe("bio");
   expect(tdee.props.page).toBe("/links/");
+  await page.locator('a[data-ev="Protein click"]').evaluate((a) => {
+    a.addEventListener("click", (event) => event.preventDefault(), true);
+  });
+  await page.locator('a[data-ev="Protein click"]').click();
+  const protein = await page.evaluate(() => window.__events.find((event) => event.name === "Protein click"));
+  expect(protein.props.utm_source).toBe("instagram");
+  await page.locator('a[data-ev="5 Signs click"]').evaluate((a) => {
+    a.addEventListener("click", (event) => event.preventDefault(), true);
+  });
+  await page.locator('a[data-ev="5 Signs click"]').click();
+  const signs = await page.evaluate(() => window.__events.find((event) => event.name === "5 Signs click"));
+  expect(signs.props.utm_medium).toBe("bio");
 });
 
 test("phone menu opens and navigates", async ({ page, isMobile }) => {

@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Start here | CALLUM.B</title>
-<meta name="description" content="For busy men over 30. Get The Five Foundations, try the TDEE calculator, or apply for online coaching.">
+<meta name="description" content="For busy men over 30. Get The Five Foundations free, or apply for 1:1 coaching.">
 <link rel="canonical" href="https://callumbcoaching.co.uk/links/">
 <meta property="og:title" content="Start here | CALLUM.B">
-<meta property="og:description" content="For busy men over 30. Get The Five Foundations, try the TDEE calculator, or apply for online coaching.">
+<meta property="og:description" content="For busy men over 30. Get The Five Foundations free, or apply for 1:1 coaching.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://callumbcoaching.co.uk/links/">
 <meta property="og:image" content="https://callumbcoaching.co.uk/og-image.jpg">
@@ -56,13 +56,19 @@
   .leadf__msg a{color:var(--green);}
   .leadok{text-align:left;}
   .leadok p{color:var(--body);font-size:15px;}
-  .link{display:flex;align-items:center;gap:14px;text-align:left;text-decoration:none;color:var(--white);
-    background:var(--panel);border:1px solid var(--line2);padding:15px 16px;margin:0 0 12px;}
-  .link:hover{border-color:var(--green);background:var(--panel2);}
-  .link b{display:block;font-family:var(--font-d);font-size:16px;font-weight:700;}
-  .link span{display:block;font-size:13px;color:var(--muted);margin-top:2px;line-height:1.45;}
-  .div{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:22px 0 12px;}
-  .div::before,.div::after{content:"";flex:1;height:1px;background:var(--line2);}
+  .apply{width:100%;justify-content:center;margin:16px 0 6px;padding:16px 18px;}
+  .div{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:22px 0 10px;}
+  .div::before,.div::after{content:"";flex:1;height:1px;background:var(--line);}
+  .tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .tools a{display:flex;align-items:center;justify-content:center;min-height:52px;text-align:center;text-decoration:none;color:var(--white);
+    background:var(--panel);border:1px solid var(--line);padding:10px 8px;font-family:var(--font-d);font-size:13px;font-weight:700;line-height:1.25;}
+  .tools a:hover{border-color:var(--green);background:var(--panel2);}
+  .more,.ig{font-size:13px;line-height:1.7;color:var(--muted);}
+  .more{margin:14px 0 0;}
+  .more a,.ig a{color:var(--body);text-decoration:none;}
+  .more a:hover,.ig a:hover{color:var(--white);}
+  .more a + a::before{content:"·";margin:0 7px;color:var(--muted);}
+  .ig{margin:14px 0 0;}
   footer{margin-top:28px;color:var(--muted);font-size:12px;line-height:1.7;}
   footer a{color:var(--muted);}
   .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
@@ -106,23 +112,20 @@
     </div>
   </section>
 
-  <p class="div">Next</p>
+  <a class="btn ghost apply" href="/apply" data-ev="Apply click">Apply for 1:1 coaching <span class="arr">→</span></a>
 
-  <a class="link" href="/tdee-calculator" data-ev="TDEE click">
-    <span><b>Try the TDEE calculator</b><span>Your maintenance calories and a macro split, in about a minute.</span></span>
-  </a>
-  <a class="link" href="/apply" data-ev="Apply click">
-    <span><b>Apply for coaching</b><span>1:1, online. I read the application myself.</span></span>
-  </a>
+  <p class="div">Free tools</p>
+  <div class="tools">
+    <a href="/tdee-calculator" data-ev="TDEE click">TDEE calculator</a>
+    <a href="/protein-calculator" data-ev="Protein click">Protein calculator</a>
+  </div>
 
-  <p class="div">Latest</p>
-
-  <a class="link" href="/" data-ev="Latest content click">
-    <span><b>Latest on the site</b><span>The writing, the calculators, and how the coaching works.</span></span>
-  </a>
-  <a class="link" href="https://instagram.com/callum.transformation.coach" target="_blank" rel="noopener" data-ev="Instagram click">
-    <span><b>Instagram</b><span>@callum.transformation.coach</span></span>
-  </a>
+  <p class="more">More guides
+    <a href="/guide/" data-ev="5 Signs click">5 Signs guide</a>
+    <a href="/glp1-blueprint" data-ev="GLP-1 click">GLP-1 Blueprint</a>
+    <a href="/trt-starter/" data-ev="TRT click">TRT starter</a>
+  </p>
+  <p class="ig"><a href="https://instagram.com/callum.transformation.coach" target="_blank" rel="noopener" data-ev="Instagram click">Instagram</a></p>
 
   <footer>
     <a href="/start/">Physique OS</a>, the self-led app, stays at its own page.<br>

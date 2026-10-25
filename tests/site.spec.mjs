@@ -348,6 +348,17 @@ test("calculator gate uses the guide lead endpoint", async ({ request }) => {
   expect(js).not.toContain("\u2013");
 });
 
+test("TDEE coaching button opens 1:1 coaching", async ({ page }) => {
+  await page.goto("/tdee-calculator");
+  const coaching = page.getByRole("link", { name: "See 1:1 online coaching" });
+  await expect(coaching).toHaveAttribute("href", "/coaching");
+  await coaching.click();
+  await expect(page).toHaveURL(/\/coaching$/);
+  await expect(page.locator("h1")).toContainText("Someone reading your numbers");
+  await expect(page.getByText("Premium 1:1 coaching", { exact: false }).first()).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(/in-person/i);
+});
+
 test("TDEE keeps the calorie result and gates the breakdown", async ({ page }) => {
   const posted = await watchLead(page);
   await page.goto("/tdee-calculator?utm_source=instagram&utm_medium=bio");
@@ -369,6 +380,9 @@ test("TDEE keeps the calorie result and gates the breakdown", async ({ page }) =
   await expect(page.locator("#tdee-gate-form")).toBeHidden();
   await expect(page.locator(".calc-gate .calc-detail")).toBeHidden();
   await expect(page.getByRole("link", { name: "Get this built around me" })).toBeVisible();
+  const coaching = page.getByRole("link", { name: "See 1:1 online coaching" });
+  await expect(coaching).toBeVisible();
+  await expect(coaching).toHaveAttribute("href", "/coaching");
 
   await page.getByRole("button", { name: "See the full breakdown" }).click();
   await expect(page.locator("#tdee-gate-form")).toBeVisible();

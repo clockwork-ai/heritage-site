@@ -3,8 +3,8 @@ import { test, expect } from "@playwright/test";
 const pages = [
   { path: "/", title: /Online Personal Trainer/, h1: /started/i },
   { path: "/about", title: /About/, h1: /addictive personality/i },
-  { path: "/coaching", title: /Coaching/, h1: /Structured transformation/i },
-  { path: "/results", title: /Results/, h1: /Real transformations/i },
+  { path: "/coaching", title: /Coaching/, h1: /Someone reading your numbers/i },
+  { path: "/results", title: /Results/, h1: /Men with jobs, kids/i },
   { path: "/apply", title: /Apply/, h1: /where you're at/i },
   { path: "/terms-coaching", title: /Terms/, h1: /The terms/i },
 ];
@@ -77,13 +77,19 @@ for (const p of pages) {
 }
 
 test("apply form builds the WhatsApp message", async ({ page }) => {
+  await page.route("**/formspree.io/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: "{}",
+  }));
   await page.goto("/apply");
   await page.fill("#f-name", "Dave");
   await page.fill("#f-age", "42");
+  await page.fill("#f-contact", "dave@example.com");
   await page.getByText("Lose fat", { exact: true }).click();
   await page.fill("#f-tried", "Fall off by week three.");
   await page.getByText("12 months", { exact: true }).click();
-  await page.getByRole("button", { name: /review my application/i }).click();
+  await page.getByRole("button", { name: /send my application/i }).click();
   await expect(page.locator("#applyDone")).toBeVisible();
   await expect(page.locator("#applyText")).toContainText("Name: Dave");
   await expect(page.locator("#applyText")).toContainText("Plan: 12 months");
@@ -119,17 +125,15 @@ test.describe("with Reduce Motion on", () => {
     expect(await card.evaluate(e => getComputedStyle(e).opacity)).toBe("1");
     expect(await card.evaluate(e => getComputedStyle(e).transform)).toBe("none");
     const n = page.locator(".sdr__n [data-count]");
-    await n.scrollIntoViewIfNeeded();
-    const early = await n.textContent(); await page.waitForTimeout(2200);
-    expect(await n.textContent()).toBe("89");
-    expect(early).not.toBe("89");
+    await n.evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await expect(n).not.toHaveText("89");
+    await expect(n).toHaveText("89");
   });
-  test("nothing slides: marquee and research row stay still", async ({ page }) => {
-    await page.goto("/");
-    const t = () => page.locator(".marquee__row").evaluate(e => getComputedStyle(e).transform);
-    const a = await t(); await page.waitForTimeout(800);
-    expect(await t()).toBe(a);
-    expect(await page.locator(".evtrack").evaluate(e => getComputedStyle(e).animationName)).toBe("none");
+  test("research row stays still", async ({ page }) => {
+    await page.goto("/coaching");
+    const track = page.locator(".evtrack");
+    await track.scrollIntoViewIfNeeded();
+    expect(await track.evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
   });
 });
 

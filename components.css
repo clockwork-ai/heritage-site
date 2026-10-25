@@ -973,3 +973,7 @@ fieldset.field{border:0;margin:0;padding:0;}
 @media (max-width:899px){ .leadmag__fig{order:-1;width:min(52%,210px);} }
 @media (prefers-reduced-motion:reduce){ .leadmag__fig,.leadmag__fig:hover{transform:none;transition:none;} }
 #applyDone,#form{scroll-margin-top:120px;}
+
+/* links inside guide and terms copy */
+.tsec__b .body a,.tsec__b .tnote a{color:var(--gold);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;}
+.tsec__b .body a:hover,.tsec__b .tnote a:hover{color:var(--gold-bright);}

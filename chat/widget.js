@@ -1,4 +1,8 @@
 (() => {
+  // The cPanel copy of the site has no API of its own, so it calls the Vercel deployment.
+  const api = /(^|\.)callumbcoaching\.co\.uk$/.test(location.hostname)
+    ? "https://callumb-coaching.vercel.app/api/chat"
+    : "/api/chat";
   const defaults = {
     title: "Ask CALLUM.B",
     launcherLabel: "Open the chat",
@@ -382,7 +386,7 @@
 
   async function loadConfig() {
     try {
-      const response = await fetch("/api/chat");
+      const response = await fetch(api);
       if (!response.ok) throw new Error(String(response.status));
       applyConfig(await response.json());
     } catch {
@@ -405,7 +409,7 @@
     input.value = "";
     const bubble = add("assistant", "...");
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch(api, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ messages, page: pagePath() }),
@@ -486,7 +490,7 @@
     const button = form.querySelector("button");
     button.disabled = true;
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch(api, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ lead: data, page: pagePath() }),

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  corsHeaders,
   createDashStream,
   createLinkStream,
   createPriceStream,
@@ -9,6 +10,7 @@ import {
   isValidEmail,
   normaliseMessages,
   resetRateLimits,
+  sameOrigin,
   scrubDashes,
   scrubOwnUse,
   scrubPrices,
@@ -197,4 +199,20 @@ test("email must be an email", () => {
   assert.equal(isValidEmail("callum@callumbcoaching.co.uk"), true);
   assert.equal(isValidEmail("not an email"), false);
   assert.equal(isValidEmail("07359 838866"), false);
+});
+
+test("lets the listed cPanel origin call across sites and nobody else", () => {
+  const origins = ["https://callumbcoaching.co.uk"];
+  const from = (origin: string) =>
+    new Request("https://callumb-coaching.vercel.app/api/chat", {
+      headers: { origin, host: "callumb-coaching.vercel.app" },
+    });
+  assert.equal(sameOrigin(from("https://callumbcoaching.co.uk"), origins), true);
+  assert.equal(sameOrigin(from("https://callumb-coaching.vercel.app"), origins), true);
+  assert.equal(sameOrigin(from("https://example.com"), origins), false);
+  assert.equal(
+    corsHeaders(from("https://callumbcoaching.co.uk"), origins)["access-control-allow-origin"],
+    "https://callumbcoaching.co.uk",
+  );
+  assert.equal(corsHeaders(from("https://example.com"), origins)["access-control-allow-origin"], undefined);
 });

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { business } from "../lib/business.ts";
 import {
   clientKey,
+  corsHeaders,
   createDashStream,
   createPriceStream,
   ensureAnabolicReply,
@@ -26,18 +27,18 @@ const leadSchema = z.object({
   goal: z.string().describe("What they want, in their words"),
 });
 
-function json(body: unknown, status = 200, extra?: HeadersInit): Response {
+function reply(body: unknown, status = 200, extra?: HeadersInit): Response {
   return Response.json(body, {
     status,
     headers: { "cache-control": "no-store", ...extra },
   });
 }
 
-function limited(retryAfter: number): Response {
-  return json(
+function limited(retryAfter: number, cors: Record<string, string>): Response {
+  return reply(
     { error: "You've sent quite a few messages. Give it a minute, or apply and Callum will read it himself." },
     429,
-    { "retry-after": String(retryAfter) },
+    { "retry-after": String(retryAfter), ...cors },
   );
 }
 
@@ -46,14 +47,21 @@ function cleanReply(text: string, userText = ""): string {
   return formatReply(ensureAnabolicReply(userText, priced));
 }
 
-export function GET(): Response {
+export function GET(request: Request): Response {
   return Response.json(publicWidget(business), {
-    headers: { "cache-control": "public, max-age=300" },
+    headers: { "cache-control": "public, max-age=300", ...corsHeaders(request, business.origins) },
   });
 }
 
+export function OPTIONS(request: Request): Response {
+  return new Response(null, { status: 204, headers: corsHeaders(request, business.origins) });
+}
+
 export async function POST(request: Request): Promise<Response> {
-  if (!sameOrigin(request)) {
+  const cors = corsHeaders(request, business.origins);
+  const json = (body: unknown, status = 200, extra?: HeadersInit) =>
+    reply(body, status, { ...cors, ...extra });
+  if (!sameOrigin(request, business.origins)) {
     return json({ error: "Open the chat on the site and try again." }, 403);
   }
   const length = Number(request.headers.get("content-length") || 0);
@@ -67,7 +75,7 @@ export async function POST(request: Request): Promise<Response> {
     business.limits.windowMs,
     business.limits.maxRequests,
   );
-  if (!limit.ok) return limited(limit.retryAfter);
+  if (!limit.ok) return limited(limit.retryAfter, cors);
 
   let body: unknown;
   try {
@@ -175,6 +183,7 @@ export async function POST(request: Request): Promise<Response> {
       "content-type": "text/plain; charset=utf-8",
       "cache-control": "no-cache, no-transform",
       "x-accel-buffering": "no",
+      ...cors,
     },
   });
 }

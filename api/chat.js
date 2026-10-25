@@ -128,6 +128,7 @@ Privacy. If he would rather nobody knew, nobody will. The NDA is standard. Data 
     maxMessages: 12,
     maxAssistantChars: 1200
   },
+  origins: ["https://callumbcoaching.co.uk", "https://www.callumbcoaching.co.uk"],
   pages: [
     "/",
     "/about",
@@ -200,9 +201,10 @@ function takeRateLimit(key, now, windowMs, maxRequests) {
   current.count += 1;
   return { ok: true };
 }
-function sameOrigin(request) {
+function sameOrigin(request, origins = []) {
   const origin = request.headers.get("origin");
   if (!origin) return true;
+  if (origins.includes(origin)) return true;
   const host = request.headers.get("host");
   if (!host) return false;
   try {
@@ -210,6 +212,17 @@ function sameOrigin(request) {
   } catch {
     return false;
   }
+}
+function corsHeaders(request, origins) {
+  const origin = request.headers.get("origin");
+  if (!origin || !origins.includes(origin)) return { vary: "origin" };
+  return {
+    "access-control-allow-origin": origin,
+    "access-control-allow-methods": "GET, POST, OPTIONS",
+    "access-control-allow-headers": "content-type",
+    "access-control-max-age": "86400",
+    vary: "origin"
+  };
 }
 function knownPage(page, pages) {
   if (typeof page !== "string") return void 0;
@@ -375,9 +388,9 @@ var OWN_USE_FALLBACK = "He coaches men who have chosen that route, around traini
 var SUBSTANCE_ASK = /\b(?:steroids?|anabolics?|peptides?|cycles?)\b|\bwhat dose should i run\b|\b(?:does|did)\s+callum\s+(?:use|take)\b/i;
 var DODGE = /\b(?:i don't have that(?: information)?|i do not have that(?: information)?|i (?:can't|cannot) (?:say|answer)(?: that)?|that(?:'s| is) not something i (?:know|can say))\b[.!]?\s*/gi;
 var J3_REPLY = "Callum has studied with J3 University (J3U), where coaching is applied to athletes who use anabolics, and he coaches men who've chosen that route. He doesn't give doses, protocols or sourcing, and medical decisions stay with you and your doctor. If you want that, apply.";
-function ensureAnabolicReply(userText, reply) {
-  if (!SUBSTANCE_ASK.test(userText)) return reply;
-  const stripped = reply.replace(DODGE, "").replace(/\s{2,}/g, " ").trim();
+function ensureAnabolicReply(userText, reply2) {
+  if (!SUBSTANCE_ASK.test(userText)) return reply2;
+  const stripped = reply2.replace(DODGE, "").replace(/\s{2,}/g, " ").trim();
   if (/J3 University/i.test(stripped) && /\bJ3U\b/.test(stripped) && stripped.length > 80) {
     return /\bappl/i.test(stripped) ? stripped : `${stripped} If you want that, apply.`;
   }
@@ -561,30 +574,35 @@ var leadSchema = z.object({
   email: z.string().describe("The email address they gave"),
   goal: z.string().describe("What they want, in their words")
 });
-function json(body, status = 200, extra) {
+function reply(body, status = 200, extra) {
   return Response.json(body, {
     status,
     headers: { "cache-control": "no-store", ...extra }
   });
 }
-function limited(retryAfter) {
-  return json(
+function limited(retryAfter, cors) {
+  return reply(
     { error: "You've sent quite a few messages. Give it a minute, or apply and Callum will read it himself." },
     429,
-    { "retry-after": String(retryAfter) }
+    { "retry-after": String(retryAfter), ...cors }
   );
 }
 function cleanReply(text, userText = "") {
   const priced = scrubOwnUse(scrubDashes(scrubPrices(text, business.allowedPrices, business.priceStandIn)));
   return formatReply(ensureAnabolicReply(userText, priced));
 }
-function GET() {
+function GET(request) {
   return Response.json(publicWidget(business), {
-    headers: { "cache-control": "public, max-age=300" }
+    headers: { "cache-control": "public, max-age=300", ...corsHeaders(request, business.origins) }
   });
 }
+function OPTIONS(request) {
+  return new Response(null, { status: 204, headers: corsHeaders(request, business.origins) });
+}
 async function POST(request) {
-  if (!sameOrigin(request)) {
+  const cors = corsHeaders(request, business.origins);
+  const json = (body2, status = 200, extra) => reply(body2, status, { ...cors, ...extra });
+  if (!sameOrigin(request, business.origins)) {
     return json({ error: "Open the chat on the site and try again." }, 403);
   }
   const length = Number(request.headers.get("content-length") || 0);
@@ -597,7 +615,7 @@ async function POST(request) {
     business.limits.windowMs,
     business.limits.maxRequests
   );
-  if (!limit.ok) return limited(limit.retryAfter);
+  if (!limit.ok) return limited(limit.retryAfter, cors);
   let body;
   try {
     body = await request.json();
@@ -695,12 +713,14 @@ async function POST(request) {
     headers: {
       "content-type": "text/plain; charset=utf-8",
       "cache-control": "no-cache, no-transform",
-      "x-accel-buffering": "no"
+      "x-accel-buffering": "no",
+      ...cors
     }
   });
 }
 export {
   GET,
+  OPTIONS,
   POST,
   maxDuration
 };

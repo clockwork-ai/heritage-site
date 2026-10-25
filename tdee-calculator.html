@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Free TDEE, Macro &amp; Body-Fat Calculator | CALLUM.B</title>
-  <meta name="description" content="Free TDEE calculator: find your maintenance calories and a personalised macro split (protein, carbs, fat) for your goal in seconds. Then get it built around you." />
+  <meta name="description" content="Free TDEE calculator: see your daily calories straight away. The macro split, plus a fat-loss and a muscle-gain version, unlock with your name and email." />
   <meta name="robots" content="index,follow" />
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="/heritage.css?v=e77540c5">
 <link rel="stylesheet" href="/components.css?v=a9aa471a">
 <meta name="theme-color" content="#09150F">
-<link rel="stylesheet" href="/assets/css/tools.css?v=1">
+<link rel="stylesheet" href="/assets/css/tools.css?v=2">
 
   <script async src="https://plausible.io/js/pa-ARVew5Fljzfvc-hdK57GS.js"></script>
   <script>
@@ -26,7 +26,7 @@
   </script>
   <link rel="canonical" href="https://callumbcoaching.co.uk/tdee-calculator" />
   <meta property="og:title" content="Free TDEE and Macro Calculator | CALLUM.B" />
-  <meta property="og:description" content="Find your maintenance calories and a starting macro split in seconds. Free." />
+  <meta property="og:description" content="See your daily calories straight away. The macro split unlocks with your name and email. Free." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://callumbcoaching.co.uk/tdee-calculator" />
   <meta property="og:image" content="https://callumbcoaching.co.uk/og-share.jpg" />
@@ -55,7 +55,7 @@
       <div class="wrap center">
         <p class="eyebrow" style="justify-content:center;">Free Tool</p>
         <h1 style="max-width:18ch;margin-inline:auto;">Know your <span class="grad">numbers</span> in 30 seconds.</h1>
-        <p class="lead" style="margin:0 auto;">Get your maintenance calories (TDEE) and a starting macro split for your goal. It's the first step. Turning it into real results is where the structure comes in.</p>
+        <p class="lead" style="margin:0 auto;">See your daily calories straight away. The macro split, a fat-loss and a muscle-gain version, and what to do next come with your name and email. Turning the number into real results is where the structure comes in.</p>
       </div>
     </section>
 
@@ -133,13 +133,57 @@
             <div class="calc-big"><span id="target-cals">…</span> <span style="font-size:20px;color:var(--body);">kcal/day</span></div>
             <p class="calc-sub">Maintenance (TDEE): <b id="tdee" style="color:var(--ink);">…</b> kcal · BMR: <span id="bmr">…</span></p>
 
-            <div class="macro-grid">
-              <div class="macro"><div class="g"><span id="m-protein">…</span>g</div><div class="l">Protein</div></div>
-              <div class="macro"><div class="g"><span id="m-carbs">…</span>g</div><div class="l">Carbs</div></div>
-              <div class="macro"><div class="g"><span id="m-fat">…</span>g</div><div class="l">Fat</div></div>
+            <div class="calc-gate" data-event="TDEE">
+              <p class="calc-gate__lead">The calories above are free. Leave your first name and email for the macro split, a fat-loss and a muscle-gain version, and a simple next step from the Five Foundations guide.</p>
+              <div class="calc-gate__locked">
+                <button class="btn" type="button" data-calc-open aria-expanded="false" aria-controls="tdee-gate-form">See the full breakdown</button>
+              </div>
+              <form class="leadf" id="tdee-gate-form" data-src="tdee-calculator" novalidate hidden>
+                <div class="leadf__row">
+                  <label class="sr" for="tdee-name">First name</label>
+                  <input id="tdee-name" name="name" type="text" autocomplete="given-name" placeholder="First name" required>
+                  <label class="sr" for="tdee-email">Email</label>
+                  <input id="tdee-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="Your email" required>
+                  <input class="hp" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+                </div>
+                <p class="label leadf__msg" role="status" aria-live="polite">Free. The breakdown stays on this device. You'll hear from me by email now and then, and you can unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></p>
+                <div class="calc-gate__actions">
+                  <button class="btn" type="submit">Show my breakdown</button>
+                  <button class="calc-gate__close" type="button" data-calc-close>Not now</button>
+                </div>
+              </form>
+              <div class="calc-detail" hidden>
+                <h3>Macro split for this target</h3>
+                <div class="macro-grid">
+                  <div class="macro"><div class="g"><span id="m-protein">…</span>g</div><div class="l">Protein</div></div>
+                  <div class="macro"><div class="g"><span id="m-carbs">…</span>g</div><div class="l">Carbs</div></div>
+                  <div class="macro"><div class="g"><span id="m-fat">…</span>g</div><div class="l">Fat</div></div>
+                </div>
+                <h3>Fat loss and muscle gain</h3>
+                <div class="calc-versions">
+                  <div class="calc-version">
+                    <div class="n"><span id="cut-cals">…</span> <small>kcal</small></div>
+                    <div class="k">Fat-loss version</div>
+                  </div>
+                  <div class="calc-version">
+                    <div class="n"><span id="gain-cals">…</span> <small>kcal</small></div>
+                    <div class="k">Muscle-gain version</div>
+                  </div>
+                </div>
+                <p class="note">Fat loss is maintenance minus 20%. Muscle gain is maintenance plus 10%. Choose either in the goal menu and the calories at the top match it.</p>
+                <h3>What to do next</h3>
+                <ol class="calc-steps">
+                  <li>Hold the calorie target above for two weeks. Judge it on the weekly average, not one heavy day.</li>
+                  <li>If you want the scale down, use the fat-loss version. If you want to build, use the muscle-gain version.</li>
+                  <li>Protein at every meal, daily steps, three short sessions, sleep, and one weekly check-in.</li>
+                </ol>
+                <p class="note">The Five Foundations guide gives you a target and a minimum for each of those. Hit the target when you can, and the minimum when the week goes sideways.</p>
+                <a class="btn calc-guide" href="/guides/the-five-foundations.pdf" target="_blank" rel="noopener">Open the guide</a>
+                <p class="note">You won't see this form again on this device.</p>
+              </div>
             </div>
 
-            <div class="callout" style="margin-bottom:22px;">
+            <div class="callout" style="margin:22px 0;">
               These are a solid <i>starting point</i>. Real results come from adjusting them against your weekly progress. That's exactly what the Nutrition Blueprint does.
             </div>
 
@@ -332,6 +376,8 @@
         $('m-protein').textContent = Math.round(protein);
         $('m-carbs').textContent = Math.round(carbs);
         $('m-fat').textContent = Math.round(fat);
+        $('cut-cals').textContent = r10(tdee * 0.8);
+        $('gain-cals').textContent = r10(tdee * 1.1);
         $('goal-label').textContent =
           goal < 0 ? 'Your fat-loss target' : (goal > 0 ? 'Your muscle-gain target' : 'Your maintenance target');
       }
@@ -498,6 +544,7 @@
       });
     })();
   </script>
+<script src="/assets/js/calc-gate.js?v=1"></script>
 <script src="/heritage.js?v=cf7edf40"></script>
 <script>
 addEventListener("load",function(){var n=0;function l(){if(n)return;n=1;var c=document.createElement("link");c.rel="stylesheet";c.href="/chat/widget.css";document.head.appendChild(c);var s=document.createElement("script");s.src="/chat/widget.js";document.body.appendChild(s);}(window.requestIdleCallback?requestIdleCallback(l,{timeout:2200}):setTimeout(l,1400));});

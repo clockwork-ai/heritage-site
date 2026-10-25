@@ -312,6 +312,217 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
   expect(signs.props.utm_medium).toBe("bio");
 });
 
+function noDashes(text) {
+  expect(text).not.toContain("\u2014");
+  expect(text).not.toContain("\u2013");
+}
+
+async function watchLead(page) {
+  const posted = [];
+  await page.addInitScript(() => {
+    window.__events = [];
+    window.plausible = (name, opts) => {
+      window.__events.push({ name, props: (opts && opts.props) || {} });
+    };
+  });
+  await page.route("**/plausible.io/**", (route) => route.abort());
+  await page.route("**/api/lead.php", async (route) => {
+    posted.push({ url: route.request().url(), body: route.request().postDataJSON() });
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, download: "/guides/the-five-foundations.pdf" }),
+    });
+  });
+  return posted;
+}
+
+test("calculator gate uses the guide lead endpoint", async ({ request }) => {
+  const js = await (await request.get("/assets/js/calc-gate.js?v=1")).text();
+  const rule = "/(^|\\.)callumbcoaching\\.co\\.uk$/";
+  expect(js).toContain(rule);
+  expect(js).toContain("https://callumb-coaching.vercel.app/api/lead.php");
+  expect(js).toContain('"/api/lead.php"');
+  expect(js).not.toContain("formspree");
+  expect(js).not.toContain("\u2014");
+  expect(js).not.toContain("\u2013");
+});
+
+test("TDEE keeps the calorie result and gates the breakdown", async ({ page }) => {
+  const posted = await watchLead(page);
+  await page.goto("/tdee-calculator?utm_source=instagram&utm_medium=bio");
+  await expect(page.locator("#target-cals")).toHaveText("2250");
+  await expect(page.locator("#tdee")).toHaveText("2820");
+  await expect(page.locator("#bmr")).toHaveText("1820");
+  await expect(page.locator("#goal-label")).toHaveText("Your fat-loss target");
+  await expect(page.locator("#tdee-gate-form")).toBeHidden();
+  await expect(page.locator(".calc-gate .calc-detail")).toBeHidden();
+  await expect(page.getByRole("link", { name: "Get this built around me" })).toBeVisible();
+
+  await page.getByRole("button", { name: "See the full breakdown" }).click();
+  await expect(page.locator("#tdee-gate-form")).toBeVisible();
+  await expect(page.locator("#target-cals")).toHaveText("2250");
+  await page.getByRole("button", { name: "Not now" }).click();
+  await expect(page.locator("#tdee-gate-form")).toBeHidden();
+  await expect(page.locator(".calc-gate .calc-detail")).toBeHidden();
+  await expect(page.locator("#target-cals")).toHaveText("2250");
+  expect(posted).toHaveLength(0);
+
+  await page.getByRole("button", { name: "See the full breakdown" }).click();
+  await expect(page.locator('#tdee-gate-form a[href="/privacy"]')).toBeVisible();
+  await page.getByRole("button", { name: "Show my breakdown" }).click();
+  await expect(page.locator("#tdee-gate-form .leadf__msg")).toHaveText("Add your first name.");
+  await page.locator("#tdee-name").fill("Sam");
+  await page.locator("#tdee-email").fill("not-an-email");
+  await page.getByRole("button", { name: "Show my breakdown" }).click();
+  await expect(page.locator("#tdee-gate-form .leadf__msg")).toContainText("doesn't look right");
+  expect(posted).toHaveLength(0);
+  await expect(page.locator("#target-cals")).toHaveText("2250");
+
+  await page.locator("#tdee-email").fill("sam@example.com");
+  await page.getByRole("button", { name: "Show my breakdown" }).click();
+  await expect(page.locator(".calc-gate .calc-detail")).toBeVisible();
+  await expect(page.locator("#m-protein")).toHaveText("170");
+  await expect(page.locator("#m-carbs")).toHaveText("240");
+  await expect(page.locator("#m-fat")).toHaveText("68");
+  await expect(page.locator("#cut-cals")).toHaveText("2250");
+  await expect(page.locator("#gain-cals")).toHaveText("3100");
+  await expect(page.locator(".calc-guide")).toHaveAttribute("href", "/guides/the-five-foundations.pdf");
+  await expect(page.locator("#target-cals")).toHaveText("2250");
+  expect(posted).toHaveLength(1);
+  expect(posted[0].url).toMatch(/\/api\/lead\.php$/);
+  expect(posted[0].url).not.toContain("vercel.app");
+  expect(posted[0].body).toEqual({
+    name: "Sam",
+    email: "sam@example.com",
+    website: "",
+    src: "tdee-calculator",
+    utm_source: "instagram",
+    utm_medium: "bio",
+  });
+
+  await page.locator("#goal").selectOption("0.1");
+  await expect(page.locator("#target-cals")).toHaveText("3100");
+  await expect(page.locator("#goal-label")).toHaveText("Your muscle-gain target");
+  await expect(page.locator("#m-protein")).toHaveText("170");
+  await expect(page.locator("#m-fat")).toHaveText("68");
+  await expect(page.locator("#m-carbs")).toHaveText("452");
+  await expect(page.locator("#cut-cals")).toHaveText("2250");
+  await expect(page.locator("#gain-cals")).toHaveText("3100");
+
+  const events = await page.evaluate(() => window.__events);
+  expect(events.map((event) => event.name).filter((name) => name.startsWith("TDEE"))).toEqual([
+    "TDEE unlock",
+    "TDEE unlock",
+    "TDEE submit",
+  ]);
+  expect(events.find((event) => event.name === "TDEE submit").props).toMatchObject({
+    page: "/tdee-calculator",
+    src: "tdee-calculator",
+    utm_source: "instagram",
+    utm_medium: "bio",
+  });
+
+  noDashes(await page.locator("main").innerText());
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+
+  await page.reload();
+  await expect(page.locator("#target-cals")).toHaveText("2250");
+  await expect(page.locator("#tdee-gate-form")).toBeHidden();
+  await expect(page.locator(".calc-gate .calc-detail")).toBeVisible();
+  await expect(page.locator("#m-protein")).toHaveText("170");
+  expect(posted).toHaveLength(1);
+});
+
+test("a failed TDEE signup leaves the free calories in place", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__events = [];
+    window.plausible = (name, opts) => {
+      window.__events.push({ name, props: (opts && opts.props) || {} });
+    };
+  });
+  await page.route("**/plausible.io/**", (route) => route.abort());
+  await page.route("**/api/lead.php", (route) => route.fulfill({
+    status: 500,
+    contentType: "application/json",
+    body: JSON.stringify({ ok: false }),
+  }));
+  await page.goto("/tdee-calculator");
+  await page.getByRole("button", { name: "See the full breakdown" }).click();
+  await page.locator("#tdee-name").fill("Sam");
+  await page.locator("#tdee-email").fill("sam@example.com");
+  await page.getByRole("button", { name: "Show my breakdown" }).click();
+  await expect(page.locator("#tdee-gate-form .leadf__msg")).toContainText("Something went wrong");
+  await expect(page.locator(".calc-gate .calc-detail")).toBeHidden();
+  await expect(page.locator("#target-cals")).toHaveText("2250");
+  await expect(page.locator("#tdee-gate-form")).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem("cb-calc-tdee-calculator"))).toBeNull();
+  const names = await page.evaluate(() => window.__events.map((event) => event.name));
+  expect(names).toContain("TDEE unlock");
+  expect(names).not.toContain("TDEE submit");
+});
+
+test("protein keeps the daily target and gates the breakdown", async ({ page }) => {
+  const posted = await watchLead(page);
+  await page.goto("/protein-calculator?utm_source=instagram&utm_medium=bio");
+  await expect(page.locator("#pcResults")).toBeHidden();
+  await page.locator("#pcWeight").fill("82");
+  await page.locator("#pcCalc").click();
+  await expect(page.locator("#pcProtDay")).toContainText("131");
+  await expect(page.locator(".calc-gate .calc-detail")).toBeHidden();
+  await expect(page.locator("#pcProtMeal")).toBeHidden();
+
+  await page.getByRole("button", { name: "See the full breakdown" }).click();
+  await expect(page.locator("#pc-gate-form")).toBeVisible();
+  await expect(page.locator('#pc-gate-form a[href="/privacy"]')).toBeVisible();
+  await page.getByRole("button", { name: "Not now" }).click();
+  await expect(page.locator("#pc-gate-form")).toBeHidden();
+  await expect(page.locator("#pcProtDay")).toContainText("131");
+  await expect(page.locator(".calc-gate .calc-detail")).toBeHidden();
+  expect(posted).toHaveLength(0);
+
+  await page.getByRole("button", { name: "See the full breakdown" }).click();
+  await page.locator("#pc-name").fill("Sam");
+  await page.locator("#pc-email").fill("sam@example.com");
+  await page.getByRole("button", { name: "Show my breakdown" }).click();
+  await expect(page.locator(".calc-gate .calc-detail")).toBeVisible();
+  await expect(page.locator("#pcProtMeal")).toContainText("33");
+  await expect(page.locator("#pcFat")).toHaveText("98 to 131 g");
+  await expect(page.locator("#pcGain")).toHaveText("164 g");
+  await expect(page.locator(".calc-guide")).toHaveAttribute("href", "/guides/the-five-foundations.pdf");
+  await expect(page.locator("#pcProtDay")).toContainText("131");
+  expect(posted).toHaveLength(1);
+  expect(posted[0].body).toEqual({
+    name: "Sam",
+    email: "sam@example.com",
+    website: "",
+    src: "protein-calculator",
+    utm_source: "instagram",
+    utm_medium: "bio",
+  });
+  const events = await page.evaluate(() => window.__events);
+  expect(events.map((event) => event.name).filter((name) => name.startsWith("Protein"))).toEqual([
+    "Protein unlock",
+    "Protein unlock",
+    "Protein submit",
+  ]);
+  expect(events.find((event) => event.name === "Protein submit").props.src).toBe("protein-calculator");
+
+  noDashes(await page.locator("main").innerText());
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+
+  await page.reload();
+  await page.locator("#pcWeight").fill("82");
+  await page.locator("#pcCalc").click();
+  await expect(page.locator("#pc-gate-form")).toBeHidden();
+  await expect(page.locator(".calc-gate .calc-detail")).toBeVisible();
+  await expect(page.locator("#pcProtDay")).toContainText("131");
+  await expect(page.locator("#pcFat")).toHaveText("98 to 131 g");
+  expect(posted).toHaveLength(1);
+});
+
 test("phone menu opens and navigates", async ({ page, isMobile }) => {
   test.skip(!isMobile, "phone only");
   await page.goto("/coaching");

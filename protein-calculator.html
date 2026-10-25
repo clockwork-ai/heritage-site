@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Protein &amp; Muscle Calculator | keep muscle while losing weight | CALLUM.B</title>
-  <meta name="description" content="Losing weight? Find your exact daily protein and per-meal targets to protect your muscle. Free calculator. Enter your weight, get your numbers in seconds." />
+  <meta name="description" content="Losing weight? See your daily protein target straight away. The per-meal split, plus a fat-loss and a muscle-gain version, unlock with your name and email." />
   <link rel="canonical" href="https://callumbcoaching.co.uk/protein-calculator" />
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -17,17 +17,17 @@
 <link rel="stylesheet" href="/heritage.css?v=e77540c5">
 <link rel="stylesheet" href="/components.css?v=a9aa471a">
 <meta name="theme-color" content="#09150F">
-<link rel="stylesheet" href="/assets/css/tools.css?v=1">
+<link rel="stylesheet" href="/assets/css/tools.css?v=2">
 
 
   <meta property="og:title" content="Protein &amp; Muscle Calculator | CALLUM.B" />
-  <meta property="og:description" content="Get the exact daily protein targets to protect your muscle while you lose weight. Free tool." />
+  <meta property="og:description" content="See your daily protein target straight away. The per-meal split unlocks with your name and email. Free tool." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://callumbcoaching.co.uk/protein-calculator" />
   <meta property="og:image" content="https://callumbcoaching.co.uk/og-share.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Protein &amp; Muscle Calculator | CALLUM.B" />
-  <meta name="twitter:description" content="The daily protein target to protect your muscle while you lose weight. Free tool." />
+  <meta name="twitter:description" content="See your daily protein target straight away. The per-meal split unlocks with your name and email." />
   <meta name="twitter:image" content="https://callumbcoaching.co.uk/og-share.jpg" />
 
   <style>
@@ -92,7 +92,7 @@
         <div class="center">
           <p class="eyebrow" style="justify-content:center;">Free tool</p>
           <h1>Protein &amp; Muscle Calculator</h1>
-          <p class="pc-lede">Losing weight, including with medical support? The scale isn&#8217;t the whole story. Get the exact daily protein and per-meal targets you need to <b class="green">protect your muscle</b> while the weight comes off.</p>
+          <p class="pc-lede">Losing weight, including with medical support? The scale isn&#8217;t the whole story. See the daily protein target that <b class="green">protects your muscle</b> while the weight comes off. The per-meal split is in the breakdown.</p>
         </div>
 
         <!-- ===== CALCULATOR ===== -->
@@ -130,37 +130,65 @@
               <div class="n" id="pcProtDay">…<small> g/day</small></div>
               <div class="k">Daily protein target to protect muscle</div>
             </div>
-            <div class="pc-big">
-              <div class="n" id="pcProtMeal">…<small> g</small></div>
-              <div class="k">Protein per meal (across <span id="pcMealsEcho">4</span> meals)</div>
+          </div>
+
+          <div class="calc-gate" data-event="Protein">
+            <p class="calc-gate__lead">The daily protein above is free. Leave your first name and email for the per-meal split, a fat-loss and a muscle-gain version, and a simple next step from the Five Foundations guide.</p>
+            <div class="calc-gate__locked">
+              <button class="btn" type="button" data-calc-open aria-expanded="false" aria-controls="pc-gate-form">See the full breakdown</button>
             </div>
-          </div>
-
-          <div class="pc-sub">
-            <div class="pc-stat"><div class="n" id="pcRange">…</div><div class="k">Sensible daily range (g)</div></div>
-            <div class="pc-stat"><div class="n">2.5 to 3 g</div><div class="k">Leucine per meal (the muscle trigger)</div></div>
-            <div class="pc-stat"><div class="n">3×/week</div><div class="k">Resistance sessions to preserve muscle</div></div>
-          </div>
-
-          <div class="pc-note">
-            <b>Hitting this is the hard part.</b> When appetite drops, protein is the first thing to fall, and that&#8217;s exactly when your body starts taking the shortfall from muscle. Front-load protein early in the day, make every meal protein-first, and lean on high-protein, low-volume foods.
-          </div>
-
-          <div class="pc-edu">
-            <b>Why this matters:</b> when you lose weight without a system, research shows roughly <b>a quarter to nearly 40%</b> of what you lose can be muscle, not fat. Combine enough protein with resistance training and that can drop to around <b>15 to 20%</b>, meaning you keep the strength, shape and metabolism you&#8217;re working for, and you&#8217;re far more likely to hold the result long-term.
-          </div>
-
-          <!-- ===== EMAIL CAPTURE (soft gate) ===== -->
-          <div class="card" style="margin-top:18px;">
-            <p style="margin-bottom:4px;"><b style="color:var(--ink);">📩 Want this emailed to you, plus how to actually hit it?</b></p>
-            <p class="note" style="margin-bottom:12px;">Pop your email in and I&#8217;ll send you the <b>Protein Per Meal</b> guide: how to hit any per-meal target, plus what to reach for when your appetite&#8217;s low.</p>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <input class="input" id="pcEmail" type="email" placeholder="you@email.com" autocomplete="email" required style="flex:1;min-width:200px;" />
-              <button class="btn btn-pri" id="pcSend" type="button">Email my plan</button>
+            <form class="leadf" id="pc-gate-form" data-src="protein-calculator" novalidate hidden>
+              <div class="leadf__row">
+                <label class="sr" for="pc-name">First name</label>
+                <input id="pc-name" name="name" type="text" autocomplete="given-name" placeholder="First name" required>
+                <label class="sr" for="pc-email">Email</label>
+                <input id="pc-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="Your email" required>
+                <input class="hp" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+              </div>
+              <p class="label leadf__msg" role="status" aria-live="polite">Free. The breakdown stays on this device. You'll hear from me by email now and then, and you can unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></p>
+              <div class="calc-gate__actions">
+                <button class="btn" type="submit">Show my breakdown</button>
+                <button class="calc-gate__close" type="button" data-calc-close>Not now</button>
+              </div>
+            </form>
+            <div class="calc-detail" hidden>
+              <div class="pc-bignums">
+                <div class="pc-big">
+                  <div class="n" id="pcProtMeal">…<small> g</small></div>
+                  <div class="k">Protein per meal (across <span id="pcMealsEcho">4</span> meals)</div>
+                </div>
+              </div>
+              <div class="calc-versions">
+                <div class="calc-version">
+                  <div class="n" id="pcFat">…</div>
+                  <div class="k">Fat-loss version</div>
+                  <p class="s">1.2 to 1.6 g per kg, the range this page uses while you lose weight. The number above is the 1.6 g end of it.</p>
+                </div>
+                <div class="calc-version">
+                  <div class="n" id="pcGain">…</div>
+                  <div class="k">Muscle-gain version</div>
+                  <p class="s">2 g per kg, the top figure this calculator already works out, for when you are eating to build.</p>
+                </div>
+              </div>
+              <div class="pc-sub">
+                <div class="pc-stat"><div class="n">2.5 to 3 g</div><div class="k">Leucine per meal (the muscle trigger)</div></div>
+                <div class="pc-stat"><div class="n">3×/week</div><div class="k">Resistance sessions to preserve muscle</div></div>
+              </div>
+              <div class="pc-note">
+                <b>Hitting this is the hard part.</b> When appetite drops, protein is the first thing to fall, and that&#8217;s exactly when your body starts taking the shortfall from muscle. Front-load protein early in the day, make every meal protein-first, and lean on high-protein, low-volume foods.
+              </div>
+              <div class="pc-edu">
+                <b>Why this matters:</b> when you lose weight without a system, research shows roughly <b>a quarter to nearly 40%</b> of what you lose can be muscle, not fat. Combine enough protein with resistance training and that can drop to around <b>15 to 20%</b>, meaning you keep the strength, shape and metabolism you&#8217;re working for, and you&#8217;re far more likely to hold the result long-term.
+              </div>
+              <h3>What to do next</h3>
+              <ol class="calc-steps">
+                <li>Hit the daily number above, split across the meals you will actually eat.</li>
+                <li>If you are losing weight, stay in the fat-loss range. If you are eating to build, use the muscle-gain figure.</li>
+                <li>Protein at every meal is the first of the Five Foundations. The guide also covers steps, three short sessions, sleep, and a weekly check-in.</li>
+              </ol>
+              <a class="btn calc-guide" href="/guides/the-five-foundations.pdf" target="_blank" rel="noopener">Open the guide</a>
+              <p class="note">You won't see this form again on this device.</p>
             </div>
-            <p class="note" id="pcMsg" hidden style="margin-top:8px;"></p>
-            <a id="pcGuide" href="assets/downloads/CallumB-Protein-Per-Meal-Guide.pdf" download hidden class="btn btn-startfree" style="margin-top:10px;">📥 Grab your Protein Per Meal guide →</a>
-            <p class="note" style="margin-top:10px;font-size:11.5px;">You&#8217;ll get your plan plus occasional training &amp; nutrition tips. No spam, unsubscribe anytime. See our <a class="green" href="/privacy" style="text-decoration:underline;">privacy policy</a>.</p>
           </div>
 
           <!-- ===== FINAL CTA ===== -->
@@ -222,32 +250,16 @@
       var target=Math.round(kg*1.6), low=Math.round(kg*1.2), high=Math.round(kg*2.0), perMeal=Math.round(target/n);
       $('pcProtDay').innerHTML=target+'<small> g/day</small>';
       $('pcProtMeal').innerHTML=perMeal+'<small> g</small>';
-      $('pcRange').textContent=low+' to '+high;
+      $('pcFat').textContent=low+' to '+target+' g';
+      $('pcGain').textContent=high+' g';
       $('pcMealsEcho').textContent=n;
       var r=$('pcResults'); r.classList.add('show');
       r.scrollIntoView({behavior:'smooth',block:'start'});
     });
 
-    // ===== email capture → existing Formspree pipeline =====
-    $('pcSend').addEventListener('click',function(){
-      var em=($('pcEmail').value||'').trim(), m=$('pcMsg');
-      var show=function(t,ok){ m.textContent=t; m.hidden=false; m.style.color=ok?'var(--green)':'var(--amber)'; };
-      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ show('That email doesn’t look right. Try again.',false); return; }
-      var btn=$('pcSend'); btn.disabled=true; btn.textContent='Sending…';
-      var fd=new FormData();
-      fd.append('email',em);
-      fd.append('source','glp1-protein-calc');
-      fd.append('lead-source','Protein & Muscle Calculator');
-      fd.append('_subject','New lead: protein calculator');
-      fd.append('marketing-consent','yes');
-      var day=$('pcProtDay').textContent, meal=$('pcProtMeal').textContent;
-      if(day && /^\d/.test(day)){ fd.append('daily-protein-target',day); fd.append('per-meal-target',meal); }
-      fetch('https://formspree.io/f/mgojkeny',{method:'POST',headers:{Accept:'application/json'},body:fd})
-        .then(function(r){ if(!r.ok) throw 0; try{fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194528837141268420/subscribe',{method:'POST',body:new URLSearchParams([['fields[email]',em],['ml-submit','1'],['anticsrf','true']])});}catch(_){} btn.textContent='Sent ✓'; show('Done ✓. Your guide is ready below (also in your inbox shortly). 🦁',true); var g=$('pcGuide'); g.hidden=false; var a=document.createElement('a'); a.href=g.href; a.setAttribute('download',''); document.body.appendChild(a); a.click(); a.remove(); })
-        .catch(function(){ btn.disabled=false; btn.textContent='Email my plan'; show('Couldn’t send. Try again.',false); });
-    });
   })();
   </script>
+<script src="/assets/js/calc-gate.js?v=1"></script>
 <script src="/heritage.js?v=cf7edf40"></script>
 <script>
 addEventListener("load",function(){var n=0;function l(){if(n)return;n=1;var c=document.createElement("link");c.rel="stylesheet";c.href="/chat/widget.css";document.head.appendChild(c);var s=document.createElement("script");s.src="/chat/widget.js";document.body.appendChild(s);}(window.requestIdleCallback?requestIdleCallback(l,{timeout:2200}):setTimeout(l,1400));});

@@ -200,6 +200,80 @@ test("guide form posts to lead.php on this origin", async ({ page }) => {
   expect(posted).not.toContain("vercel.app");
 });
 
+test("links page keeps the content loop and the campaign", async ({ page }) => {
+  const events = [];
+  await page.addInitScript(() => {
+    window.__events = [];
+    window.plausible = (name, opts) => {
+      window.__events.push({ name, props: (opts && opts.props) || {} });
+    };
+  });
+  await page.route("**/plausible.io/**", (route) => route.abort());
+  let body = null;
+  await page.route("**/api/lead.php", async (route) => {
+    body = route.request().postDataJSON();
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, download: "/guides/the-five-foundations.pdf" }),
+    });
+  });
+  await page.goto("/links/?utm_source=instagram&utm_medium=bio");
+  await expect(page.locator("h1")).toContainText("already full");
+  const text = await page.locator("main").innerText();
+  const order = [
+    "Get The Five Foundations",
+    "Try the TDEE calculator",
+    "Apply for coaching",
+    "Latest on the site",
+    "Instagram",
+  ];
+  let at = -1;
+  for (const label of order) {
+    const next = text.indexOf(label);
+    expect(next, label).toBeGreaterThan(at);
+    at = next;
+  }
+  await expect(page.locator('a[data-ev="TDEE click"]')).toHaveAttribute(
+    "href",
+    "/tdee-calculator?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="Apply click"]')).toHaveAttribute(
+    "href",
+    "/apply?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="Instagram click"]')).toHaveAttribute(
+    "href",
+    /utm_source=instagram/,
+  );
+  await page.locator("#lf-email-links").fill("test@example.com");
+  await page.locator('#guide button[type=submit]').click();
+  await expect(page.locator("#guide .leadok")).toBeVisible();
+  expect(body).toMatchObject({
+    email: "test@example.com",
+    src: "links",
+    utm_source: "instagram",
+    utm_medium: "bio",
+  });
+  expect(text).not.toContain("\u2014");
+  expect(text).not.toContain("\u2013");
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+  const tracked = await page.evaluate(() => window.__events.map((event) => event.name));
+  expect(tracked).toContain("Guide form click");
+  expect(tracked).toContain("Guide signup");
+  await page.locator('a[data-ev="TDEE click"]').evaluate((a) => {
+    a.addEventListener("click", (event) => event.preventDefault(), true);
+  });
+  await page.locator('a[data-ev="TDEE click"]').click();
+  const tdee = await page.evaluate(() => window.__events.find((event) => event.name === "TDEE click"));
+  expect(tdee.props.utm_source).toBe("instagram");
+  expect(tdee.props.utm_medium).toBe("bio");
+  expect(tdee.props.page).toBe("/links/");
+});
+
 test("phone menu opens and navigates", async ({ page, isMobile }) => {
   test.skip(!isMobile, "phone only");
   await page.goto("/coaching");

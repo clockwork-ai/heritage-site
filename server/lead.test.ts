@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { GUIDE_DOWNLOAD, OPTIONS, POST } from "./lead.ts";
+import { GUIDE_DOWNLOAD, OPTIONS, POST, leadSource, subscriberPayload } from "./lead.ts";
 
 function preflight(path: string, origin: string | null): Request {
   const headers = new Headers({ host: "callumb-coaching.vercel.app" });
@@ -48,6 +48,21 @@ test("a bad email from the site origin is refused with CORS, before MailerLite",
   assert.equal(res.headers.get("access-control-allow-origin"), "https://callumbcoaching.co.uk");
   const body = await res.json();
   assert.equal(body.ok, false);
+});
+
+test("utm values are kept for the log and left off the MailerLite body", () => {
+  const source = leadSource({
+    email: "a@b.co",
+    src: "links",
+    utm_source: "instagram",
+    utm_medium: "bio",
+    utm_campaign: "week-1",
+    note: "<script>",
+  });
+  assert.deepEqual(source, { src: "links", utm_source: "instagram", utm_medium: "bio", utm_campaign: "week-1" });
+  const payload = subscriberPayload("a@b.co", "Dave", "");
+  assert.deepEqual(payload, { email: "a@b.co", fields: { name: "Dave" } });
+  assert.equal("utm_source" in payload, false);
 });
 
 test("a post from another site is refused", async () => {

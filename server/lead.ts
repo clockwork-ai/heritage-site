@@ -61,6 +61,32 @@ function cleanName(value: unknown): string {
   return value.replace(/[\u0000-\u001F\u007F]/g, "").trim().slice(0, 200);
 }
 
+// MailerLite rejects subscriber fields it does not already know, and that
+// fails the signup. Source and UTM values are logged here and sent to
+// Plausible from the browser. They are not added to the MailerLite body.
+const SOURCE_KEYS = ["src", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
+
+export function cleanToken(value: unknown): string {
+  if (typeof value !== "string") return "";
+  return value.replace(/[^\w.+~-]/g, "").slice(0, 80);
+}
+
+export function leadSource(data: Record<string, unknown>): Record<string, string> {
+  const source: Record<string, string> = {};
+  for (const key of SOURCE_KEYS) {
+    const value = cleanToken(data[key]);
+    if (value) source[key] = value;
+  }
+  return source;
+}
+
+export function subscriberPayload(email: string, name: string, group: string) {
+  const payload: { email: string; fields?: { name: string }; groups?: string[] } = { email };
+  if (name) payload.fields = { name };
+  if (group) payload.groups = [group];
+  return payload;
+}
+
 export async function POST(request: Request): Promise<Response> {
   if (!sameOrigin(request, business.origins)) return json(request, { ok: false }, 403);
 
@@ -95,9 +121,9 @@ export async function POST(request: Request): Promise<Response> {
 
   const group = (process.env.MAILERLITE_GROUP_ID || "").trim();
   const name = cleanName(data.name);
-  const payload: { email: string; fields?: { name: string }; groups?: string[] } = { email };
-  if (name) payload.fields = { name };
-  if (group) payload.groups = [group];
+  const source = leadSource(data);
+  if (Object.keys(source).length) console.log("lead source", JSON.stringify(source));
+  const payload = subscriberPayload(email, name, group);
 
   let upstream: Response;
   try {

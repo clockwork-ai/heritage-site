@@ -254,6 +254,25 @@ function cleanName(value) {
   if (typeof value !== "string") return "";
   return value.replace(/[\u0000-\u001F\u007F]/g, "").trim().slice(0, 200);
 }
+var SOURCE_KEYS = ["src", "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+function cleanToken(value) {
+  if (typeof value !== "string") return "";
+  return value.replace(/[^\w.+~-]/g, "").slice(0, 80);
+}
+function leadSource(data) {
+  const source = {};
+  for (const key of SOURCE_KEYS) {
+    const value = cleanToken(data[key]);
+    if (value) source[key] = value;
+  }
+  return source;
+}
+function subscriberPayload(email, name, group) {
+  const payload = { email };
+  if (name) payload.fields = { name };
+  if (group) payload.groups = [group];
+  return payload;
+}
 async function POST(request) {
   if (!sameOrigin(request, business.origins)) return json(request, { ok: false }, 403);
   let data = {};
@@ -281,9 +300,9 @@ async function POST(request) {
   }
   const group = (process.env.MAILERLITE_GROUP_ID || "").trim();
   const name = cleanName(data.name);
-  const payload = { email };
-  if (name) payload.fields = { name };
-  if (group) payload.groups = [group];
+  const source = leadSource(data);
+  if (Object.keys(source).length) console.log("lead source", JSON.stringify(source));
+  const payload = subscriberPayload(email, name, group);
   let upstream;
   try {
     upstream = await fetch(MAILERLITE_URL, {
@@ -316,5 +335,8 @@ export {
   OPTIONS,
   PATCH,
   POST,
-  PUT
+  PUT,
+  cleanToken,
+  leadSource,
+  subscriberPayload
 };

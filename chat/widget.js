@@ -1,4 +1,11 @@
 (() => {
+  // The cPanel copy of the site has no API of its own, so it calls the Vercel deployment.
+  const api = /(^|\.)callumbcoaching\.co\.uk$/.test(location.hostname)
+    ? "https://callumb-coaching.vercel.app/api/chat"
+    : "/api/chat";
+  const track = (name) => {
+    try { window.plausible && window.plausible(name, { props: { page: location.pathname } }); } catch {}
+  };
   const defaults = {
     title: "Ask CALLUM.B",
     launcherLabel: "Open the chat",
@@ -88,26 +95,6 @@
   const guide = root.querySelector(".cw-guide");
   const calc = root.querySelector(".cw-calc");
   const sr = root.querySelector(".sr");
-
-  function loadCallumbApi() {
-    if (window.callumbApi) return Promise.resolve(window.callumbApi);
-    if (!window.__callumbApiReady) {
-      window.__callumbApiReady = new Promise((resolve) => {
-        const script = document.createElement("script");
-        script.src = "/assets/js/api-base.js?v=foundations1";
-        script.onload = () => resolve(window.callumbApi || fallbackCallumbApi());
-        script.onerror = () => resolve(fallbackCallumbApi());
-        document.head.appendChild(script);
-      });
-    }
-    return window.__callumbApiReady;
-  }
-
-  function fallbackCallumbApi() {
-    const host = location.hostname;
-    const base = host === "localhost" || host === "127.0.0.1" || host.endsWith(".vercel.app") ? "" : "https://callumb-coaching.vercel.app";
-    return { url: (path) => Promise.resolve(base + path) };
-  }
 
   const messages = [];
   let busy = false;
@@ -392,6 +379,7 @@
   }
 
   function setOpen(open) {
+    if (open && !root.classList.contains("is-open")) track("Chat open");
     root.classList.toggle("is-open", open);
     panel.hidden = !open;
     launch.setAttribute("aria-expanded", open ? "true" : "false");
@@ -402,8 +390,7 @@
 
   async function loadConfig() {
     try {
-      const api = await loadCallumbApi();
-      const response = await fetch(await api.url("/api/chat"));
+      const response = await fetch(api);
       if (!response.ok) throw new Error(String(response.status));
       applyConfig(await response.json());
     } catch {
@@ -422,12 +409,12 @@
     send.disabled = true;
     hideChips();
     messages.push({ role: "user", content });
+    if (messages.filter((message) => message.role === "user").length === 1) track("Chat message");
     add("user", content);
     input.value = "";
     const bubble = add("assistant", "...");
     try {
-      const api = await loadCallumbApi();
-      const response = await fetch(await api.url("/api/chat"), {
+      const response = await fetch(api, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ messages, page: pagePath() }),
@@ -508,8 +495,7 @@
     const button = form.querySelector("button");
     button.disabled = true;
     try {
-      const api = await loadCallumbApi();
-      const response = await fetch(await api.url("/api/chat"), {
+      const response = await fetch(api, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ lead: data, page: pagePath() }),
@@ -518,6 +504,7 @@
       const line = payload.message || payload.error || "Sorry, that didn't send.";
       add(response.ok ? "assistant" : "note", response.ok ? line : line);
       if (response.ok) {
+        track("Chat lead");
         form.reset();
         form.hidden = true;
         form.classList.remove("is-open");

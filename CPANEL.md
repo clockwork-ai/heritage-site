@@ -16,11 +16,13 @@ Upload the domain root only. Do not upload `node_modules`, `api/`, `lib/`, `serv
 
 ## Chat and the free guide, with no key on cPanel
 
-The chat widget and the free-guide form call `https://callumb-coaching.vercel.app` when the page is not on Vercel. The MailerLite key stays on the Vercel project `callumb-coaching`, as `MAILERLITE_API_KEY`. You do not put that key, or `MAILERLITE_GROUP_ID`, on cPanel.
+The chat widget and the free-guide form look at the page hostname. On `callumbcoaching.co.uk` and `www.callumbcoaching.co.uk` they call `https://callumb-coaching.vercel.app`. On any other host, including a Vercel preview and localhost, they call the same origin.
 
-`https://callumb-coaching.vercel.app/api/chat` and `/api/lead` have to be public. Vercel Authentication should protect preview deployments only, not the production `*.vercel.app` URL.
+Chat uses `/api/chat`. The form uses `/api/lead.php`. The same signup function also answers `/api/lead`. An OPTIONS preflight from `https://callumbcoaching.co.uk` or `https://www.callumbcoaching.co.uk` is allowed on both paths.
 
-The pack sets `<meta name="callumb-api-base" content="https://callumb-coaching.vercel.app">` on each page. On Vercel itself that tag is absent. The widget then uses the same origin, including once `callumbcoaching.co.uk` points at Vercel. To force same origin yourself, set `window.CALLUMB_API_BASE` to an empty string before the chat script runs.
+The MailerLite key stays on the Vercel project `callumb-coaching`, as `MAILERLITE_API_KEY`. You do not put that key, or `MAILERLITE_GROUP_ID`, on cPanel.
+
+`https://callumb-coaching.vercel.app/api/chat` and `/api/lead.php` have to be public. Vercel Authentication should protect preview deployments only, not the production `*.vercel.app` URL.
 
 ## Clean URLs and the old guide
 
@@ -30,4 +32,4 @@ The pack sets `<meta name="callumb-api-base" content="https://callumb-coaching.v
 
 ## After the domain points at Vercel
 
-Stop using this pack. The Vercel project serves the pages and calls its own `/api/chat` and `/api/lead.php`. Leave the MX records where they are.
+Stop uploading this pack. The Vercel project serves the pages. Leave the MX records where they are. While the hostname is still `callumbcoaching.co.uk`, chat and the guide form keep calling `callumb-coaching.vercel.app`, and that origin is allowed.

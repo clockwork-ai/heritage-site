@@ -1,13 +1,12 @@
 // Pack the static site for the LayerIP cPanel host.
 // No Node functions, no node_modules, no secrets.
-import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readdir, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 const root = process.cwd();
 const out = path.join(root, "cpanel");
 const zipPath = path.join(root, "cpanel-upload.zip");
-const apiBase = "https://callumb-coaching.vercel.app";
 
 const skip = new Set([
   "api",
@@ -82,16 +81,7 @@ if (!oldBytes.subarray(0, 5).equals(Buffer.from("%PDF-"))) {
 
 let htmlCount = 0;
 await walk(out, async (full) => {
-  if (!full.endsWith(".html")) return;
-  htmlCount += 1;
-  let html = await readFile(full, "utf8");
-  if (html.includes('name="callumb-api-base"')) return;
-  if (!/<head([^>]*)>/i.test(html)) throw new Error(`no head in ${full}`);
-  html = html.replace(
-    /<head([^>]*)>/i,
-    `<head$1>\n<meta name="callumb-api-base" content="${apiBase}">`,
-  );
-  await writeFile(full, html);
+  if (full.endsWith(".html")) htmlCount += 1;
 });
 
 const ht = await readFile(path.join(out, ".htaccess"), "utf8");

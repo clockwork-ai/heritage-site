@@ -40,7 +40,7 @@ Do not change prices or Stripe links unless Callum asks. Those links live in `as
 
 The free guide is The Five Foundations, at `/guides/the-five-foundations.pdf`. `/guides/five-numbers.pdf` redirects there. The file at the old path is the same PDF.
 
-`components.js` posts the free-guide form to `/api/lead.php`. On Vercel, `vercel.json` rewrites that URL to `api/lead.js`, which sends the subscriber to MailerLite. On the cPanel pack the form posts to the same path on `https://callumb-coaching.vercel.app`, so the key stays on Vercel. See `CPANEL.md`.
+`components.js` posts the free-guide form to `/api/lead.php`. On `callumbcoaching.co.uk` and `www.callumbcoaching.co.uk` that post goes to `https://callumb-coaching.vercel.app/api/lead.php`. On any other host it stays on the same origin. `vercel.json` rewrites `/api/lead.php` to `/api/lead`, and `npm run build:chat` also writes `api/lead.php.js`, so both paths answer. OPTIONS from those two origins is allowed on both. The MailerLite key stays on Vercel. See `CPANEL.md`.
 
 Set these on the Vercel project. Do not commit them.
 
@@ -55,7 +55,7 @@ The TDEE, protein, offset, and Physique OS calculators must keep returning the s
 
 ## Chatbot
 
-The coaching chat is on the site. Its wording and rules live in `lib/business.ts`. Edit the assistant there, then run `npm run build:chat` so `api/chat.js` and `api/lead.js` match. On Vercel the widget calls `/api/chat` on the same origin. On the cPanel pack it calls `https://callumb-coaching.vercel.app/api/chat`. See `CPANEL.md`.
+The coaching chat is on the site. Its wording and rules live in `lib/business.ts`. Edit the assistant there, then run `npm run build:chat` so `api/chat.js`, `api/lead.js`, and `api/lead.php.js` match. The widget calls `https://callumb-coaching.vercel.app/api/chat` when the hostname is `callumbcoaching.co.uk` or `www.callumbcoaching.co.uk`, and `/api/chat` on any other host. See `CPANEL.md`.
 
 ## Tests
 

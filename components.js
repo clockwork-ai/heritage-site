@@ -64,31 +64,17 @@ document.addEventListener("click", e => {
   const a = e.target.closest("a, button"); if (!a) return;
   const href = a.getAttribute("href") || "";
   const sec = a.closest("section[id]");
-  const where = sec ? sec.id : a.closest(".nav") ? "nav" : a.closest(".mnav") ? "menu" : a.closest("footer") ? "footer" : "page";
+  const where = a.closest(".cw-chat") ? "chat" : sec ? sec.id : a.closest(".nav") ? "nav" : a.closest(".mnav") ? "menu" : a.closest("footer") ? "footer" : "page";
   if (a.dataset.ev) track(a.dataset.ev, { page: location.pathname });
   else if (/^\/apply(\b|$|#|\?)/.test(href) && location.pathname !== "/apply") track("Apply click", { page: location.pathname, from: where });
   else if (href.startsWith("https://wa.me") && !a.id) track("WhatsApp click", { page: location.pathname, from: where });
 }, { capture: true });
 
 /* ---------- free guide signup -> /api/lead.php -> MailerLite ---------- */
-function loadCallumbApi() {
-  if (window.callumbApi) return Promise.resolve(window.callumbApi);
-  if (!window.__callumbApiReady) {
-    window.__callumbApiReady = new Promise(resolve => {
-      const script = document.createElement("script");
-      script.src = "/assets/js/api-base.js?v=foundations1";
-      script.onload = () => resolve(window.callumbApi || fallbackCallumbApi());
-      script.onerror = () => resolve(fallbackCallumbApi());
-      document.head.appendChild(script);
-    });
-  }
-  return window.__callumbApiReady;
-}
-function fallbackCallumbApi() {
-  const host = location.hostname;
-  const base = host === "localhost" || host === "127.0.0.1" || host.endsWith(".vercel.app") ? "" : "https://callumb-coaching.vercel.app";
-  return { url: path => Promise.resolve(base + path) };
-}
+// Same hostname rule as the chat widget. cPanel has no API of its own.
+const leadUrl = /(^|\.)callumbcoaching\.co\.uk$/.test(location.hostname)
+  ? "https://callumb-coaching.vercel.app/api/lead.php"
+  : "/api/lead.php";
 document.querySelectorAll(".leadf").forEach(f => {
   const box = f.parentElement, ok = box.querySelector(".leadok"), msg = f.querySelector(".leadf__msg"), btn = f.querySelector("button");
   const note = msg.innerHTML;
@@ -98,8 +84,7 @@ document.querySelectorAll(".leadf").forEach(f => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((d.email || "").trim())) { msg.textContent = "That email doesn't look right. Check it and try again."; msg.classList.add("bad"); f.querySelector("[name=email]").focus(); return; }
     btn.disabled = true; msg.classList.remove("bad"); msg.textContent = "Sending...";
     try {
-      const api = await loadCallumbApi();
-      const r = await fetch(await api.url("/api/lead.php"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
+      const r = await fetch(leadUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || data.ok === false) throw new Error(r.status);
       const link = ok.querySelector('a[data-ev="Guide download"]');

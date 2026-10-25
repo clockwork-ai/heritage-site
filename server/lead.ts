@@ -1,17 +1,21 @@
-// Free-guide signup. Public URL stays /api/lead.php via the rewrite in vercel.json.
-// components.js posts JSON: { name, email, website, src }.
-// On cPanel the browser posts here cross-origin. The MailerLite key stays on Vercel.
+// Free-guide signup. components.js posts JSON: { name, email, website, src }.
+// Both /api/lead.php and /api/lead run this file. The rewrite in vercel.json
+// also sends /api/lead.php to /api/lead. On cPanel the browser posts to
+// https://callumb-coaching.vercel.app/api/lead.php. The MailerLite key stays on Vercel.
 
-import { corsHeaders, preflight, requestAllowed } from "../lib/cors.ts";
+import { business } from "../lib/business.ts";
+import { corsHeaders, sameOrigin } from "../lib/guard.ts";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAILERLITE_URL = "https://connect.mailerlite.com/api/subscribers";
 export const GUIDE_DOWNLOAD = "/guides/the-five-foundations.pdf";
 
 function json(request: Request, body: unknown, status: number): Response {
-  const headers = corsHeaders(request);
-  headers.set("cache-control", "no-store");
-  headers.set("x-robots-tag", "noindex");
+  const headers = new Headers({
+    "cache-control": "no-store",
+    "x-robots-tag": "noindex",
+    ...corsHeaders(request, business.origins),
+  });
   return Response.json(body, { status, headers });
 }
 
@@ -20,7 +24,7 @@ function methodNotAllowed(request: Request): Response {
 }
 
 export function OPTIONS(request: Request): Response {
-  return preflight(request);
+  return new Response(null, { status: 204, headers: corsHeaders(request, business.origins) });
 }
 
 export function GET(request: Request): Response {
@@ -58,7 +62,7 @@ function cleanName(value: unknown): string {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  if (!requestAllowed(request)) return json(request, { ok: false }, 403);
+  if (!sameOrigin(request, business.origins)) return json(request, { ok: false }, 403);
 
   let data: Record<string, unknown> = {};
   try {

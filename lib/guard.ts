@@ -33,9 +33,10 @@ export function resetRateLimits(): void {
   buckets.clear();
 }
 
-export function sameOrigin(request: Request): boolean {
+export function sameOrigin(request: Request, origins: readonly string[] = []): boolean {
   const origin = request.headers.get("origin");
   if (!origin) return true;
+  if (origins.includes(origin)) return true;
   const host = request.headers.get("host");
   if (!host) return false;
   try {
@@ -43,6 +44,19 @@ export function sameOrigin(request: Request): boolean {
   } catch {
     return false;
   }
+}
+
+/** CORS headers for a listed cross-origin caller. Empty for anyone else. */
+export function corsHeaders(request: Request, origins: readonly string[]): Record<string, string> {
+  const origin = request.headers.get("origin");
+  if (!origin || !origins.includes(origin)) return { vary: "origin" };
+  return {
+    "access-control-allow-origin": origin,
+    "access-control-allow-methods": "GET, POST, OPTIONS",
+    "access-control-allow-headers": "content-type",
+    "access-control-max-age": "86400",
+    vary: "origin",
+  };
 }
 
 export function knownPage(page: unknown, pages: readonly string[]): string | undefined {

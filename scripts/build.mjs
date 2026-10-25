@@ -32,6 +32,15 @@ await build({
   banner: { js: "// Built from server/lead.ts. Edit that, then npm run build:chat." },
 });
 
+// Same handler on the .php path the cPanel form posts to, in case the rewrite
+// is not what answers that URL.
+await build({
+  ...bundle,
+  entryPoints: ["server/lead.ts"],
+  outfile: "api/lead.php.js",
+  banner: { js: "// Built from server/lead.ts. Same function as api/lead.js." },
+});
+
 const skip = new Set([
   "api",
   "lib",

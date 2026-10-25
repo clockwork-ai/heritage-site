@@ -130,6 +130,7 @@ Privacy. If he would rather nobody knew, nobody will. The NDA is standard. Data 
     maxMessages: 12,
     maxAssistantChars: 1200
   },
+  origins: ["https://callumbcoaching.co.uk", "https://www.callumbcoaching.co.uk"],
   pages: [
     "/",
     "/about",
@@ -140,11 +141,15 @@ Privacy. If he would rather nobody knew, nobody will. The NDA is standard. Data 
     "/glp1-blueprint",
     "/glp1-nutrition",
     "/guide",
+    "/is-online-personal-training-worth-it",
     "/links",
     "/magnum-opus",
     "/muscle",
     "/nutrition",
     "/offset-calculator",
+    "/online-personal-trainer-cost",
+    "/online-personal-trainer-stockport",
+    "/online-vs-in-person-personal-trainer",
     "/os-setup",
     "/privacy",
     "/protein-calculator",
@@ -201,6 +206,29 @@ function takeRateLimit(key, now, windowMs, maxRequests) {
   }
   current.count += 1;
   return { ok: true };
+}
+function sameOrigin(request, origins = []) {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+  if (origins.includes(origin)) return true;
+  const host = request.headers.get("host");
+  if (!host) return false;
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}
+function corsHeaders(request, origins) {
+  const origin = request.headers.get("origin");
+  if (!origin || !origins.includes(origin)) return { vary: "origin" };
+  return {
+    "access-control-allow-origin": origin,
+    "access-control-allow-methods": "GET, POST, OPTIONS",
+    "access-control-allow-headers": "content-type",
+    "access-control-max-age": "86400",
+    vary: "origin"
+  };
 }
 function knownPage(page, pages) {
   if (typeof page !== "string") return void 0;
@@ -366,9 +394,9 @@ var OWN_USE_FALLBACK = "He coaches men who have chosen that route, around traini
 var SUBSTANCE_ASK = /\b(?:steroids?|anabolics?|peptides?|cycles?)\b|\bwhat dose should i run\b|\b(?:does|did)\s+callum\s+(?:use|take)\b/i;
 var DODGE = /\b(?:i don't have that(?: information)?|i do not have that(?: information)?|i (?:can't|cannot) (?:say|answer)(?: that)?|that(?:'s| is) not something i (?:know|can say))\b[.!]?\s*/gi;
 var J3_REPLY = "Callum has studied with J3 University (J3U), where coaching is applied to athletes who use anabolics, and he coaches men who've chosen that route. He doesn't give doses, protocols or sourcing, and medical decisions stay with you and your doctor. If you want that, apply.";
-function ensureAnabolicReply(userText, reply) {
-  if (!SUBSTANCE_ASK.test(userText)) return reply;
-  const stripped = reply.replace(DODGE, "").replace(/\s{2,}/g, " ").trim();
+function ensureAnabolicReply(userText, reply2) {
+  if (!SUBSTANCE_ASK.test(userText)) return reply2;
+  const stripped = reply2.replace(DODGE, "").replace(/\s{2,}/g, " ").trim();
   if (/J3 University/i.test(stripped) && /\bJ3U\b/.test(stripped) && stripped.length > 80) {
     return /\bappl/i.test(stripped) ? stripped : `${stripped} If you want that, apply.`;
   }
@@ -401,61 +429,6 @@ function isValidEmail(value) {
 }
 function cleanLine(value, max) {
   return value.replace(/[\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
-}
-
-// lib/cors.ts
-var SITE_ORIGINS = /* @__PURE__ */ new Set([
-  "https://callumbcoaching.co.uk",
-  "https://www.callumbcoaching.co.uk",
-  "https://callumb-coaching.vercel.app"
-]);
-function originOf(request) {
-  const origin = request.headers.get("origin");
-  if (!origin) return null;
-  let url;
-  try {
-    url = new URL(origin);
-  } catch {
-    return null;
-  }
-  if (url.origin !== origin) return null;
-  return url;
-}
-function projectVercelHost(hostname) {
-  if (hostname === "callumb-coaching.vercel.app") return true;
-  return hostname.startsWith("callumb-coaching-") && hostname.endsWith(".vercel.app");
-}
-function corsOrigin(request) {
-  const url = originOf(request);
-  if (!url) return null;
-  if (url.protocol !== "https:") return null;
-  if (SITE_ORIGINS.has(url.origin) || projectVercelHost(url.hostname)) return url.origin;
-  const host = request.headers.get("host");
-  if (host && url.host === host) return url.origin;
-  return null;
-}
-function requestAllowed(request) {
-  const origin = request.headers.get("origin");
-  if (!origin) return true;
-  return corsOrigin(request) !== null;
-}
-function corsHeaders(request) {
-  const headers = new Headers();
-  headers.set("vary", "Origin");
-  const origin = corsOrigin(request);
-  if (!origin) return headers;
-  headers.set("access-control-allow-origin", origin);
-  headers.set("access-control-allow-methods", "GET, POST, OPTIONS");
-  headers.set("access-control-allow-headers", "Content-Type, Accept");
-  headers.set("access-control-max-age", "86400");
-  return headers;
-}
-function preflight(request) {
-  const headers = corsHeaders(request);
-  if (!request.headers.get("origin") || !requestAllowed(request)) {
-    return new Response(null, { status: 403, headers });
-  }
-  return new Response(null, { status: 204, headers });
 }
 
 // lib/leads.ts
@@ -607,39 +580,40 @@ var leadSchema = z.object({
   email: z.string().describe("The email address they gave"),
   goal: z.string().describe("What they want, in their words")
 });
-function json(request, body, status = 200, extra) {
-  const headers = corsHeaders(request);
-  headers.set("cache-control", "no-store");
-  if (extra) new Headers(extra).forEach((value, key) => headers.set(key, value));
-  return Response.json(body, { status, headers });
+function reply(body, status = 200, extra) {
+  return Response.json(body, {
+    status,
+    headers: { "cache-control": "no-store", ...extra }
+  });
 }
-function limited(request, retryAfter) {
-  return json(
-    request,
+function limited(retryAfter, cors) {
+  return reply(
     { error: "You've sent quite a few messages. Give it a minute, or apply and Callum will read it himself." },
     429,
-    { "retry-after": String(retryAfter) }
+    { "retry-after": String(retryAfter), ...cors }
   );
 }
 function cleanReply(text, userText = "") {
   const priced = scrubOwnUse(scrubDashes(scrubPrices(text, business.allowedPrices, business.priceStandIn)));
   return formatReply(ensureAnabolicReply(userText, priced));
 }
-function OPTIONS(request) {
-  return preflight(request);
-}
 function GET(request) {
-  const headers = corsHeaders(request);
-  headers.set("cache-control", "public, max-age=300");
-  return Response.json(publicWidget(business), { headers });
+  return Response.json(publicWidget(business), {
+    headers: { "cache-control": "public, max-age=300", ...corsHeaders(request, business.origins) }
+  });
+}
+function OPTIONS(request) {
+  return new Response(null, { status: 204, headers: corsHeaders(request, business.origins) });
 }
 async function POST(request) {
-  if (!requestAllowed(request)) {
-    return json(request, { error: "Open the chat on the site and try again." }, 403);
+  const cors = corsHeaders(request, business.origins);
+  const json = (body2, status = 200, extra) => reply(body2, status, { ...cors, ...extra });
+  if (!sameOrigin(request, business.origins)) {
+    return json({ error: "Open the chat on the site and try again." }, 403);
   }
   const length = Number(request.headers.get("content-length") || 0);
   if (length > 24e3) {
-    return json(request, { error: "That message is a bit long. Try a shorter question." }, 413);
+    return json({ error: "That message is a bit long. Try a shorter question." }, 413);
   }
   const limit = takeRateLimit(
     clientKey(request),
@@ -647,32 +621,31 @@ async function POST(request) {
     business.limits.windowMs,
     business.limits.maxRequests
   );
-  if (!limit.ok) return limited(request, limit.retryAfter);
+  if (!limit.ok) return limited(limit.retryAfter, cors);
   let body;
   try {
     body = await request.json();
   } catch {
-    return json(request, { error: "I couldn't read that. Try again." }, 400);
+    return json({ error: "I couldn't read that. Try again." }, 400);
   }
   if (!body || typeof body !== "object") {
-    return json(request, { error: "I couldn't read that. Try again." }, 400);
+    return json({ error: "I couldn't read that. Try again." }, 400);
   }
   const page = knownPage(body.page, business.pages);
   const leadBody = body.lead;
   if (leadBody && typeof leadBody === "object") {
     const parsed = validateLead(leadBody, "chat-form", page);
-    if (!parsed.ok) return json(request, { error: parsed.error }, 400);
+    if (!parsed.ok) return json({ error: parsed.error }, 400);
     const saved = await saveLead(business, parsed.lead);
     if (!saved.ok) {
       return json(
-        request,
         {
           error: "I couldn't save that just now. Apply and it comes straight to Callum."
         },
         503
       );
     }
-    return json(request, {
+    return json({
       ok: true,
       notified: saved.notified,
       actions: ["apply"],
@@ -680,7 +653,7 @@ async function POST(request) {
     });
   }
   const messages = normaliseMessages(body.messages, business.limits);
-  if (!messages.ok) return json(request, { error: messages.error }, messages.status);
+  if (!messages.ok) return json({ error: messages.error }, messages.status);
   const latestUser = [...messages.messages].reverse().find((message) => message.role === "user")?.content ?? "";
   const model = process.env.AI_GATEWAY_MODEL || business.model;
   let savedLead = false;
@@ -742,11 +715,14 @@ async function POST(request) {
       }
     }
   });
-  const headers = corsHeaders(request);
-  headers.set("content-type", "text/plain; charset=utf-8");
-  headers.set("cache-control", "no-cache, no-transform");
-  headers.set("x-accel-buffering", "no");
-  return new Response(stream, { headers });
+  return new Response(stream, {
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+      "cache-control": "no-cache, no-transform",
+      "x-accel-buffering": "no",
+      ...cors
+    }
+  });
 }
 export {
   GET,

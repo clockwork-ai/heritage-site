@@ -51,6 +51,8 @@ export type BusinessConfig = {
   };
   /** Pathnames the server will mention back to the model. Anything else is ignored. */
   pages: string[];
+  /** Other sites that host the widget and call this API cross-origin, such as the cPanel copy. */
+  origins: string[];
   /** Teaser above the launcher. The full panel stays closed until they click. */
   nudge: {
     text: string;
@@ -196,6 +198,7 @@ Privacy. If he would rather nobody knew, nobody will. The NDA is standard. Data 
     maxMessages: 12,
     maxAssistantChars: 1200,
   },
+  origins: ["https://callumbcoaching.co.uk", "https://www.callumbcoaching.co.uk"],
   pages: [
     "/",
     "/about",
@@ -206,11 +209,15 @@ Privacy. If he would rather nobody knew, nobody will. The NDA is standard. Data 
     "/glp1-blueprint",
     "/glp1-nutrition",
     "/guide",
+    "/is-online-personal-training-worth-it",
     "/links",
     "/magnum-opus",
     "/muscle",
     "/nutrition",
     "/offset-calculator",
+    "/online-personal-trainer-cost",
+    "/online-personal-trainer-stockport",
+    "/online-vs-in-person-personal-trainer",
     "/os-setup",
     "/privacy",
     "/protein-calculator",

@@ -163,31 +163,41 @@ test("old guide address redirects to the new pdf", async ({ request }) => {
   expect(old.headers().location).toBe("/guides/the-five-foundations.pdf");
 });
 
-test("api base stays on this origin locally", async ({ page }) => {
-  await page.goto("/");
-  await page.waitForFunction(() => window.callumbApi, null, { timeout: 8000 });
-  expect(await page.evaluate(() => window.callumbApi.base())).toBe("");
-  expect(await page.evaluate(() => window.callumbApi.url("/api/chat"))).toBe("/api/chat");
+test("cPanel hostname calls the vercel chat and lead paths", async ({ request }) => {
+  const widget = await (await request.get("/chat/widget.js")).text();
+  const components = await (await request.get("/components.js")).text();
+  const rule = "/(^|\\.)callumbcoaching\\.co\\.uk$/";
+  expect(widget).toContain(rule);
+  expect(widget).toContain("https://callumb-coaching.vercel.app/api/chat");
+  expect(widget).toContain('"/api/chat"');
+  expect(components).toContain(rule);
+  expect(components).toContain("https://callumb-coaching.vercel.app/api/lead.php");
+  expect(components).toContain('"/api/lead.php"');
+  expect(widget).not.toContain("api-base.js");
+  expect(components).not.toContain("api-base.js");
 });
 
-test("api base can be pinned to the vercel app", async ({ page }) => {
-  await page.route("**/chat/widget.js*", (route) => route.abort());
-  await page.goto("/about");
-  const url = await page.evaluate(async () => {
-    const meta = document.createElement("meta");
-    meta.name = "callumb-api-base";
-    meta.content = "https://callumb-coaching.vercel.app";
-    document.head.appendChild(meta);
-    await new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = "/assets/js/api-base.js?v=foundations1";
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
+test("guide form posts to lead.php on this origin", async ({ page }) => {
+  let posted = "";
+  await page.route("**/api/lead.php", async (route) => {
+    posted = route.request().url();
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, download: "/guides/the-five-foundations.pdf" }),
     });
-    return window.callumbApi.url("/api/lead.php");
   });
-  expect(url).toBe("https://callumb-coaching.vercel.app/api/lead.php");
+  await page.goto("/#guide");
+  await page.locator("#guide input[name=name]").fill("Test");
+  await page.locator("#guide input[name=email]").fill("test@example.com");
+  await page.locator("#guide button[type=submit]").click();
+  await expect(page.locator("#guide .leadok")).toBeVisible();
+  await expect(page.locator('#guide a[data-ev="Guide download"]')).toHaveAttribute(
+    "href",
+    "/guides/the-five-foundations.pdf",
+  );
+  expect(posted).toMatch(/\/api\/lead\.php$/);
+  expect(posted).not.toContain("vercel.app");
 });
 
 test("phone menu opens and navigates", async ({ page, isMobile }) => {

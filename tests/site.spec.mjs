@@ -622,6 +622,23 @@ test("protein target moves smoothly with body fat, no cliff", async ({ page }) =
   }
 });
 
+test("book page has no Stripe checkout", async ({ page, request }) => {
+  const res = await page.goto("/the-inches-you-keep");
+  expect(res.status()).toBe(200);
+  await expect(page.locator("h1")).toContainText("The Inches You Keep");
+  const notes = page.locator("p", { hasText: "The book isn't available right now." });
+  await expect(notes).toHaveCount(2);
+  await expect(notes.first()).toBeVisible();
+  await expect(notes.first().locator('a[href="/coaching"]')).toBeVisible();
+  await expect(notes.first().locator('a[href="/book"]')).toBeVisible();
+  await expect(page.locator('a[href*="stripe.com"]')).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /get the book/i })).toHaveCount(0);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  const sitemap = await (await request.get("/sitemap.xml")).text();
+  const liveSitemap = sitemap.replace(/<!--[\s\S]*?-->/g, "");
+  expect(liveSitemap).not.toContain("the-inches-you-keep");
+});
+
 test("phone menu opens and navigates", async ({ page, isMobile }) => {
   test.skip(!isMobile, "phone only");
   await page.goto("/coaching");

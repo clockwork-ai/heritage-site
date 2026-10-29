@@ -622,6 +622,37 @@ test("protein target moves smoothly with body fat, no cliff", async ({ page }) =
   }
 });
 
+test("book page offers the Cal.com call", async ({ page }) => {
+  await page.goto("/book");
+  await expect(page).toHaveTitle(/Book a free 20-minute call/);
+  await expect(page.locator("h1.h2")).toHaveText(/Book a free 20-minute call/);
+  await expect(page.locator("main")).toContainText("Just you and me, by phone.");
+  await expect(page.locator("main")).toContainText("No pressure and no hard sell.");
+  const html = await page.content();
+  expect(html.toLowerCase()).not.toContain("calendly");
+  expect(html).not.toContain("\u2014");
+  expect(html).not.toContain("\u2013");
+  const fallback = page.locator('a[href="https://cal.com/callumbcoaching/discovery-call"]');
+  await expect(fallback).toBeVisible();
+  await expect(fallback).toHaveAttribute("href", "https://cal.com/callumbcoaching/discovery-call");
+  await expect(page.locator("#cal-inline")).toBeAttached();
+  await expect(page.locator("#cal-inline iframe")).toBeAttached({ timeout: 15000 });
+  const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  expect(over).toBeLessThanOrEqual(1);
+});
+
+for (const path of ["/", "/coaching", "/apply", "/links"]) {
+  test(`${path} offers a free call next to apply`, async ({ page }) => {
+    await page.goto(path);
+    const book = page.locator('a.btn[href="/book"]', { hasText: /book a free call/i });
+    await expect(book.first()).toBeVisible();
+    const apply = page.locator('a.btn[href="/apply"]');
+    await expect(apply.first()).toBeVisible();
+    const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    expect(over).toBeLessThanOrEqual(1);
+  });
+}
+
 test("phone menu opens and navigates", async ({ page, isMobile }) => {
   test.skip(!isMobile, "phone only");
   await page.goto("/coaching");

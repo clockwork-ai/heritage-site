@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Book a Discovery Call | CALLUM.B</title>
-  <meta name="description" content="Book 30 minutes with me if you're not sure which level fits. We'll talk through where you are, and I'll tell you straight what I'd do." />
+  <title>Book a free 20-minute call | CALLUM.B</title>
+  <meta name="description" content="A free 20-minute phone call if you're considering 1:1 coaching. I'll tell you straight whether it's the right fit. No pressure and no hard sell." />
   <link rel="canonical" href="https://callumbcoaching.co.uk/book" />
-  <meta property="og:title" content="Book a Discovery Call | CALLUM.B" />
-  <meta property="og:description" content="Book 30 minutes with me if you're not sure which level fits. We'll talk through where you are, and I'll tell you straight what I'd do." />
+  <meta property="og:title" content="Book a free 20-minute call | CALLUM.B" />
+  <meta property="og:description" content="A free 20-minute phone call if you're considering 1:1 coaching. I'll tell you straight whether it's the right fit. No pressure and no hard sell." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://callumbcoaching.co.uk/book" />
   <meta property="og:image" content="https://callumbcoaching.co.uk/og-image.jpg" />
@@ -26,6 +26,11 @@
 <link rel="stylesheet" href="/components.css?v=a9aa471a">
 <meta name="theme-color" content="#09150F">
 <link rel="stylesheet" href="/assets/css/tools.css?v=1">
+<style>
+  #cal-inline{width:100%;max-width:100%;min-height:560px;margin-top:8px;color-scheme:dark;}
+  @media (min-width:720px){#cal-inline{min-height:680px;}}
+  #cal-inline iframe{display:block;width:100%;max-width:100%;border:0;}
+</style>
 
   <script async src="https://plausible.io/js/pa-ARVew5Fljzfvc-hdK57GS.js"></script>
   <script>
@@ -52,12 +57,68 @@
 <main>
     <section class="section" style="padding-top:56px;">
       <div class="wrap center" style="max-width:760px;">
-        <p class="tagline" style="color:var(--green);">Free · 30 minutes · no obligation</p>
-        <h1 class="h2" style="margin:6px 0 10px;">Book a Discovery Call</h1>
-        <p class="lead" style="margin:0 auto 6px;max-width:560px;">Not sure which level fits: Self-Led, Blueprint or coached? Grab 30 minutes with me. We'll talk through where you are, where you want to get to, and I'll tell you straight what I'd do, even if the answer is "run the free Framework yourself".</p>
-        <div class="calendly-inline-widget" data-url="https://calendly.com/hello-callumbcoaching/30min?hide_gdpr_banner=1&background_color=09150f&text_color=f3ead6&primary_color=c9a96e" style="min-width:320px;height:760px;margin-top:10px;"></div>
-        <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
-        <p class="note" style="margin-top:4px;">Prefer WhatsApp? <a class="green" href="https://wa.me/447359838866?text=Hi%20Callum%2C%20I%27d%20like%20to%20book%20a%20discovery%20call" style="text-decoration:underline;">Message me</a> and we'll sort a time.</p>
+        <p class="tagline" style="color:var(--green);">Free · 20 minutes · by phone</p>
+        <h1 class="h2" style="margin:6px 0 10px;">Book a free <span style="white-space:nowrap">20-minute</span> call</h1>
+        <p class="lead" style="margin:0 auto 6px;max-width:560px;">Just you and me, by phone. I'll ask where you are now, what you want to change and what has got in the way before. Then I'll tell you straight whether 1:1 coaching is the right fit. No pressure and no hard sell.</p>
+        <p class="note" style="margin:16px auto 0;max-width:560px;">If the calendar does not load, <a class="green" href="https://cal.com/callumbcoaching/discovery-call" style="text-decoration:underline;">book the call here</a>.</p>
+        <div id="cal-inline"></div>
+        <script>
+          (function (C, A, L) {
+            var p = function (a, ar) { a.q.push(ar); };
+            var d = C.document;
+            C.Cal = C.Cal || function () {
+              var cal = C.Cal;
+              var ar = arguments;
+              if (!cal.loaded) {
+                cal.ns = {};
+                cal.q = cal.q || [];
+                d.head.appendChild(d.createElement("script")).src = A;
+                cal.loaded = true;
+              }
+              if (ar[0] === L) {
+                var api = function () { p(api, arguments); };
+                var namespace = ar[1];
+                api.q = api.q || [];
+                if (typeof namespace === "string") {
+                  cal.ns[namespace] = cal.ns[namespace] || api;
+                  p(cal.ns[namespace], ar);
+                  p(cal, ["initNamespace", namespace]);
+                } else p(cal, ar);
+                return;
+              }
+              p(cal, ar);
+            };
+          })(window, "https://app.cal.com/embed/embed.js", "init");
+          Cal("init", { origin: "https://cal.com" });
+          Cal("inline", {
+            elementOrSelector: "#cal-inline",
+            calLink: "callumbcoaching/discovery-call",
+            config: {
+              layout: "month_view",
+              theme: "dark",
+              "ui.color-scheme": "dark",
+              useSlotsViewOnSmallScreen: "true",
+              iframeAttrs: { title: "Book a free 20-minute call" }
+            }
+          });
+          Cal("ui", {
+            theme: "dark",
+            styles: { branding: { brandColor: "#C9A96E" } },
+            cssVarsPerTheme: {
+              dark: {
+                "cal-brand": "#C9A96E",
+                "cal-bg": "#09150F",
+                "cal-bg-emphasis": "#112418",
+                "cal-text": "#F3EAD6",
+                "cal-text-emphasis": "#F3EAD6"
+              },
+              light: { "cal-brand": "#C9A96E" }
+            },
+            hideEventTypeDetails: false,
+            layout: "month_view"
+          });
+        </script>
+        <p class="note" style="margin-top:4px;">Prefer WhatsApp? <a class="green" href="https://wa.me/447359838866?text=Hi%20Callum%2C%20I%27d%20like%20to%20book%20a%20free%20call" style="text-decoration:underline;">Message me</a> and we'll sort a time.</p>
       </div>
     </section>
   </main>

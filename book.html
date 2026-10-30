@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=GFS+Didot&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="/heritage.css?v=e77540c5">
+<link rel="stylesheet" href="/heritage.css?v=f3a91c2e">
 <link rel="stylesheet" href="/components.css?v=a9aa471a">
 <meta name="theme-color" content="#09150F">
 <link rel="stylesheet" href="/assets/css/tools.css?v=1">
@@ -44,13 +44,13 @@
   <header class="nav">
   <div class="nav__bar">
     <a class="mark" href="/" aria-label="CALLUM.B home"><img src="/brand_assets/lion-420.webp" alt="">CALLUM<i>.</i>B</a>
-    <nav class="nav__links" aria-label="Main"><a href="/#method">Method</a><a href="/results">Results</a><a href="/about">About</a><a href="/coaching">Coaching</a></nav>
+    <nav class="nav__links" aria-label="Main"><a href="/#method">Method</a><a href="/results">Results</a><a href="/about">About</a><a href="/rebuild">Rebuild</a><a href="/coaching">Coaching</a></nav>
     <div class="nav__end"><a class="btn" href="/apply">Apply</a><button class="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button></div>
   </div>
 </header>
 <div class="mnav" id="mnav" hidden>
   <div class="mnav__bg" aria-hidden="true"><img src="/brand_assets/lion-crest.png" alt=""></div>
-  <nav aria-label="Menu"><ol class="mnav__list"><li style="--d:0"><a href="/"><span class="mnav__n">01</span><span class="mnav__t">Home</span><span class="mnav__s">The promise</span></a></li><li style="--d:1"><a href="/coaching"><span class="mnav__n">02</span><span class="mnav__t">Coaching</span><span class="mnav__s">Plans and what's included</span></a></li><li style="--d:2"><a href="/results"><span class="mnav__n">03</span><span class="mnav__t">Results</span><span class="mnav__s">Client transformations</span></a></li><li style="--d:3"><a href="/about"><span class="mnav__n">04</span><span class="mnav__t">About</span><span class="mnav__s">My story</span></a></li><li style="--d:4"><a href="/terms-coaching"><span class="mnav__n">05</span><span class="mnav__t">Terms</span><span class="mnav__s">In plain English</span></a></li></ol></nav>
+  <nav aria-label="Menu"><ol class="mnav__list"><li style="--d:0"><a href="/"><span class="mnav__n">01</span><span class="mnav__t">Home</span><span class="mnav__s">The promise</span></a></li><li style="--d:1"><a href="/rebuild"><span class="mnav__n">02</span><span class="mnav__t">Full Rebuild</span><span class="mnav__s">52 weeks, 3 places</span></a></li><li style="--d:2"><a href="/coaching"><span class="mnav__n">03</span><span class="mnav__t">Coaching</span><span class="mnav__s">Plans and what's included</span></a></li><li style="--d:3"><a href="/results"><span class="mnav__n">04</span><span class="mnav__t">Results</span><span class="mnav__s">Client transformations</span></a></li><li style="--d:4"><a href="/about"><span class="mnav__n">05</span><span class="mnav__t">About</span><span class="mnav__s">My story</span></a></li><li style="--d:5"><a href="/terms-coaching"><span class="mnav__n">06</span><span class="mnav__t">Terms</span><span class="mnav__s">In plain English</span></a></li></ol></nav>
   <div class="mnav__foot"><a class="btn" href="/apply">Apply for 1:1 coaching <span class="arr">→</span></a><p class="label">Structure over motivation</p></div>
 </div>
 
@@ -60,6 +60,7 @@
         <p class="tagline" style="color:var(--green);">Free · 20 minutes · by phone</p>
         <h1 class="h2" style="margin:6px 0 10px;">Book a free <span style="white-space:nowrap">20-minute</span> call</h1>
         <p class="lead" style="margin:0 auto 6px;max-width:560px;">Just you and me, by phone. I'll ask where you are now, what you want to change and what has got in the way before. Then I'll tell you straight whether 1:1 coaching is the right fit. No pressure and no hard sell.</p>
+        <p class="note" id="rebuildBrought" hidden style="margin:16px auto 0;max-width:560px;">You already told me about your drinking on The Full Rebuild page. If you're drinking heavily, or your blood pressure is high, speak to your GP first. I'll ask about it on the call.</p>
         <p class="note" style="margin:16px auto 0;max-width:560px;">If the calendar does not load, <a class="green" href="https://cal.com/callumbcoaching/discovery-call" style="text-decoration:underline;">book the call here</a>.</p>
         <div id="cal-inline"></div>
         <script>
@@ -101,6 +102,10 @@
               iframeAttrs: { title: "Book a free 20-minute call" }
             }
           });
+          try {
+            var brought = JSON.parse(sessionStorage.getItem("cb-rebuild-screen") || "null");
+            if (brought && brought.gp) document.getElementById("rebuildBrought").hidden = false;
+          } catch (e) {}
           Cal("ui", {
             theme: "dark",
             styles: { branding: { brandColor: "#C9A96E" } },

@@ -54,6 +54,9 @@ export function applicationSummary(input: {
   plan: string;
   reply: string;
   phone: string;
+  drinking?: string;
+  amount?: string;
+  gp?: string;
 }): string {
   const bits = [
     input.goals ? `Wants: ${input.goals}` : "",
@@ -63,6 +66,9 @@ export function applicationSummary(input: {
     input.phone ? `Phone: ${input.phone}` : "",
     input.tried ? `Tried before: ${input.tried}` : "",
     input.week ? `Week: ${input.week}` : "",
+    input.drinking ? `Drinking: ${input.drinking}` : "",
+    input.amount ? `On a drinking day: ${input.amount}` : "",
+    input.gp === "yes" ? "GP note read" : "",
   ].filter(Boolean);
   return bits.join(". ").slice(0, 500);
 }
@@ -131,6 +137,9 @@ export async function POST(request: Request): Promise<Response> {
     plan: cleanText(data.plan, 80),
     reply: cleanText(data.reply, 40),
     phone,
+    drinking: cleanText(data.drinking, 80),
+    amount: cleanText(data.amount, 160),
+    gp: cleanText(data.gp, 8),
   });
 
   const result = await subscribe(key, {

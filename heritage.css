@@ -175,6 +175,11 @@ h1,h2,h3,h4{font-family:var(--display);color:var(--cream);font-weight:600;margin
 .nav__links a:active{transform:scale(.96);}
 .nav .btn{padding:13px 20px;font-size:11px;}
 @media (min-width:880px){ .nav__links{display:flex;} }
+@media (min-width:880px) and (max-width:1080px){
+  .nav__links{gap:14px;}
+  .nav__links a{letter-spacing:.12em;font-size:10.5px;}
+  .nav .btn{padding:12px 14px;}
+}
 @media (max-width:520px){ .mark{font-size:16px;letter-spacing:.22em;} .mark img{width:22px;} .nav .btn{padding:12px 14px;letter-spacing:.14em;} .nav .btn .arr{display:none;} }
 
 /* ---------- the thread of light (signature) ---------- */

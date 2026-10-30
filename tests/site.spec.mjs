@@ -6,6 +6,7 @@ const pages = [
   { path: "/coaching", title: /Coaching/, h1: /Someone reading your numbers/i },
   { path: "/results", title: /Results/, h1: /Men with jobs, kids/i },
   { path: "/apply", title: /Apply/, h1: /where you're at/i },
+  { path: "/rebuild", title: /The Full Rebuild/, h1: /drank every night/i },
   { path: "/terms-coaching", title: /Terms/, h1: /The terms/i },
 ];
 
@@ -61,7 +62,7 @@ for (const p of pages) {
     test("internal links resolve", async ({ page, request }) => {
       await page.goto(p.path);
       const hrefs = await page.$$eval("a[href]", as => [...new Set(as.map(a => a.getAttribute("href")))]);
-      const ours = ["/", "/about", "/coaching", "/results", "/apply", "/terms-coaching"];
+      const ours = ["/", "/about", "/coaching", "/results", "/apply", "/terms-coaching", "/rebuild"];
       const local = hrefs.map(h => h.split("#")[0] || "/").filter(h => ours.includes(h));
       for (const h of new Set(local)) expect((await request.get(h)).status(), h).toBe(200);
       expect(hrefs.filter(h => /^[\w-]+\.html/.test(h)), "links should use clean addresses").toEqual([]);
@@ -96,6 +97,34 @@ test("apply form builds the WhatsApp message", async ({ page }) => {
   const href = await page.locator("#applySend").getAttribute("href");
   expect(href).toMatch(/^https:\/\/wa\.me\/447359838866\?text=/);
   expect(decodeURIComponent(href)).toContain("Fall off by week three.");
+});
+
+test("Full Rebuild screen carries drinking answers into the application", async ({ page }) => {
+  await page.route("**/formspree.io/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: "{}",
+  }));
+  await page.goto("/rebuild");
+  await page.locator("#screen").scrollIntoViewIfNeeded();
+  const gate = page.locator("#rebuildGate");
+  await gate.getByText("Every night", { exact: true }).click();
+  await page.locator("#rb-amount").fill("A bottle of wine");
+  await gate.getByText(/I've read that/).click();
+  await page.getByRole("button", { name: /continue to the form/i }).click();
+  await page.waitForURL(/\/apply\?plan=The(?:\+|%20)Full(?:\+|%20)Rebuild/);
+  await expect(page.locator('input[name="plan"][value="The Full Rebuild"]')).toBeChecked();
+  await expect(page.locator("#rebuildFields")).toBeVisible();
+  await expect(page.locator('#applyForm input[value="Every night"]')).toBeChecked();
+  await expect(page.locator("#f-amount")).toHaveValue("A bottle of wine");
+  await expect(page.locator('#applyForm input[name="gp"]')).toBeChecked();
+  await page.fill("#f-name", "Dave");
+  await page.fill("#f-contact", "dave@example.com");
+  await page.getByRole("button", { name: /send my application/i }).click();
+  await expect(page.locator("#applyText")).toContainText("Plan: The Full Rebuild");
+  await expect(page.locator("#applyText")).toContainText("Drinking: Every night");
+  await expect(page.locator("#applyText")).toContainText("A bottle of wine");
+  await expect(page.locator("#applyText")).toContainText("GP note");
 });
 
 test("home: client app tabs switch screens", async ({ page }) => {

@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=GFS+Didot&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="heritage.css?v=e77540c5">
+<link rel="stylesheet" href="heritage.css?v=f3a91c2e">
 <link rel="stylesheet" href="components.css?v=b03473c0">
 <!-- Privacy-friendly analytics by Plausible -->
 <script async src="https://plausible.io/js/pa-ARVew5Fljzfvc-hdK57GS.js"></script>
@@ -36,13 +36,13 @@
 <header class="nav">
   <div class="nav__bar">
     <a class="mark" href="/" aria-label="CALLUM.B home"><img src="brand_assets/lion-420.webp" alt="">CALLUM<i>.</i>B</a>
-    <nav class="nav__links" aria-label="Main"><a href="/#method">Method</a><a href="/results">Results</a><a href="/about">About</a><a href="/coaching">Coaching</a></nav>
+    <nav class="nav__links" aria-label="Main"><a href="/#method">Method</a><a href="/results">Results</a><a href="/about">About</a><a href="/rebuild">Rebuild</a><a href="/coaching">Coaching</a></nav>
     <div class="nav__end"><a class="btn" href="/apply">Apply <span class="arr">→</span></a><button class="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button></div>
   </div>
 </header>
 <div class="mnav" id="mnav" hidden>
   <div class="mnav__bg" aria-hidden="true"><img src="brand_assets/lion-crest.png" alt=""></div>
-  <nav aria-label="Menu"><ol class="mnav__list"><li style="--d:0"><a href="/"><span class="mnav__n">01</span><span class="mnav__t">Home</span><span class="mnav__s">The promise</span></a></li><li style="--d:1"><a href="/coaching"><span class="mnav__n">02</span><span class="mnav__t">Coaching</span><span class="mnav__s">Plans and what's included</span></a></li><li style="--d:2"><a href="/results"><span class="mnav__n">03</span><span class="mnav__t">Results</span><span class="mnav__s">Client transformations</span></a></li><li style="--d:3"><a href="/about"><span class="mnav__n">04</span><span class="mnav__t">About</span><span class="mnav__s">My story</span></a></li><li style="--d:4"><a href="/terms-coaching"><span class="mnav__n">05</span><span class="mnav__t">Terms</span><span class="mnav__s">In plain English</span></a></li></ol></nav>
+  <nav aria-label="Menu"><ol class="mnav__list"><li style="--d:0"><a href="/"><span class="mnav__n">01</span><span class="mnav__t">Home</span><span class="mnav__s">The promise</span></a></li><li style="--d:1"><a href="/rebuild"><span class="mnav__n">02</span><span class="mnav__t">Full Rebuild</span><span class="mnav__s">52 weeks, 3 places</span></a></li><li style="--d:2"><a href="/coaching"><span class="mnav__n">03</span><span class="mnav__t">Coaching</span><span class="mnav__s">Plans and what's included</span></a></li><li style="--d:3"><a href="/results"><span class="mnav__n">04</span><span class="mnav__t">Results</span><span class="mnav__s">Client transformations</span></a></li><li style="--d:4"><a href="/about"><span class="mnav__n">05</span><span class="mnav__t">About</span><span class="mnav__s">My story</span></a></li><li style="--d:5"><a href="/terms-coaching"><span class="mnav__n">06</span><span class="mnav__t">Terms</span><span class="mnav__s">In plain English</span></a></li></ol></nav>
   <div class="mnav__foot"><a class="btn" href="/apply">Apply for 1:1 coaching <span class="arr">→</span></a><p class="label">Structure over motivation</p></div>
 </div>
 
@@ -92,11 +92,29 @@
       <div class="field"><label for="f-week">What does your week look like?</label><p class="hint">Work, kids, shifts, how many days you could train.</p><textarea id="f-week" name="week" style="min-height:80px"></textarea></div>
       <fieldset class="field"><legend>Which plan are you leaning towards?</legend>
         <div class="chips">
+          <label><input type="radio" name="plan" value="The Full Rebuild"><span>The Full Rebuild</span></label>
           <label><input type="radio" name="plan" value="12 months, Structured Development"><span>12 months</span></label>
           <label><input type="radio" name="plan" value="6 months, Transformation"><span>6 months</span></label>
           <label><input type="radio" name="plan" value="12 weeks, Foundation"><span>12 weeks</span></label>
           <label><input type="radio" name="plan" value="Not sure yet" checked><span>Not sure yet</span></label>
         </div></fieldset>
+      <div id="rebuildFields" hidden>
+        <fieldset class="field"><legend>How often are you drinking right now?</legend>
+          <p class="hint">The Full Rebuild asks this before we go any further.</p>
+          <div class="chips">
+            <label><input type="radio" name="often" value="Every night"><span>Every night</span></label>
+            <label><input type="radio" name="often" value="Most nights"><span>Most nights</span></label>
+            <label><input type="radio" name="often" value="A few times a week"><span>A few times a week</span></label>
+            <label><input type="radio" name="often" value="I've stopped"><span>I've stopped</span></label>
+            <label><input type="radio" name="often" value="I'd rather say it on the call"><span>I'd rather say it on the call</span></label>
+          </div>
+        </fieldset>
+        <div class="field"><label for="f-amount">On a drinking day, roughly how much?</label><p class="hint">Skip it if you've stopped, or if you'd rather say it on the call.</p><textarea id="f-amount" name="amount" style="min-height:80px"></textarea></div>
+        <div class="you">
+          <p class="body">If you are drinking heavily, or your blood pressure is high, speak to your GP before you change your drinking, your food or your training. I'm a coach, not a doctor. This is online coaching. It is not medical treatment, and it is not a reason to start, stop or change any medication.</p>
+        </div>
+        <label class="field" style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" name="gp" value="yes" style="margin-top:4px"><span>I've read that. If I'm drinking heavily, or my blood pressure is high, I'll speak to my GP. I understand this is coaching, not medical care.</span></label>
+      </div>
       <fieldset class="field"><legend>How would you like me to reply?</legend>
         <div class="chips">
           <label><input type="radio" name="reply" value="WhatsApp message" checked><span>WhatsApp message</span></label>
@@ -123,21 +141,52 @@
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 (() => {
   const f = document.getElementById("applyForm"), done = document.getElementById("applyDone"), out = document.getElementById("applyText"), send = document.getElementById("applySend");
+  const rebuildFields = document.getElementById("rebuildFields");
+  const syncRebuild = () => {
+    const on = (new FormData(f).get("plan") === "The Full Rebuild");
+    rebuildFields.hidden = !on;
+    rebuildFields.querySelectorAll("input, textarea").forEach(el => { el.disabled = !on; });
+  };
+  f.querySelectorAll('input[name="plan"]').forEach(r => r.addEventListener("change", syncRebuild));
+  const wanted = new URLSearchParams(location.search).get("plan") || "";
+  if (/full rebuild/i.test(wanted)) {
+    const radio = f.querySelector('input[name="plan"][value="The Full Rebuild"]');
+    if (radio) radio.checked = true;
+  }
+  try {
+    const saved = JSON.parse(sessionStorage.getItem("cb-rebuild-screen") || "null");
+    if (saved && saved.often && /full rebuild/i.test(wanted)) {
+      f.querySelectorAll('input[name="often"]').forEach(el => { if (el.value === saved.often) el.checked = true; });
+      if (saved.amount && f.elements.amount) f.elements.amount.value = saved.amount;
+      if (saved.gp && f.elements.gp) f.elements.gp.checked = true;
+    }
+  } catch (errSaved) {}
+  syncRebuild();
   let started = false;
   f.addEventListener("input", () => { if (!started) { started = true; track("Application started"); } });
   f.addEventListener("submit", async e => {
     e.preventDefault();
     const d = new FormData(f), v = k => (d.get(k) || "").toString().trim();
     for (const k of ["name", "contact"]) if (!v(k)) { const el = f.elements[k]; el.focus(); el.closest(".field").classList.add("need"); return; }
+    const plan = v("plan");
+    if (plan === "The Full Rebuild") {
+      const often = v("often");
+      const amount = v("amount");
+      const skipAmount = often === "I've stopped" || often === "I'd rather say it on the call";
+      if (!often) { const el = f.querySelector('input[name="often"]'); if (el) el.focus(); return; }
+      if (!skipAmount && !amount) { f.elements.amount.focus(); return; }
+      if (d.get("gp") !== "yes") { f.elements.gp.focus(); return; }
+    }
     const goals = d.getAll("goal").join(", ");
     const lines = [
-      "Hi Callum, here's my application for 1:1 coaching.", "",
+      plan === "The Full Rebuild" ? "Hi Callum, here's my application for The Full Rebuild." : "Hi Callum, here's my application for 1:1 coaching.", "",
       "Name: " + (v("name") || "-"), "Age: " + (v("age") || "-"), "Contact: " + v("contact"),
       "What I want: " + (goals || "-"), "",
       "What's gone wrong before: " + (v("tried") || "-"), "",
       "My week: " + (v("week") || "-"), "",
-      "Plan: " + v("plan"), "Best reply: " + v("reply")
+      "Plan: " + plan, "Best reply: " + v("reply")
     ];
+    if (plan === "The Full Rebuild") lines.push("", "Drinking: " + (v("often") || "-"), "On a drinking day: " + (v("amount") || "-"), "GP note: read. I'll speak to my GP if I'm drinking heavily or my blood pressure is high.");
     const msg = lines.join("\n");
     out.textContent = msg;
     const mail = document.getElementById("applyMail");
@@ -148,7 +197,7 @@
     let saved = false;
     try {
       const r = await fetch("https://formspree.io/f/mvzjlroq", { method: "POST", headers: { "Accept": "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ _subject: "1:1 application: " + v("name"), name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan: v("plan"), reply: v("reply"), application: msg }) });
+        body: JSON.stringify({ _subject: (plan === "The Full Rebuild" ? "Full Rebuild application: " : "1:1 application: ") + v("name"), name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), drinking: v("often"), amount: v("amount"), gp: d.get("gp") === "yes" ? "yes" : "", application: msg }) });
       saved = r.ok;
     } catch (err) {}
     btn.disabled = false;
@@ -179,7 +228,7 @@
         <p class="body" style="max-width:34ch">Structured physique development for men who are done guessing.</p>
         <p class="label">J3 University Level 1 Certified Coach</p>
       </div>
-      <div><h4>Coaching</h4><ul><li><a href="/coaching">Premium 1:1</a></li><li><a href="/apply">Apply</a></li><li><a href="/the-ninety/">The Ninety</a></li><li><a href="/start/">Physique OS</a></li></ul></div>
+      <div><h4>Coaching</h4><ul><li><a href="/rebuild">The Full Rebuild</a></li><li><a href="/coaching">Premium 1:1</a></li><li><a href="/apply">Apply</a></li><li><a href="/the-ninety/">The Ninety</a></li><li><a href="/start/">Physique OS</a></li></ul></div>
       <div><h4>Explore</h4><ul><li><a href="/results">Results</a></li><li><a href="/about">About</a></li><li><a href="/tdee-calculator">TDEE calculator</a></li><li><a href="/trt-starter/">TRT framework</a></li><li><a href="/online-personal-trainer-cost">What online PT costs</a></li><li><a href="/online-personal-trainer-stockport">Based in Stockport</a></li></ul></div>
       <div><h4>Connect</h4><ul><li><a href="https://instagram.com/callum.transformation.coach" target="_blank" rel="noopener">Instagram</a></li><li><a href="/links/">All links</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/terms-coaching">Coaching terms</a></li><li><a href="/terms">Site terms</a></li></ul></div>
     </div>

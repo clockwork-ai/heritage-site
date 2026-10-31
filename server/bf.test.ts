@@ -7,6 +7,21 @@ import { POST, type PhotoRead } from "./bf.ts";
 const PIXEL =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
 
+function pngClaiming(width: number, height: number): string {
+  const bytes = Buffer.alloc(64);
+  bytes[0] = 0x89;
+  bytes[1] = 0x50;
+  bytes[2] = 0x4e;
+  bytes[3] = 0x47;
+  bytes.writeUInt32BE(13, 8);
+  bytes.write("IHDR", 12);
+  bytes.writeUInt32BE(width, 16);
+  bytes.writeUInt32BE(height, 20);
+  return `data:image/png;base64,${bytes.toString("base64")}`;
+}
+
+const PHOTO = pngClaiming(400, 600);
+
 function request(body: unknown, ip = "203.0.113.20"): Request {
   return new Request("https://preview.vercel.app/api/bf", {
     method: "POST",
@@ -45,10 +60,23 @@ test("an unreadable photo with calculator stats uses the formula", async () => {
   assert.equal(body.data.note.includes("\u2014"), false);
 });
 
+test("a tiny photo uses the formula instead of inventing a reading", async () => {
+  resetRateLimits();
+  let called = false;
+  const res = await POST(request({ ...stats, image: PIXEL }, "203.0.113.24"), async () => {
+    called = true;
+    throw new Error("should not run");
+  });
+  assert.equal(called, false);
+  const body = await res.json();
+  assert.equal(body.data.method, "deurenberg-1991");
+  assert.equal(body.data.body_fat_percent, 22.9);
+});
+
 test("a photo read is returned with a wide range", async () => {
   resetRateLimits();
   const res = await POST(
-    request({ ...stats, image: PIXEL }, "203.0.113.21"),
+    request({ ...stats, image: PHOTO }, "203.0.113.21"),
     async (): Promise<PhotoRead> => ({
       valid: true,
       body_fat_percent: 18.2,
@@ -68,7 +96,7 @@ test("a photo read is returned with a wide range", async () => {
 test("a failed photo read falls back to the formula when stats are present", async () => {
   resetRateLimits();
   const res = await POST(
-    request({ ...stats, image: PIXEL }, "203.0.113.22"),
+    request({ ...stats, image: PHOTO }, "203.0.113.22"),
     async () => {
       throw new Error("gateway down");
     },
@@ -82,7 +110,7 @@ test("a failed photo read falls back to the formula when stats are present", asy
 test("a failed photo read without stats tells the visitor to use the tape", async () => {
   resetRateLimits();
   const res = await POST(
-    request({ email: "test+preview@callumbcoaching.co.uk", image: PIXEL }, "203.0.113.23"),
+    request({ email: "test+preview@callumbcoaching.co.uk", image: PHOTO }, "203.0.113.23"),
     async () => {
       throw new Error("gateway down");
     },

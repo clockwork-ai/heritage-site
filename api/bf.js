@@ -28,6 +28,36 @@ function deurenberg(stats) {
   return Math.round(bf * 10) / 10;
 }
 var FORMULA_NOTE = "The photo could not be read, so this is not a reading of the photo. It is the Deurenberg formula from 1991, using the age, height, weight and sex already in the calculator. It estimates body fat for a population, not a measurement of you. The tape method on this page is the more repeatable check.";
+function imageSize(bytes) {
+  if (bytes.length >= 24 && bytes[0] === 137 && bytes[1] === 80 && bytes[2] === 78 && bytes[3] === 71) {
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    return { width: view.getUint32(16), height: view.getUint32(20) };
+  }
+  if (bytes.length < 4 || bytes[0] !== 255 || bytes[1] !== 216) return null;
+  let i = 2;
+  while (i + 9 < bytes.length) {
+    if (bytes[i] !== 255) {
+      i += 1;
+      continue;
+    }
+    const marker = bytes[i + 1];
+    if (marker === 216 || marker === 217) {
+      i += 2;
+      continue;
+    }
+    const length = bytes[i + 2] << 8 | bytes[i + 3];
+    const startOfFrame = marker >= 192 && marker <= 195 || marker >= 197 && marker <= 199 || marker >= 201 && marker <= 203;
+    if (startOfFrame && i + 8 < bytes.length) {
+      return {
+        height: bytes[i + 5] << 8 | bytes[i + 6],
+        width: bytes[i + 7] << 8 | bytes[i + 8]
+      };
+    }
+    if (length < 2) return null;
+    i += 2 + length;
+  }
+  return null;
+}
 function imageFromDataUrl(dataUrl) {
   if (typeof dataUrl !== "string" || dataUrl.length < 80 || dataUrl.length > 18e5) return null;
   const match = /^data:image\/(jpeg|jpg|png|webp);base64,([A-Za-z0-9+/=\s]+)$/.exec(dataUrl);
@@ -434,6 +464,22 @@ async function POST(request, estimate) {
   });
   const image = imageFromDataUrl(data.image);
   const formula = stats ? deurenberg(stats) : null;
+  if (image) {
+    const size = imageSize(image.bytes);
+    if (size && Math.min(size.width, size.height) < 200) {
+      if (formula != null) {
+        console.info("bf estimate method=deurenberg-1991 reason=small");
+        return formulaResponse(request, formula);
+      }
+      return json(request, {
+        data: {
+          valid: false,
+          note: "That photo is too small to read. Use a larger front-on photo, or the tape measure.",
+          method: "none"
+        }
+      });
+    }
+  }
   if (!image) {
     if (formula != null) {
       console.info("bf estimate method=deurenberg-1991 reason=image");

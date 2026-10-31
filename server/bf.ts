@@ -6,7 +6,7 @@
 
 import { generateObject } from "ai";
 import { z } from "zod";
-import { FORMULA_NOTE, deurenberg, imageFromDataUrl, parseStats } from "../lib/bf-estimate.ts";
+import { FORMULA_NOTE, deurenberg, imageFromDataUrl, imageSize, parseStats } from "../lib/bf-estimate.ts";
 import { business } from "../lib/business.ts";
 import { clientKey, corsHeaders, sameOrigin, scrubDashes, takeRateLimit } from "../lib/guard.ts";
 import { validEmail } from "../lib/mailerlite.ts";
@@ -195,6 +195,23 @@ export async function POST(request: Request, estimate?: Estimate): Promise<Respo
   });
   const image = imageFromDataUrl(data.image);
   const formula = stats ? deurenberg(stats) : null;
+
+  if (image) {
+    const size = imageSize(image.bytes);
+    if (size && Math.min(size.width, size.height) < 200) {
+      if (formula != null) {
+        console.info("bf estimate method=deurenberg-1991 reason=small");
+        return formulaResponse(request, formula);
+      }
+      return json(request, {
+        data: {
+          valid: false,
+          note: "That photo is too small to read. Use a larger front-on photo, or the tape measure.",
+          method: "none",
+        },
+      });
+    }
+  }
 
   if (!image) {
     if (formula != null) {

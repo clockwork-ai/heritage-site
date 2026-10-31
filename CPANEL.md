@@ -20,7 +20,9 @@ The chat widget and the free-guide form look at the page hostname. On `callumbco
 
 Chat uses `/api/chat`. The form uses `/api/lead.php`. The same signup function also answers `/api/lead`. An OPTIONS preflight from `https://callumbcoaching.co.uk` or `https://www.callumbcoaching.co.uk` is allowed on both paths.
 
-The MailerLite key stays on the Vercel project `callumb-coaching`, as `MAILERLITE_API_KEY`. You do not put that key, or `MAILERLITE_GROUP_ID`, on cPanel.
+The MailerLite key stays on the Vercel project `callumb-coaching`, as `MAILERLITE_API_KEY`. You do not put that key, or any `MAILERLITE_GROUP_*` variable, or `CHATBOT_ALERT_FORMSPREE_ID`, on cPanel.
+
+The apply form's MailerLite copy posts to `/api/apply`, and the photo body-fat step posts to `/api/bf`. On `callumbcoaching.co.uk` and `www.callumbcoaching.co.uk` those posts go to `https://callumb-coaching.vercel.app`. On any other host they stay on the same origin. `/bf-api.php` on Vercel rewrites to `/api/bf`.
 
 `https://callumb-coaching.vercel.app/api/chat` and `/api/lead.php` have to be public. Vercel Authentication should protect preview deployments only, not the production `*.vercel.app` URL.
 

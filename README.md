@@ -24,5 +24,10 @@ Set these on the Vercel project (Settings → Environment Variables). Do not com
 
 - `MAILERLITE_API_KEY` (required). MailerLite → Integrations → API → Generate new token. This is a Connect API token for `connect.mailerlite.com`, not a legacy v2 key.
 - `MAILERLITE_GROUP_ID` (optional). MailerLite → Subscribers → Groups → open the group. The group ID is the long number in the URL. If it is unset, the subscriber is created and not added to a group. The group name is not stored in this repo.
+- `MAILERLITE_GROUP_APPLICATIONS` (optional, Preview and Production). Applications group id. `/api/apply` skips quietly when it is unset.
+- `MAILERLITE_GROUP_CHATBOT` (optional, Preview and Production). Chatbot leads group id. Skipped when unset.
+- `CHATBOT_ALERT_FORMSPREE_ID` (optional, Preview and Production). Formspree form id. The server posts each chatbot lead there so Formspree emails Callum. Skipped when unset.
+
+Create a MailerLite text field with the key `note` if you want the application summary and the chatbot goal stored on the subscriber. Until that field exists, the subscriber is still added without it.
 
 On the cPanel upload, the form posts to the Vercel function instead. There is no key to add on cPanel. See `CPANEL.md`.

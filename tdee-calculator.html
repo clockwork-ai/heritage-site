@@ -247,9 +247,9 @@
     <section class="section" id="bodyfat" style="padding-top:0;">
       <div class="wrap">
         <div class="sec-head center">
-          <p class="eyebrow" style="justify-content:center;">Free extra · AI powered</p>
-          <h2>AI body-fat estimate from one photo.</h2>
-          <p class="lead" style="margin:0 auto;">Upload a single photo and AI gives you an estimated body-fat percentage, range and confidence, in about ten seconds. Prefer a tape measure? That works too.</p>
+          <p class="eyebrow" style="justify-content:center;">Free extra</p>
+          <h2>Body-fat estimate from one photo.</h2>
+          <p class="lead" style="margin:0 auto;">Upload a single photo for a rough visual estimate and a range. It is a guess from the picture, not a measurement. If the photo cannot be read, you get a published formula from your age, height and weight instead. Prefer a tape measure? That works too.</p>
         </div>
 
         <div class="calc-grid">
@@ -269,7 +269,7 @@
                 <label class="btn btn-dark" style="width:100%;justify-content:center;cursor:pointer;" id="bf-file-btn">📷 Choose a photo<input id="bf-file" type="file" accept="image/*" style="display:none;"></label>
                 <p class="note" id="bf-file-name" style="margin-top:8px;" hidden></p>
               </div>
-              <p class="note" style="margin-bottom:16px;">Best results: front-on, decent light, form-fitting or minimal clothing (like a progress photo). <b style="color:var(--body);">Analysed instantly and never stored</b>. The photo isn't saved and no human sees it. One free AI estimate per week. Re-test weekly and watch the trend.</p>
+              <p class="note" style="margin-bottom:16px;">Best results: front-on, decent light, form-fitting or minimal clothing (like a progress photo). <b style="color:var(--body);">Used for the estimate and not stored</b>. The photo isn't saved and no person sees it. Your email unlocks it in this browser.</p>
             </div>
 
             <!-- Tape pane -->
@@ -307,7 +307,7 @@
               <button class="btn btn-pri" id="bf-unlock" type="button" style="width:100%;justify-content:center;">Unlock my result</button>
             </div>
             <p class="note" id="bf-err" hidden style="color:var(--red);margin-top:10px;"></p>
-            <p class="note" id="bf-busy" hidden style="color:var(--green);margin-top:10px;">🧠 Analysing your photo… usually ~10 seconds.</p>
+            <p class="note" id="bf-busy" hidden style="color:var(--green);margin-top:10px;">Working out the estimate. This can take a few seconds.</p>
           </div>
 
           <div class="calc-result" id="bf-result-card">
@@ -332,8 +332,7 @@
         </div>
 
         <p class="note center" style="margin-top:28px;max-width:70ch;margin-inline:auto;">
-          Estimates only (AI visual read or US Navy tape method, typically ±3 to 4%). Not a medical measurement
-          or advice. Photos are processed in memory for the estimate and never stored.
+          Estimates only. The tape method is the US Navy formula. A photo read is a rough visual guess, not a scan and not a measurement. If the photo cannot be read, the figure is the Deurenberg formula from 1991, from your age, height, weight and sex. Not a medical measurement or advice. Photos are processed for the estimate and not stored.
         </p>
       </div>
     </section>
@@ -557,21 +556,44 @@
         $('bf-range').textContent=rangeTxt;
         var use=$('bf-use'); use.hidden=false; use.setAttribute('data-bf', String(bf)); use.textContent='Use '+bf+'% in my calculator';
         var n=$('bf-note');
-        if(extraNote){ n.textContent='🧠 '+extraNote; n.hidden=false; } else { n.hidden=true; }
+        if(extraNote){ n.textContent=extraNote; n.hidden=false; } else { n.hidden=true; }
         $('bf-result-card').scrollIntoView({behavior:'smooth', block:'center'});
       }
 
+      function bfUrl(){
+        return /(^|\.)callumbcoaching\.co\.uk$/.test(location.hostname)
+          ? 'https://callumb-coaching.vercel.app/api/bf'
+          : '/api/bf';
+      }
       function runAI(email){
         $('bf-busy').hidden=false; $('bf-err').hidden=true;
-        fetch('bf-api.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email, image:photoData})})
-          .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
-          .then(function(res){
-            if(!res.ok) throw new Error((res.j&&res.j.error&&res.j.error.message)||'Something went wrong.');
-            var d=res.j.data;
-            if(!d.valid){ fail(d.note||'That photo wasn\u2019t clear enough for a read. Try a front-on progress-style photo.'); return; }
-            show(d.body_fat_percent, Math.round(d.range_low)+' to '+Math.round(d.range_high)+'%', d.note+(d.confidence?(' (confidence: '+d.confidence+')'):''));
+        var payload={
+          email:email,
+          image:photoData,
+          sex:sexNow(),
+          age:parseFloat($('age').value)||0,
+          height_cm:heightCm(),
+          weight_kg:Math.round(weightKg()*10)/10
+        };
+        fetch(bfUrl(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+          .then(function(r){
+            return r.text().then(function(t){
+              var j=null; try{ j=JSON.parse(t); }catch(e){}
+              return {ok:r.ok, j:j};
+            });
           })
-          .catch(function(e){ fail(e.message||'Couldn\u2019t reach the AI. Try again in a minute.'); });
+          .then(function(res){
+            if(!res.j) throw new Error('Couldn\'t finish that estimate. Try the tape measure, or try again in a minute.');
+            if(!res.ok) throw new Error((res.j.error&&res.j.error.message)||'Couldn\'t finish that estimate. Try the tape measure, or try again in a minute.');
+            var d=res.j.data;
+            if(!d||!d.valid){ fail((d&&d.note)||'That photo wasn\'t clear enough for a read. Try a front-on progress-style photo, or use the tape measure.'); return; }
+            var low=Math.round(d.range_low), high=Math.round(d.range_high);
+            var rangeTxt=low===high ? low+'%' : low+' to '+high+'%';
+            var extra=d.note||'';
+            if(d.confidence) extra=(extra?extra+' ':'')+'(confidence: '+d.confidence+')';
+            show(d.body_fat_percent, rangeTxt, extra||null);
+          })
+          .catch(function(e){ fail(e.message||'Couldn\'t finish that estimate. Try the tape measure, or try again in a minute.'); });
       }
 
       function proceed(email){

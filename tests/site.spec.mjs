@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 const pages = [
   { path: "/", title: /Online Personal Trainer/, h1: /started/i },
   { path: "/about", title: /About/, h1: /addictive personality/i },
-  { path: "/coaching", title: /Coaching/, h1: /Someone reading your numbers/i },
+  { path: "/coaching", title: /Coaching/, h1: /Your numbers checked in on/i },
   { path: "/results", title: /Results/, h1: /Men with jobs, kids/i },
   { path: "/apply", title: /Apply/, h1: /where you're at/i },
   { path: "/terms-coaching", title: /Terms/, h1: /The terms/i },
@@ -77,11 +77,16 @@ for (const p of pages) {
 }
 
 test("apply form builds the WhatsApp message", async ({ page }) => {
+  const copies = [];
   await page.route("**/formspree.io/**", (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
     body: "{}",
   }));
+  await page.route("**/api/apply", async (route) => {
+    copies.push(route.request().postDataJSON());
+    await route.fulfill({ status: 500, contentType: "application/json", body: "{\"ok\":false}" });
+  });
   await page.goto("/apply");
   await page.fill("#f-name", "Dave");
   await page.fill("#f-age", "42");
@@ -91,11 +96,22 @@ test("apply form builds the WhatsApp message", async ({ page }) => {
   await page.getByText("12 months", { exact: true }).click();
   await page.getByRole("button", { name: /send my application/i }).click();
   await expect(page.locator("#applyDone")).toBeVisible();
+  await expect(page.locator("#doneHead")).toHaveText("Got it. I'll be in touch within 24 hours.");
   await expect(page.locator("#applyText")).toContainText("Name: Dave");
   await expect(page.locator("#applyText")).toContainText("Plan: 12 months");
   const href = await page.locator("#applySend").getAttribute("href");
   expect(href).toMatch(/^https:\/\/wa\.me\/447359838866\?text=/);
   expect(decodeURIComponent(href)).toContain("Fall off by week three.");
+  await expect.poll(() => copies.length).toBe(1);
+  expect(copies[0]).toMatchObject({
+    name: "Dave",
+    contact: "dave@example.com",
+    age: "42",
+    goals: "Lose fat",
+    tried: "Fall off by week three.",
+    plan: "12 months, Structured Development",
+  });
+  expect(copies[0].website).toBe("");
 });
 
 test("home: client app tabs switch screens", async ({ page }) => {
@@ -354,7 +370,7 @@ test("TDEE coaching button opens 1:1 coaching", async ({ page }) => {
   await expect(coaching).toHaveAttribute("href", "/coaching");
   await coaching.click();
   await expect(page).toHaveURL(/\/coaching$/);
-  await expect(page.locator("h1")).toContainText("Someone reading your numbers");
+  await expect(page.locator("h1")).toContainText("Your numbers checked in on");
   await expect(page.getByText("Premium 1:1 coaching", { exact: false }).first()).toBeVisible();
   await expect(page.locator("main")).not.toContainText(/in-person/i);
 });
@@ -652,6 +668,97 @@ for (const path of ["/", "/coaching", "/apply", "/links"]) {
     expect(over).toBeLessThanOrEqual(1);
   });
 }
+
+test("held copy uses the check-in wording and drops the unsourced muscle figures", async ({ page }) => {
+  await page.goto("/coaching");
+  await expect(page.locator("main")).toContainText("Your numbers checked in on");
+  await expect(page.locator("main")).toContainText("Your weekly check-in, which I review.");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /a reviewed weekly check-in/);
+  const coaching = await page.locator("main").innerText();
+  expect(coaching).not.toContain("Every Sunday");
+  expect(coaching).not.toContain("\u2014");
+  expect(coaching).not.toContain("\u2013");
+
+  await page.goto("/guide");
+  await expect(page.locator("body")).toContainText("Some of the weight lost on a GLP-1 can be muscle");
+  await expect(page.locator("body")).toContainText("How to protect your muscle while the scale drops.");
+  await expect(page.locator("body")).toContainText("a weekly check-in that I review");
+  const guide = await page.locator("body").innerText();
+  expect(guide).not.toContain("40%");
+  expect(guide).not.toContain("twelve years");
+  expect(guide).not.toContain("Mark:");
+
+  await page.goto("/muscle/");
+  const loss = page.locator(".hgrid .cell").nth(0);
+  const fix = page.locator(".hgrid .cell").nth(2);
+  await expect(loss).toContainText("Some of it can be muscle");
+  await expect(loss).not.toContainText("40%");
+  await expect(fix).toContainText("helps you keep more of it");
+  await expect(fix).not.toContainText("15 to 20%");
+  const muscle = await page.locator("main").innerText();
+  expect(muscle).not.toContain("40%");
+  expect(muscle).not.toContain("15 to 20%");
+
+  await page.goto("/protein-calculator");
+  const protein = await page.locator(".pc-edu").last().textContent();
+  expect(protein).toContain("some of what you lose can be muscle");
+  expect(protein).not.toContain("40%");
+  expect(protein).not.toContain("15 to 20%");
+});
+
+test("body-fat photo step shows the estimate the endpoint returns", async ({ page }) => {
+  const posted = [];
+  await page.route("**/formspree.io/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: "{}",
+  }));
+  await page.route("**/assets.mailerlite.com/**", (route) => route.fulfill({ status: 200, body: "" }));
+  await page.route("**/api/bf", async (route) => {
+    posted.push(route.request().postDataJSON());
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        data: {
+          valid: true,
+          body_fat_percent: 22.9,
+          range_low: 18,
+          range_high: 27,
+          confidence: "low",
+          note: "Rough visual estimate, not a measurement.",
+          method: "photo",
+        },
+      }),
+    });
+  });
+  await page.goto("/tdee-calculator");
+  await page.locator("#bf-file").setInputFiles({
+    name: "progress.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64"),
+  });
+  await expect(page.locator("#bf-file-name")).toBeVisible();
+  await page.getByRole("button", { name: /Reveal my body-fat/ }).click();
+  await expect(page.locator("#bf-gate")).toBeVisible();
+  await page.locator("#bf-email").fill("test+preview@callumbcoaching.co.uk");
+  await page.getByRole("button", { name: "Unlock my result" }).click();
+  await expect(page.locator("#bf-pct")).toHaveText("22.9");
+  await expect(page.locator("#bf-range")).toHaveText("18 to 27%");
+  await expect(page.locator("#bf-note")).toContainText("Rough visual estimate, not a measurement.");
+  await expect(page.locator("#bf-note")).toContainText("confidence: low");
+  expect(posted).toHaveLength(1);
+  expect(posted[0].email).toBe("test+preview@callumbcoaching.co.uk");
+  expect(posted[0].sex).toBe("male");
+  expect(posted[0].age).toBe(30);
+  expect(posted[0].height_cm).toBe(178);
+  expect(posted[0].weight_kg).toBe(85);
+  expect(String(posted[0].image)).toMatch(/^data:image\/jpeg;base64,/);
+  const text = await page.locator("#bodyfat").innerText();
+  expect(text).not.toContain("\u2014");
+  expect(text).not.toContain("\u2013");
+  expect(text).not.toContain("3 to 4%");
+});
 
 test("phone menu opens and navigates", async ({ page, isMobile }) => {
   test.skip(!isMobile, "phone only");

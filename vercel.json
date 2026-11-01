@@ -1,7 +1,8 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/api/lead.php", "destination": "/api/lead" }
+    { "source": "/api/lead.php", "destination": "/api/lead" },
+    { "source": "/bf-api.php", "destination": "/api/bf" }
   ],
   "redirects": [
     { "source": "/guides/five-numbers.pdf", "destination": "/guides/the-five-foundations.pdf", "permanent": true }
@@ -13,6 +14,12 @@
   "functions": {
     "api/chat.js": {
       "maxDuration": 30
+    },
+    "api/bf.js": {
+      "maxDuration": 30
+    },
+    "api/apply.js": {
+      "maxDuration": 15
     }
   }
 }

@@ -78,6 +78,7 @@
       <p class="applyg"><b>8-Week Progress Guarantee.</b> Hold 80%+ on your weekly SDR score for the first eight weeks. If nothing has improved, the next month is on me. <a class="tlink" href="/terms-coaching">Full terms</a></p>
     </div>
     <form class="applyf" id="applyForm" novalidate>
+      <input type="text" id="f-website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
       <div class="two">
         <div class="field"><label for="f-name">First name</label><input type="text" id="f-name" name="name" autocomplete="given-name" required></div>
         <div class="field"><label for="f-age">Age</label><input type="number" id="f-age" name="age" min="18" max="90" inputmode="numeric"></div>
@@ -126,6 +127,9 @@
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 (() => {
   const f = document.getElementById("applyForm"), done = document.getElementById("applyDone"), out = document.getElementById("applyText"), send = document.getElementById("applySend");
+  const copyUrl = /(^|\.)callumbcoaching\.co\.uk$/.test(location.hostname)
+    ? "https://callumb-coaching.vercel.app/api/apply"
+    : "/api/apply";
   let started = false;
   f.addEventListener("input", () => { if (!started) { started = true; track("Application started"); } });
   f.addEventListener("submit", async e => {
@@ -154,6 +158,12 @@
         body: JSON.stringify({ _subject: "1:1 application: " + v("name"), name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan: v("plan"), reply: v("reply"), application: msg }) });
       saved = r.ok;
     } catch (err) {}
+    // MailerLite copy. Formspree alone decides the message on screen.
+    if (saved) {
+      const site = document.getElementById("f-website");
+      fetch(copyUrl, { method: "POST", keepalive: true, headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan: v("plan"), reply: v("reply"), website: site ? site.value : "" }) }).catch(function () {});
+    }
     btn.disabled = false;
     track(saved ? "Application sent" : "Application save failed", { reply: v("reply") });
     if (saved) {

@@ -224,11 +224,18 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
   });
   await page.goto("/links/?utm_source=instagram&utm_medium=bio");
   await expect(page.locator("h1")).toContainText("already full");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /coaching options/i);
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /package/i);
   const text = await page.locator("main").innerText();
   const folded = text.toLowerCase();
   const order = [
+    "coaching options",
+    "head start",
+    "physique os",
+    "the 90",
+    "one-to-one",
     "get the five foundations",
-    "apply for 1:1 coaching",
+    "book a free call",
     "free tools",
     "tdee calculator",
     "protein calculator",
@@ -244,10 +251,35 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
     expect(next, label).toBeGreaterThan(at);
     at = next;
   }
+  const head = page.locator('a[data-ev="Head Start click"]');
+  await expect(head).toContainText("£47 one-off");
+  await expect(head).toContainText("9 Nov 2026 to 3 Jan 2027");
+  await expect(head).toContainText("Late joiners finish with the group");
+  await expect(head).not.toContainText(/8 weeks/i);
+  await expect(head).not.toContainText(/check-?in/i);
+  await expect(head).toHaveAttribute("href", /https:\/\/coach\.everfit\.io\/package\/GK689386\?.*utm_source=instagram/);
+  await expect(head).toHaveAttribute("rel", "noopener");
+  await expect(page.locator('a[data-ev="Physique OS click"]')).toHaveAttribute(
+    "href",
+    "/start/?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="Physique OS click"]')).toContainText("£29 a month");
+  await expect(page.locator('a[data-ev="The 90 click"]')).toHaveAttribute(
+    "href",
+    "/the-ninety?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator('a[data-ev="The 90 click"]')).toContainText("£297 one-off");
   await expect(page.locator('a[data-ev="Apply click"]')).toHaveAttribute(
     "href",
     "/apply?utm_source=instagram&utm_medium=bio",
   );
+  await expect(page.locator('a[data-ev="Apply click"]')).toContainText("Application only");
+  const fold = await page.locator('a[data-ev="Apply click"]').evaluate((el) => {
+    const rect = el.getBoundingClientRect();
+    return { bottom: rect.bottom, top: rect.top, height: window.innerHeight, width: window.innerWidth };
+  });
+  expect(fold.top, "one-to-one starts on screen").toBeGreaterThanOrEqual(0);
+  expect(fold.bottom, "four packages fit above the fold").toBeLessThanOrEqual(fold.height);
   await expect(page.locator('a[data-ev="TDEE click"]')).toHaveAttribute(
     "href",
     "/tdee-calculator?utm_source=instagram&utm_medium=bio",

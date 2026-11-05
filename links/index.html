@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Start here | CALLUM.B</title>
-<meta name="description" content="For busy men over 30. Get The Five Foundations free, or apply for 1:1 coaching.">
+<meta name="description" content="Coaching options, with the price on each package: Head Start, Physique OS, The 90, and one-to-one. The Five Foundations guide is free.">
 <link rel="canonical" href="https://callumbcoaching.co.uk/links/">
 <meta property="og:title" content="Start here | CALLUM.B">
-<meta property="og:description" content="For busy men over 30. Get The Five Foundations free, or apply for 1:1 coaching.">
+<meta property="og:description" content="Coaching options, with the price on each package: Head Start, Physique OS, The 90, and one-to-one. The Five Foundations guide is free.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://callumbcoaching.co.uk/links/">
 <meta property="og:image" content="https://callumbcoaching.co.uk/og-image.jpg">
@@ -38,17 +38,35 @@
     color:var(--body);font-family:var(--font-b);font-size:16px;line-height:1.6;
     -webkit-font-smoothing:antialiased;min-height:100vh;
   }
-  .wrap{width:100%;max-width:480px;margin:0 auto;padding:36px 22px 64px;text-align:center;}
+  .wrap{width:100%;max-width:480px;margin:0 auto;padding:14px 18px 64px;text-align:center;}
   .mark{font-family:var(--font-d);font-size:13px;letter-spacing:.34em;font-weight:800;color:var(--white);}
   .mark span{color:var(--green);}
-  .avatar{width:84px;height:84px;border-radius:50%;margin:18px auto 12px;border:1px solid var(--line2);
+  .avatar{width:48px;height:48px;border-radius:50%;margin:8px auto 6px;border:1px solid var(--line2);
     display:grid;place-items:center;background:#0C1C14;overflow:hidden;}
-  .avatar img{width:64px;height:64px;object-fit:contain;}
-  .eyebrow{font-family:var(--font-d);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--green);margin-bottom:8px;}
-  h1{font-family:var(--font-d);font-weight:700;font-size:28px;line-height:1.15;letter-spacing:-.02em;color:var(--white);margin:0 0 12px;}
-  .hook{font-size:16px;line-height:1.6;color:var(--body);margin:0 auto 26px;max-width:36ch;}
-  .card{text-align:left;background:var(--panel);border:1px solid var(--line2);padding:18px 16px 16px;margin:0 0 14px;}
-  .card h2{font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--white);letter-spacing:-.01em;margin:0 0 6px;}
+  .avatar img{width:36px;height:36px;object-fit:contain;}
+  .eyebrow{font-family:var(--font-d);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--green);margin-bottom:4px;}
+  h1{font-family:var(--font-d);font-weight:700;font-size:24px;line-height:1.12;letter-spacing:-.02em;color:var(--white);margin:0 0 4px;}
+  .hook{font-size:15px;line-height:1.4;color:var(--body);margin:0 auto 12px;}
+  .options{text-align:left;margin:0 0 6px;}
+  .options h2{font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--white);letter-spacing:-.01em;text-align:center;margin:0 0 8px;}
+  a.opt{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name price" "what cta";
+    column-gap:12px;row-gap:2px;align-items:start;width:100%;text-align:left;text-decoration:none;
+    color:var(--white);background:var(--panel);border:1px solid var(--line2);
+    padding:10px 12px;margin:0 0 6px;
+    font-family:var(--font-b);font-size:15px;font-weight:400;letter-spacing:0;text-transform:none;
+    box-shadow:none;overflow:visible;isolation:auto;
+  }
+  a.opt::before,a.opt::after{display:none;}
+  a.opt:hover{transform:none;border-color:var(--green);background:var(--panel2);}
+  a.opt:focus-visible{outline:2px solid var(--green);outline-offset:3px;}
+  .opt__name{grid-area:name;font-family:var(--font-d);font-size:16px;font-weight:700;line-height:1.2;color:var(--white);}
+  .opt__price{grid-area:price;justify-self:end;color:var(--green);font-size:13.5px;font-weight:600;line-height:1.2;white-space:nowrap;}
+  .opt__what{grid-area:what;color:var(--body);font-size:13.5px;line-height:1.35;}
+  .opt__cta{grid-area:cta;justify-self:end;align-self:end;color:var(--green);font-size:13px;font-weight:600;line-height:1.2;white-space:nowrap;}
+  .opt__cta .arr{display:inline-block;}
+  .card{text-align:left;background:var(--panel);border:1px solid var(--line);padding:16px 14px 14px;margin:0 0 12px;}
+  .card h2{font-family:var(--font-d);font-size:17px;font-weight:700;color:var(--white);letter-spacing:-.01em;margin:0 0 6px;}
   .card p{font-size:14px;color:var(--muted);margin:0 0 12px;}
   .leadf{margin:0;}
   .leadf__row{display:grid;gap:10px;grid-template-columns:1fr;}
@@ -59,8 +77,8 @@
   .leadf__msg a{color:var(--green);}
   .leadok{text-align:left;}
   .leadok p{color:var(--body);font-size:15px;}
-  .apply{width:100%;justify-content:center;margin:16px 0 6px;padding:16px 18px;}
-  .div{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:22px 0 10px;}
+  .apply{width:100%;justify-content:center;margin:0 0 4px;padding:14px 18px;}
+  .div{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:18px 0 10px;}
   .div::before,.div::after{content:"";flex:1;height:1px;background:var(--line);}
   .tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   .tools a{display:flex;align-items:center;justify-content:center;min-height:52px;text-align:center;text-decoration:none;color:var(--white);
@@ -89,8 +107,37 @@
   <div class="avatar"><img src="/brand_assets/lion-420.webp" alt=""></div>
   <p class="eyebrow">For men over 30</p>
   <h1>The week is already full.</h1>
-  <p class="hook">Work, family, and a gym bag that sometimes stays in the car. You don't need another restart. You need a short list you can still keep when the week goes sideways.</p>
+  <p class="hook">Pick the one that still fits.</p>
 
+  <section class="options" id="options" aria-labelledby="options-h">
+    <h2 id="options-h">Coaching options</h2>
+    <a class="opt" href="https://coach.everfit.io/package/GK689386" target="_blank" rel="noopener" data-ev="Head Start click">
+      <span class="opt__name">Head Start</span>
+      <span class="opt__price">£47 one-off</span>
+      <span class="opt__what">Cohort, 9 Nov 2026 to 3 Jan 2027. Late joiners finish with the group.</span>
+      <span class="opt__cta">Join <span class="arr">→</span></span>
+    </a>
+    <a class="opt" href="/start/" data-ev="Physique OS click">
+      <span class="opt__name">Physique OS</span>
+      <span class="opt__price">£29 a month</span>
+      <span class="opt__what">Run it yourself. On-demand training and recipes into the tracker.</span>
+      <span class="opt__cta">See it <span class="arr">→</span></span>
+    </a>
+    <a class="opt" href="/the-ninety" data-ev="The 90 click">
+      <span class="opt__name">The 90</span>
+      <span class="opt__price">£297 one-off</span>
+      <span class="opt__what">90 guided days.</span>
+      <span class="opt__cta">See it <span class="arr">→</span></span>
+    </a>
+    <a class="opt btn" href="/apply" data-ev="Apply click">
+      <span class="opt__name">One-to-one</span>
+      <span class="opt__price">Application only</span>
+      <span class="opt__what">For men over 30.</span>
+      <span class="opt__cta">Apply <span class="arr">→</span></span>
+    </a>
+  </section>
+
+  <p class="div">Free guide</p>
   <section class="card" id="guide" aria-label="The Five Foundations">
     <h2>Get The Five Foundations</h2>
     <p>Protein, steps, three short sessions, sleep, and one weekly check-in. A target and a minimum for each. Free.</p>
@@ -116,7 +163,6 @@
     </div>
   </section>
 
-  <a class="btn ghost apply" href="/apply" data-ev="Apply click">Apply for 1:1 coaching <span class="arr">→</span></a>
   <a class="btn ghost apply" href="/book" data-ev="Book click">Book a free call <span class="arr">→</span></a>
 
   <p class="div">Free tools</p>

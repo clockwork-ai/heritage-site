@@ -41,6 +41,20 @@ await build({
   banner: { js: "// Built from server/lead.ts. Same function as api/lead.js." },
 });
 
+await build({
+  ...bundle,
+  entryPoints: ["server/apply.ts"],
+  outfile: "api/apply.js",
+  banner: { js: "// Built from server/apply.ts. Edit that, then npm run build:chat." },
+});
+
+await build({
+  ...bundle,
+  entryPoints: ["server/bf.ts"],
+  outfile: "api/bf.js",
+  banner: { js: "// Built from server/bf.ts. Edit that, then npm run build:chat." },
+});
+
 const skip = new Set([
   "api",
   "lib",

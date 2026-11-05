@@ -434,6 +434,108 @@ function cleanLine(value, max) {
 // lib/leads.ts
 import { createHash } from "node:crypto";
 import { put } from "@vercel/blob";
+
+// lib/alerts.ts
+var FORM_ID = /^[A-Za-z0-9]{4,32}$/;
+function formspreeId(env = process.env) {
+  const value = (env.CHATBOT_ALERT_FORMSPREE_ID || "").trim();
+  return FORM_ID.test(value) ? value : "";
+}
+async function postChatbotAlert(input, fetchImpl = fetch) {
+  if (!FORM_ID.test(input.formId)) return { ok: false, status: 0 };
+  try {
+    const response = await fetchImpl(`https://formspree.io/f/${input.formId}`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: input.name,
+        email: input.email,
+        goal: input.goal,
+        page: input.page || "",
+        source: "chatbot",
+        _subject: `Chatbot lead: ${input.name}`
+      }),
+      signal: AbortSignal.timeout(4e3)
+    });
+    return { ok: response.ok, status: response.status };
+  } catch {
+    return { ok: false, status: 0 };
+  }
+}
+
+// lib/mailerlite.ts
+var SUBSCRIBERS = "https://connect.mailerlite.com/api/subscribers";
+var noteFieldRejected = false;
+function optionalGroup(name, env = process.env) {
+  const value = (env[name] || "").trim();
+  return /^\d{1,30}$/.test(value) ? value : "";
+}
+function fieldSet(input, mode) {
+  const fields = {};
+  if (input.name) fields.name = input.name;
+  if (mode !== "safe" && input.phone) fields.phone = input.phone;
+  if (input.source) fields.signup_source = input.source;
+  if (mode === "full" && input.note && !noteFieldRejected) fields.note = input.note.slice(0, 500);
+  return fields;
+}
+async function postSubscriber(key, input, fields, fetchImpl) {
+  const payload = { email: input.email };
+  if (Object.keys(fields).length) payload.fields = fields;
+  if (input.group) payload.groups = [input.group];
+  let response;
+  try {
+    response = await fetchImpl(SUBSCRIBERS, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(8e3)
+    });
+  } catch {
+    return { ok: false, status: 0, detail: "" };
+  }
+  if (response.ok) {
+    let id = "";
+    try {
+      const body = await response.json();
+      if (body?.data?.id != null) id = String(body.data.id);
+    } catch {
+      id = "";
+    }
+    return { ok: true, id };
+  }
+  let detail = "";
+  try {
+    detail = (await response.text()).slice(0, 500);
+  } catch {
+    detail = "";
+  }
+  return { ok: false, status: response.status, detail };
+}
+async function subscribe(key, input, fetchImpl = fetch) {
+  const attempts = ["full"];
+  if (input.note || input.phone) attempts.push("no-note");
+  if (input.phone) attempts.push("safe");
+  let last = 0;
+  for (const mode of attempts) {
+    const fields = fieldSet(input, mode);
+    const result = await postSubscriber(key, input, fields, fetchImpl);
+    if (result.ok) return { ok: true, id: result.id };
+    last = result.status;
+    if (result.status !== 422) return { ok: false, status: result.status };
+    if (mode === "full" && input.note && /note/i.test(result.detail)) noteFieldRejected = true;
+    if (mode === "no-note" && !input.phone) break;
+  }
+  return { ok: false, status: last || 422 };
+}
+
+// lib/leads.ts
 function validateLead(input, source, knownPage2) {
   const name = cleanLine(typeof input.name === "string" ? input.name : "", 80);
   const email = cleanLine(typeof input.email === "string" ? input.email : "", 120);
@@ -488,7 +590,78 @@ async function notify(config, lead) {
     return false;
   }
 }
-async function saveLead(config, lead) {
+async function subscribeChatbot(lead) {
+  const group = optionalGroup("MAILERLITE_GROUP_CHATBOT");
+  if (!group) {
+    console.info("chatbot mailerlite skipped: MAILERLITE_GROUP_CHATBOT unset");
+    return "skipped";
+  }
+  const key = (process.env.MAILERLITE_API_KEY || "").trim();
+  if (!key) {
+    console.error("chatbot mailerlite skipped: MAILERLITE_API_KEY is not set");
+    return "skipped";
+  }
+  const note = [`Goal: ${lead.goal}`, lead.page ? `Page: ${lead.page}` : ""].filter(Boolean).join(". ");
+  try {
+    const result = await subscribe(key, {
+      email: lead.email,
+      name: lead.name,
+      source: "chatbot",
+      group,
+      note
+    });
+    if (!result.ok) {
+      console.error("chatbot mailerlite failed", result.status);
+      return "failed";
+    }
+    console.info("chatbot mailerlite added");
+    return "added";
+  } catch (error) {
+    console.error("chatbot mailerlite failed", error instanceof Error ? error.name : "error");
+    return "failed";
+  }
+}
+async function alertChatbot(lead) {
+  const formId = formspreeId();
+  if (!formId) {
+    if ((process.env.CHATBOT_ALERT_FORMSPREE_ID || "").trim()) {
+      console.error("chatbot alert skipped: CHATBOT_ALERT_FORMSPREE_ID is not a form id");
+    } else {
+      console.info("chatbot alert skipped: CHATBOT_ALERT_FORMSPREE_ID unset");
+    }
+    return false;
+  }
+  const result = await postChatbotAlert({
+    formId,
+    name: lead.name,
+    email: lead.email,
+    goal: lead.goal,
+    page: lead.page
+  });
+  if (!result.ok) {
+    console.error("chatbot alert failed", result.status);
+    return false;
+  }
+  console.info("chatbot alert sent");
+  return true;
+}
+async function deliverLead(config, lead) {
+  const [mailerlite, alerted, webhook] = await Promise.all([
+    subscribeChatbot(lead),
+    alertChatbot(lead),
+    notify(config, lead)
+  ]);
+  return { notified: alerted || webhook, mailerlite };
+}
+async function saveLead(config, lead, write = async (pathname2, body) => {
+  await put(pathname2, body, {
+    access: "private",
+    contentType: "application/json",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    cacheControlMaxAge: 60
+  });
+}) {
   if (!process.env.BLOB_READ_WRITE_TOKEN && !process.env.BLOB_STORE_ID) {
     console.error("lead storage: Blob is not connected");
     return { ok: false, error: "storage-not-configured" };
@@ -499,19 +672,21 @@ async function saveLead(config, lead) {
     savedAt: (/* @__PURE__ */ new Date()).toISOString()
   };
   try {
-    await put(pathname(config.lead.storagePrefix, lead), JSON.stringify(record), {
-      access: "private",
-      contentType: "application/json",
-      addRandomSuffix: false,
-      allowOverwrite: true,
-      cacheControlMaxAge: 60
-    });
+    await write(pathname(config.lead.storagePrefix, lead), JSON.stringify(record));
   } catch (error) {
     console.error("lead storage: put failed", error instanceof Error ? error.name : "error");
     return { ok: false, error: "storage-failed" };
   }
-  const notified = await notify(config, lead);
-  console.info(`lead stored source=${lead.source} notified=${notified}`);
+  let notified = false;
+  let mailerlite = "skipped";
+  try {
+    const delivered = await deliverLead(config, lead);
+    notified = delivered.notified;
+    mailerlite = delivered.mailerlite;
+  } catch (error) {
+    console.error("lead delivery failed", error instanceof Error ? error.name : "error");
+  }
+  console.info(`lead stored source=${lead.source} notified=${notified} mailerlite=${mailerlite}`);
   return { ok: true, notified };
 }
 

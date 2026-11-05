@@ -1,7 +1,9 @@
 import { createHash } from "node:crypto";
 import { put } from "@vercel/blob";
+import { formspreeId, postChatbotAlert } from "./alerts.ts";
 import type { BusinessConfig } from "./business.ts";
 import { cleanLine, isValidEmail } from "./guard.ts";
+import { optionalGroup, subscribe } from "./mailerlite.ts";
 
 export type LeadInput = {
   name: string;
@@ -83,7 +85,86 @@ async function notify(config: BusinessConfig, lead: LeadInput): Promise<boolean>
   }
 }
 
-export async function saveLead(config: BusinessConfig, lead: LeadInput): Promise<LeadResult> {
+async function subscribeChatbot(lead: LeadInput): Promise<"added" | "skipped" | "failed"> {
+  const group = optionalGroup("MAILERLITE_GROUP_CHATBOT");
+  if (!group) {
+    console.info("chatbot mailerlite skipped: MAILERLITE_GROUP_CHATBOT unset");
+    return "skipped";
+  }
+  const key = (process.env.MAILERLITE_API_KEY || "").trim();
+  if (!key) {
+    console.error("chatbot mailerlite skipped: MAILERLITE_API_KEY is not set");
+    return "skipped";
+  }
+  const note = [`Goal: ${lead.goal}`, lead.page ? `Page: ${lead.page}` : ""].filter(Boolean).join(". ");
+  try {
+    const result = await subscribe(key, {
+      email: lead.email,
+      name: lead.name,
+      source: "chatbot",
+      group,
+      note,
+    });
+    if (!result.ok) {
+      console.error("chatbot mailerlite failed", result.status);
+      return "failed";
+    }
+    console.info("chatbot mailerlite added");
+    return "added";
+  } catch (error) {
+    console.error("chatbot mailerlite failed", error instanceof Error ? error.name : "error");
+    return "failed";
+  }
+}
+
+async function alertChatbot(lead: LeadInput): Promise<boolean> {
+  const formId = formspreeId();
+  if (!formId) {
+    if ((process.env.CHATBOT_ALERT_FORMSPREE_ID || "").trim()) {
+      console.error("chatbot alert skipped: CHATBOT_ALERT_FORMSPREE_ID is not a form id");
+    } else {
+      console.info("chatbot alert skipped: CHATBOT_ALERT_FORMSPREE_ID unset");
+    }
+    return false;
+  }
+  const result = await postChatbotAlert({
+    formId,
+    name: lead.name,
+    email: lead.email,
+    goal: lead.goal,
+    page: lead.page,
+  });
+  if (!result.ok) {
+    console.error("chatbot alert failed", result.status);
+    return false;
+  }
+  console.info("chatbot alert sent");
+  return true;
+}
+
+// Blob stays the record. MailerLite and the email alert are best-effort.
+async function deliverLead(config: BusinessConfig, lead: LeadInput): Promise<{ notified: boolean; mailerlite: string }> {
+  const [mailerlite, alerted, webhook] = await Promise.all([
+    subscribeChatbot(lead),
+    alertChatbot(lead),
+    notify(config, lead),
+  ]);
+  return { notified: alerted || webhook, mailerlite };
+}
+
+export async function saveLead(
+  config: BusinessConfig,
+  lead: LeadInput,
+  write: (pathname: string, body: string) => Promise<void> = async (pathname, body) => {
+    await put(pathname, body, {
+      access: "private",
+      contentType: "application/json",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      cacheControlMaxAge: 60,
+    });
+  },
+): Promise<LeadResult> {
   if (!process.env.BLOB_READ_WRITE_TOKEN && !process.env.BLOB_STORE_ID) {
     console.error("lead storage: Blob is not connected");
     return { ok: false, error: "storage-not-configured" };
@@ -94,18 +175,20 @@ export async function saveLead(config: BusinessConfig, lead: LeadInput): Promise
     savedAt: new Date().toISOString(),
   };
   try {
-    await put(pathname(config.lead.storagePrefix, lead), JSON.stringify(record), {
-      access: "private",
-      contentType: "application/json",
-      addRandomSuffix: false,
-      allowOverwrite: true,
-      cacheControlMaxAge: 60,
-    });
+    await write(pathname(config.lead.storagePrefix, lead), JSON.stringify(record));
   } catch (error) {
     console.error("lead storage: put failed", error instanceof Error ? error.name : "error");
     return { ok: false, error: "storage-failed" };
   }
-  const notified = await notify(config, lead);
-  console.info(`lead stored source=${lead.source} notified=${notified}`);
+  let notified = false;
+  let mailerlite = "skipped";
+  try {
+    const delivered = await deliverLead(config, lead);
+    notified = delivered.notified;
+    mailerlite = delivered.mailerlite;
+  } catch (error) {
+    console.error("lead delivery failed", error instanceof Error ? error.name : "error");
+  }
+  console.info(`lead stored source=${lead.source} notified=${notified} mailerlite=${mailerlite}`);
   return { ok: true, notified };
 }

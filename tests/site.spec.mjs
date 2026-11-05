@@ -397,6 +397,29 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
   expect(signs.props.utm_medium).toBe("bio");
 });
 
+test("pricing Head Start uses the live cohort dates", async ({ page }) => {
+  await page.goto("/pricing");
+  const head = page.locator("article.plan", { has: page.getByRole("heading", { name: "Head Start" }) });
+  await expect(head).toContainText("£47");
+  await expect(head).toContainText("Cohort, 9 Nov 2026 to 3 Jan 2027. Late joiners finish with the group.");
+  await expect(head).not.toContainText(/8[- ]weeks?/i);
+  await expect(head).not.toContainText(/check-?in/i);
+  await expect(head.locator("a.btn")).toHaveAttribute("href", "https://coach.everfit.io/package/GK689386");
+  const os = page.locator("article.plan", { has: page.getByRole("heading", { name: "Physique OS" }) });
+  await expect(os).toContainText("£29");
+  await expect(os).toContainText("Run the system yourself.");
+  const ninety = page.locator("article.plan", { has: page.getByRole("heading", { name: "The Ninety" }) });
+  await expect(ninety).toContainText("£297");
+  await expect(ninety).toContainText("90 days with a monthly call and review.");
+  const coaching = page.locator("article.plan", { has: page.getByRole("heading", { name: "1:1 coaching" }) });
+  await expect(coaching).toContainText("£67");
+  await expect(coaching).toContainText("Application only, for men 30 and over.");
+  const text = await page.locator("main").innerText();
+  expect(text).not.toContain("\u2014");
+  expect(text).not.toContain("\u2013");
+  expect(text).not.toMatch(/8[- ]weeks?/i);
+});
+
 function noDashes(text) {
   expect(text).not.toContain("\u2014");
   expect(text).not.toContain("\u2013");

@@ -46,11 +46,9 @@
     { "source": "/success", "destination": "/links", "statusCode": 301 },
     { "source": "/order-received", "destination": "/links", "statusCode": 301 },
 
-    { "source": "/8-week", "destination": "/links", "statusCode": 301 },
-    { "source": "/8-week-challenge", "destination": "/links", "statusCode": 301 },
-    { "source": "/eight-week", "destination": "/links", "statusCode": 301 },
-    { "source": "/eight-week-challenge", "destination": "/links", "statusCode": 301 },
-    { "source": "/challenge", "destination": "/links", "statusCode": 301 },
+    { "source": "/head-start", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
+    { "source": "/headstart", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
+    { "source": "/head-start-challenge", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
 
     { "source": "/physique", "destination": "/start", "statusCode": 301 },
     { "source": "/physique-os", "destination": "/start", "statusCode": 301 },

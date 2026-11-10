@@ -49,6 +49,11 @@
     { "source": "/head-start", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
     { "source": "/headstart", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
     { "source": "/head-start-challenge", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
+    { "source": "/8-week", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
+    { "source": "/8-week-challenge", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
+    { "source": "/eight-week", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
+    { "source": "/eight-week-challenge", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
+    { "source": "/challenge", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
 
     { "source": "/physique", "destination": "/start", "statusCode": 301 },
     { "source": "/physique-os", "destination": "/start", "statusCode": 301 },

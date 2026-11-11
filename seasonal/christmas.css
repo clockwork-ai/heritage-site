@@ -1,0 +1,278 @@
+/* Christmas skin. Every rule sits under html.season-christmas.
+   Removing the class, or not loading this file, restores the heritage site. */
+
+html.season-christmas,
+html.season-christmas body {
+  background:
+    radial-gradient(80% 42% at 50% -12%, rgba(201, 169, 110, .06), transparent 62%),
+    #070e0b;
+}
+html.season-christmas .hero { background: #070e0b; }
+html.season-christmas .g1 { background: #0a1611; }
+html.season-christmas .g2 { background: #0c1913; }
+html.season-christmas .g3 { background: #0b1712; }
+html.season-christmas .gx { background: #0c1a14; }
+
+/* Header: full width dark green. Lights hang from the bar. */
+html.season-christmas .nav {
+  padding-top: env(safe-area-inset-top, 0px);
+  background: #08140f;
+  box-shadow: inset 0 -1px 0 rgba(201, 169, 110, .38);
+}
+html.season-christmas .nav__bar::before { opacity: 0 !important; }
+
+/* Wordmark: foil gradient and a soft glow. The lion image stays solid. */
+html.season-christmas .nav .mark,
+html.season-christmas .foot .mark,
+html.season-christmas .season-drawer-mark {
+  background-image: linear-gradient(185deg, #FBF3DC 0%, #F0D48A 28%, #C9A96E 62%, #F4E2B0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+html.season-christmas .foot .mark,
+html.season-christmas .season-drawer-mark {
+  filter: drop-shadow(0 0 10px rgba(201, 169, 110, .38));
+}
+html.season-christmas .nav .mark { position: relative; }
+html.season-christmas .nav .mark::before {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  top: -5px;
+  width: 20px;
+  height: 16px;
+  background: url("/seasonal/hat.svg") center / contain no-repeat;
+  pointer-events: none;
+}
+@media (max-width: 520px) {
+  html.season-christmas .nav .mark::before {
+    left: 0;
+    top: -4px;
+    width: 18px;
+    height: 14px;
+  }
+}
+html.season-christmas .nav .mark img,
+html.season-christmas .foot .mark img {
+  -webkit-text-fill-color: unset;
+  filter: none;
+}
+
+/* One string of small glowing bulbs on a thin dark wire. */
+html.season-christmas .season-lights {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -12px;
+  height: 16px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 5;
+}
+html.season-christmas .season-lights--fixed {
+  position: fixed;
+  top: 0;
+  bottom: auto;
+  z-index: 70;
+  height: 20px;
+  background: #08140f;
+  padding-top: 3px;
+}
+html.season-christmas body:has(.season-lights--fixed) { padding-top: 22px; }
+html.season-christmas .season-lights::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: #2a241c;
+  box-shadow: 0 0 2px rgba(0, 0, 0, .6);
+  pointer-events: none;
+}
+html.season-christmas .season-lights i {
+  width: 5px;
+  height: 5px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: var(--c, #F3E6C8);
+  box-shadow:
+    0 0 2px 1px rgba(255, 248, 230, .85),
+    0 0 8px 2px var(--c, #F3E6C8),
+    0 0 16px 5px var(--c, #F3E6C8);
+  filter: blur(.35px);
+  animation: season-twinkle 5.4s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+
+/* Hero plate. The photograph sits behind the existing copy. */
+html.season-christmas #promise .season-hero {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  margin: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+html.season-christmas #promise .season-hero img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 46%;
+}
+@media (max-width: 699px) {
+  html.season-christmas #promise {
+    padding-bottom: 88px;
+  }
+  html.season-christmas #promise .season-hero img {
+    object-position: center 42%;
+  }
+}
+html.season-christmas #promise .season-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 58% 72% at 50% 48%, rgba(7, 14, 11, .78), rgba(7, 14, 11, .34) 58%, rgba(7, 14, 11, .08) 100%),
+    linear-gradient(180deg, rgba(7, 14, 11, .62) 0%, rgba(7, 14, 11, .12) 16%, rgba(7, 14, 11, .18) 72%, rgba(7, 14, 11, .72));
+}
+html.season-christmas #promise .hero__media,
+html.season-christmas #promise .hero__lion,
+html.season-christmas #promise .hframe,
+html.season-christmas #promise .motes { display: none; }
+html.season-christmas #promise .wrap { position: relative; z-index: 2; }
+html.season-christmas #promise .hero__grid {
+  display: block;
+  max-width: 680px;
+  margin-inline: auto;
+}
+html.season-christmas #promise h1 {
+  filter: drop-shadow(0 0 16px rgba(201, 169, 110, .34));
+}
+html.season-christmas #promise h1 .ln > span {
+  background-image: linear-gradient(185deg, #FBF6E4 0%, #F3D98A 32%, #C9A96E 68%, #F8E7C0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Gold buttons. Rounded, foil fill, dark text, the existing sheen. No icons. */
+html.season-christmas .btn { border-radius: 999px; }
+html.season-christmas a.btn:not(.ghost):not(.opt),
+html.season-christmas button.btn:not(.ghost) {
+  color: #09150F;
+  background-image: var(--bg);
+}
+@media (max-width: 720px) {
+  html.season-christmas .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  html.season-christmas .actions .btn,
+  html.season-christmas .leadf .btn,
+  html.season-christmas a.apply {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Cards and the links list: dark green, thin gold edge. No ornaments. */
+html.season-christmas :is(.panel, .plan, .week .day, a.opt, .card, .review, .tools a, .price-feature) {
+  border-color: rgba(201, 169, 110, .48);
+  border-radius: 12px;
+}
+html.season-christmas .media { border-radius: 12px; }
+
+/* Snow sits in the hero, above the photograph and under the copy. */
+html.season-christmas #promise .season-snow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+html.season-christmas #promise .scrollcue { z-index: 3; }
+html.season-christmas .motes { display: none; }
+
+/* Mobile menu: gold lights, foil wordmark, hairline, gold pill. */
+html.season-christmas .mnav {
+  background:
+    radial-gradient(90% 36% at 50% 0%, rgba(201, 169, 110, .14), transparent 58%),
+    linear-gradient(180deg, #143528 0%, #0c1c14 36%, #070e0b 100%);
+}
+html.season-christmas .season-drawer-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(env(safe-area-inset-top, 0px) + 62px);
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 2;
+}
+html.season-christmas .season-drawer-lights {
+  display: flex;
+  justify-content: space-between;
+  width: min(260px, 74%);
+  height: 10px;
+}
+html.season-christmas .season-drawer-lights i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #E8C987;
+  box-shadow:
+    0 0 2px 1px rgba(255, 248, 230, .8),
+    0 0 8px 2px rgba(232, 201, 135, .9),
+    0 0 14px 4px rgba(201, 169, 110, .55);
+  filter: blur(.3px);
+  animation: season-twinkle 5.4s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+html.season-christmas .season-drawer-mark {
+  margin: 0;
+  font-family: var(--display, "Cinzel", Georgia, serif);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: .28em;
+  line-height: 1;
+}
+html.season-christmas .mnav__list a { border-bottom-color: transparent; }
+html.season-christmas .mnav__list li + li {
+  border-top: 1px solid rgba(201, 169, 110, .42);
+}
+html.season-christmas .mnav__list a[aria-current="page"] {
+  background: rgba(201, 169, 110, .16);
+  box-shadow: inset 0 0 0 1px rgba(232, 201, 135, .45);
+  border-radius: 999px;
+  padding: 12px 16px;
+}
+html.season-christmas .mnav__list a[aria-current="page"] :is(.mnav__t, .mnav__n, .mnav__s) {
+  color: #E8C987;
+  -webkit-text-fill-color: #E8C987;
+  background: none;
+  filter: none;
+}
+
+@keyframes season-twinkle {
+  0%, 100% { opacity: .55; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.season-christmas .season-lights i,
+  html.season-christmas .season-drawer-lights i {
+    animation: none;
+    opacity: .9;
+  }
+}

@@ -1,0 +1,353 @@
+/* Christmas skin. Every rule sits under html.season-christmas.
+   Removing the class, or not loading this file, restores the heritage site. */
+
+html.season-christmas,
+html.season-christmas body {
+  background:
+    radial-gradient(80% 42% at 50% -12%, rgba(201, 169, 110, .07), transparent 62%),
+    #070e0b;
+}
+html.season-christmas .hero { background: #070e0b; }
+html.season-christmas .g1 { background: #0a1611; }
+html.season-christmas .g2 { background: #0c1913; }
+html.season-christmas .g3 { background: #0b1712; }
+html.season-christmas .gx { background: #0c1a14; }
+
+/* Header: full width, dark green, lights hang from the bar. */
+html.season-christmas .nav {
+  padding-top: env(safe-area-inset-top, 0px);
+  background: #08140f;
+  box-shadow: inset 0 -1px 0 rgba(201, 169, 110, .38);
+}
+html.season-christmas .nav__bar::before { opacity: 0 !important; }
+html.season-christmas .nav .mark,
+html.season-christmas .foot .mark,
+html.season-christmas main.wrap > .mark {
+  color: #E8C987;
+}
+html.season-christmas .nav .mark {
+  position: relative;
+}
+html.season-christmas .nav .mark::after,
+html.season-christmas main.wrap > .mark::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 18px;
+  background: url("/seasonal/hat.svg") center / contain no-repeat;
+  pointer-events: none;
+}
+html.season-christmas .nav .mark::after {
+  left: 12px;
+  top: -11px;
+}
+html.season-christmas main.wrap > .mark {
+  position: relative;
+  display: inline-block;
+}
+html.season-christmas main.wrap > .mark::after {
+  right: -8px;
+  top: -14px;
+}
+
+/* Fairy lights, injected under the header. Bulbs never take clicks. */
+html.season-christmas .season-lights {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -15px;
+  height: 18px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  pointer-events: none;
+  z-index: 5;
+}
+html.season-christmas .season-lights--fixed {
+  position: fixed;
+  top: 0;
+  bottom: auto;
+  z-index: 70;
+  height: 22px;
+  background: #08140f;
+  padding-top: 4px;
+}
+html.season-christmas body:has(.season-lights--fixed) { padding-top: 26px; }
+html.season-christmas .season-lights::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 1px;
+  height: 2px;
+  border-radius: 2px;
+  background: #3a3228;
+  pointer-events: none;
+}
+html.season-christmas .season-lights i {
+  width: 7px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 1px, var(--c, #E8C987) 42%, #3a140f 100%);
+  box-shadow: 0 0 6px var(--c, #E8C987);
+  position: relative;
+  top: 3px;
+  animation: season-twinkle 2.8s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+html.season-christmas .season-lights i::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: -2px;
+  height: 2px;
+  background: #5c5346;
+  border-radius: 1px;
+}
+
+/* Gold metallic headings on the dark grounds only.
+   Applied to the leaf that holds the glyphs, so badges and labels keep their own colour.
+   Light sections (.gl) are not in this list. */
+html.season-christmas :is(.hero, .g0, .g1, .g2, .g3, .gx):not(.gl) :is(h1, h2, h3):not(:has(*)),
+html.season-christmas :is(.hero, .g0, .g1, .g2, .g3, .gx):not(.gl) :is(h1, h2, h3) .ln > span,
+html.season-christmas main.wrap :is(h1, h2):not(:has(*)),
+html.season-christmas .season-drawer-mark {
+  background-image: linear-gradient(185deg, #F8E7C0 0%, #E8C987 40%, #C9A96E 78%, #F3E0B0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Rounded gold buttons, with a small gift on the filled ones. */
+html.season-christmas .btn { border-radius: 999px; }
+html.season-christmas a.btn:not(.ghost):not(.opt),
+html.season-christmas button.btn:not(.ghost) {
+  background-image: url("/seasonal/gift.svg"), var(--bg);
+  background-repeat: no-repeat, no-repeat;
+  background-position: right 12px center, 0 0;
+  background-size: 18px 18px, auto;
+  padding-right: 40px;
+}
+html.season-christmas .nav .btn:not(.ghost) {
+  background-size: 13px 13px, auto;
+  background-position: right 8px center, 0 0;
+  padding-right: 28px;
+}
+@media (max-width: 720px) {
+  html.season-christmas .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  html.season-christmas .actions .btn,
+  html.season-christmas .leadf .btn,
+  html.season-christmas a.apply {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Cards: dark green, thin gold edge, rounded, snow along the top. */
+html.season-christmas :is(.panel, .plan, .week .day, a.opt, .card, .review) {
+  border-radius: 16px;
+  border: 1px solid rgba(201, 169, 110, .5);
+  background-color: #0c1c14;
+  background-image: url("/seasonal/icicle.svg");
+  background-repeat: repeat-x;
+  background-position: center top;
+  background-size: auto 10px;
+}
+html.season-christmas .media {
+  border-radius: 16px;
+}
+html.season-christmas .media::before {
+  background-image: url("/seasonal/icicle.svg"), linear-gradient(0deg, rgba(0, 0, 0, .6), rgba(0, 0, 0, .08) 55%, transparent);
+  background-repeat: repeat-x, no-repeat;
+  background-size: auto 10px, auto;
+  background-position: center top, 0 0;
+}
+html.season-christmas .tools a,
+html.season-christmas .price-feature {
+  border-radius: 16px;
+}
+
+/* Hero art sits behind the copy. */
+html.season-christmas .hero .wrap { position: relative; z-index: 1; }
+html.season-christmas .season-tree,
+html.season-christmas .season-globe {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+  height: auto;
+}
+/* On the home hero the art hangs off the photo, in the gap beside the copy. */
+html.season-christmas .hero__media .season-tree {
+  width: 96px;
+  right: -46px;
+  top: 4px;
+  bottom: auto;
+  left: auto;
+  z-index: 8;
+}
+html.season-christmas .hero__media .season-globe {
+  width: 112px;
+  left: -86px;
+  bottom: 58%;
+  top: auto;
+  right: auto;
+  z-index: 8;
+}
+html.season-christmas .season-globe--links {
+  position: absolute;
+  width: 108px;
+  right: -128px;
+  top: 8px;
+  left: auto;
+  bottom: auto;
+  z-index: 2;
+}
+html.season-christmas #options { position: relative; }
+@media (max-width: 999px) {
+  html.season-christmas .hero__media .season-tree {
+    width: 58px;
+    top: -20px;
+    right: -4px;
+  }
+  html.season-christmas .hero__media .season-globe {
+    width: 58px;
+    left: auto;
+    right: 4px;
+    bottom: -16px;
+  }
+  html.season-christmas .season-globe--links {
+    width: 46px;
+    right: 4px;
+    top: -168px;
+  }
+}
+
+/* Mistletoe over the round mark on the links page. */
+html.season-christmas .avatar {
+  position: relative;
+  overflow: visible;
+  margin-top: 18px;
+}
+html.season-christmas .avatar img { border-radius: 50%; }
+html.season-christmas .avatar::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -16px;
+  width: 42px;
+  height: 24px;
+  transform: translateX(-50%);
+  background: url("/seasonal/mistletoe.svg") center / contain no-repeat;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Falling snow. The canvas is painted by mount.js. */
+html.season-christmas .season-snow {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 45;
+  pointer-events: none;
+}
+
+/* The existing hero motes would fight the snow. */
+html.season-christmas .motes { display: none; }
+
+/* Mobile menu. */
+html.season-christmas .mnav {
+  background:
+    radial-gradient(90% 36% at 50% 0%, rgba(201, 169, 110, .16), transparent 58%),
+    linear-gradient(180deg, #143528 0%, #0c1c14 36%, #070e0b 100%);
+}
+html.season-christmas .season-drawer-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(env(safe-area-inset-top, 0px) + 62px);
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  pointer-events: none;
+  z-index: 2;
+}
+html.season-christmas .season-drawer-lights {
+  display: flex;
+  justify-content: space-between;
+  width: min(280px, 78%);
+  height: 10px;
+}
+html.season-christmas .season-drawer-lights i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #E8C987 55%, #7C6020);
+  box-shadow: 0 0 6px rgba(232, 201, 135, .85);
+  animation: season-twinkle 2.6s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+html.season-christmas .season-drawer-mark {
+  margin: 0;
+  font-family: var(--display, "Cinzel", Georgia, serif);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: .28em;
+  line-height: 1;
+}
+html.season-christmas .mnav__list a {
+  border-bottom-color: transparent;
+}
+html.season-christmas .mnav__list li { position: relative; }
+html.season-christmas .mnav__list li + li::before,
+html.season-christmas .mnav__foot {
+  border: 0;
+}
+html.season-christmas .mnav__list li + li::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 0;
+  height: 8px;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, #E8C987 68%, transparent 72%),
+    radial-gradient(circle, #E8C987 68%, transparent 72%),
+    repeating-linear-gradient(90deg, #f7f4ee 0 5px, #a32d2d 5px 10px);
+  background-repeat: no-repeat;
+  background-size: 7px 7px, 7px 7px, calc(100% - 22px) 3px;
+  background-position: left center, right center, center;
+}
+html.season-christmas .mnav__list a[aria-current="page"] {
+  background: rgba(201, 169, 110, .16);
+  box-shadow: inset 0 0 0 1px rgba(232, 201, 135, .45);
+  border-radius: 999px;
+  padding: 12px 16px;
+}
+html.season-christmas .mnav__list a[aria-current="page"] :is(.mnav__t, .mnav__n, .mnav__s) {
+  color: #E8C987;
+  -webkit-text-fill-color: #E8C987;
+}
+html.season-christmas .mnav__list a[aria-current="page"] .mnav__n {
+  background: url("/seasonal/star.svg") left center / 11px 11px no-repeat;
+  padding-left: 16px;
+}
+
+@keyframes season-twinkle {
+  0%, 100% { opacity: .4; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.season-christmas .season-lights i,
+  html.season-christmas .season-drawer-lights i {
+    animation: none;
+    opacity: 1;
+  }
+}

@@ -77,6 +77,7 @@ const skip = new Set([
   "deploy",
   "cpanel",
   "cpanel-upload.zip",
+  "middleware.js",
 ]);
 
 for (const entry of await readdir(root, { withFileTypes: true })) {

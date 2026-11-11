@@ -30,7 +30,32 @@ html.season-christmas .season-drawer-mark {
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
+}
+html.season-christmas .foot .mark,
+html.season-christmas .season-drawer-mark {
   filter: drop-shadow(0 0 10px rgba(201, 169, 110, .38));
+}
+html.season-christmas .nav .mark { position: relative; }
+html.season-christmas .nav .mark::before {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  left: 5px;
+  top: -2px;
+  width: 18px;
+  height: 15px;
+  background: url("/seasonal/hat.svg") center / contain no-repeat;
+  pointer-events: none;
+  transform: rotate(8deg);
+  transform-origin: 28% 88%;
+}
+@media (max-width: 520px) {
+  html.season-christmas .nav .mark::before {
+    left: 3px;
+    top: -2px;
+    width: 16px;
+    height: 13px;
+  }
 }
 html.season-christmas .nav .mark img,
 html.season-christmas .foot .mark img {
@@ -110,7 +135,7 @@ html.season-christmas #promise .season-hero img {
     padding-bottom: 88px;
   }
   html.season-christmas #promise .season-hero img {
-    object-position: center 38%;
+    object-position: center 42%;
   }
 }
 html.season-christmas #promise .season-hero::after {
@@ -169,15 +194,16 @@ html.season-christmas :is(.panel, .plan, .week .day, a.opt, .card, .review, .too
 }
 html.season-christmas .media { border-radius: 12px; }
 
-/* Soft snow. Painted by mount.js. Never takes a click. */
-html.season-christmas .season-snow {
-  position: fixed;
+/* Snow sits in the hero, above the photograph and under the copy. */
+html.season-christmas #promise .season-snow {
+  position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 40;
+  z-index: 1;
   pointer-events: none;
 }
+html.season-christmas #promise .scrollcue { z-index: 3; }
 html.season-christmas .motes { display: none; }
 
 /* Mobile menu: gold lights, foil wordmark, hairline, gold pill. */

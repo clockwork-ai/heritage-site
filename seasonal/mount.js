@@ -48,102 +48,162 @@
   }
 
   if (reduce) return;
+  var hero = document.getElementById("promise");
+  if (!hero) return;
 
   function bootSnow() {
+    if (!document.body.contains(hero)) return;
     var mobile = window.matchMedia("(max-width: 799px)").matches;
-    var count = mobile ? 8 : 16;
+    var mem = navigator.deviceMemory || 8;
+    var light = mobile || mem <= 2;
+    var counts = light ? { bg: 36, mid: 14, fg: 4 } : { bg: 84, mid: 30, fg: 8 };
+    var bands = {
+      bg: { r: [8, 16], a: [0.12, 0.28], v: [12, 28], sway: [8, 18], spin: [0.04, 0.16] },
+      mid: { r: [16, 28], a: [0.16, 0.36], v: [20, 42], sway: [12, 28], spin: [0.1, 0.32] },
+      fg: { r: [36, 64], a: [0.1, 0.2], v: [14, 30], sway: [18, 40], spin: [0.06, 0.2] }
+    };
     var canvas = document.createElement("canvas");
     canvas.className = "season-snow";
     canvas.setAttribute("aria-hidden", "true");
-    document.body.appendChild(canvas);
+    hero.appendChild(canvas);
     var ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
     var flakes = [];
-    var running = true;
+    var running = false;
+    var onScreen = true;
     var raf = 0;
-    var last = 0;
+    var prev = 0;
+    var width = 0;
+    var height = 0;
 
-    function layout() {
-      var dpr = mobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.25);
-      var w = window.innerWidth;
-      var h = window.innerHeight;
-      canvas.width = Math.max(1, Math.floor(w * dpr));
-      canvas.height = Math.max(1, Math.floor(h * dpr));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    function rand(a, b) { return a + Math.random() * (b - a); }
+    function spawn(layer, y) {
+      var band = bands[layer];
+      return {
+        layer: layer,
+        x: Math.random() * width,
+        y: y,
+        r: rand(band.r[0], band.r[1]),
+        a: rand(band.a[0], band.a[1]),
+        v: rand(band.v[0], band.v[1]),
+        swayAmp: rand(band.sway[0], band.sway[1]),
+        sway: rand(0.35, 0.9),
+        phase: Math.random() * 6.2832,
+        rot: Math.random() * 6.2832,
+        spin: (Math.random() < 0.5 ? -1 : 1) * rand(band.spin[0], band.spin[1]),
+        squash: rand(0.7, 0.94)
+      };
+    }
+    function fill() {
       flakes = [];
-      for (var n = 0; n < count; n++) {
-        flakes.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          r: Math.random() * 5 + 2.4,
-          s: Math.random() * 0.22 + 0.08,
-          drift: Math.random() * 0.18 - 0.09,
-          a: Math.random() * 0.22 + 0.08
-        });
+      var layers = ["bg", "mid", "fg"];
+      for (var i = 0; i < layers.length; i++) {
+        var layer = layers[i];
+        for (var n = 0; n < counts[layer]; n++) flakes.push(spawn(layer, Math.random() * height));
       }
     }
-
-    function paint() {
-      var w = window.innerWidth;
-      var h = window.innerHeight;
-      ctx.clearRect(0, 0, w, h);
+    function layout() {
+      var dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.5);
+      width = hero.clientWidth || window.innerWidth;
+      height = hero.clientHeight || window.innerHeight;
+      canvas.width = Math.max(1, Math.floor(width * dpr));
+      canvas.height = Math.max(1, Math.floor(height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      fill();
+    }
+    function drawFlake(flake, x, t) {
+      ctx.save();
+      ctx.translate(x, flake.y);
+      ctx.rotate(flake.rot);
+      ctx.scale(1, flake.squash);
+      var g = ctx.createRadialGradient(0, 0, 0, 0, 0, flake.r);
+      if (flake.layer === "fg") {
+        g.addColorStop(0, "rgba(255,252,248," + (flake.a * 0.25) + ")");
+        g.addColorStop(0.38, "rgba(255,252,248," + flake.a + ")");
+        g.addColorStop(0.72, "rgba(228,222,212," + (flake.a * 0.28) + ")");
+        g.addColorStop(1, "rgba(228,222,212,0)");
+      } else if (flake.layer === "bg") {
+        g.addColorStop(0, "rgba(255,252,248," + flake.a + ")");
+        g.addColorStop(0.16, "rgba(236,232,224," + (flake.a * 0.3) + ")");
+        g.addColorStop(1, "rgba(236,232,224,0)");
+      } else {
+        g.addColorStop(0, "rgba(255,252,248," + flake.a + ")");
+        g.addColorStop(0.42, "rgba(236,232,224," + (flake.a * 0.4) + ")");
+        g.addColorStop(1, "rgba(236,232,224,0)");
+      }
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(0, 0, flake.r, 0, 6.2832);
+      ctx.fill();
+      ctx.restore();
+      void t;
+    }
+    function paint(t) {
+      ctx.clearRect(0, 0, width, height);
       for (var n = 0; n < flakes.length; n++) {
         var flake = flakes[n];
-        var g = ctx.createRadialGradient(flake.x, flake.y, 0, flake.x, flake.y, flake.r);
-        g.addColorStop(0, "rgba(244, 240, 232, " + flake.a + ")");
-        g.addColorStop(0.45, "rgba(226, 220, 206, " + (flake.a * 0.35) + ")");
-        g.addColorStop(1, "rgba(244, 240, 232, 0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(flake.x, flake.y, flake.r, 0, 6.3);
-        ctx.fill();
+        var x = flake.x + Math.sin(t * flake.sway + flake.phase) * flake.swayAmp;
+        drawFlake(flake, x, t);
       }
     }
-
-    function frame(now) {
-      if (!running) return;
-      raf = window.requestAnimationFrame(frame);
-      if (now - last < 48) return;
-      last = now;
-      var w = window.innerWidth;
-      var h = window.innerHeight;
+    function step(now) {
+      var dt = Math.min(0.05, (now - prev) / 1000);
+      prev = now;
+      var t = now / 1000;
       for (var n = 0; n < flakes.length; n++) {
         var flake = flakes[n];
-        flake.y += flake.s;
-        flake.x += flake.drift;
-        if (flake.y - flake.r > h) {
-          flake.y = -flake.r;
-          flake.x = Math.random() * w;
+        flake.y += flake.v * dt;
+        flake.rot += flake.spin * dt;
+        if (flake.y - flake.r > height) {
+          var next = spawn(flake.layer, -flake.r - Math.random() * 40);
+          flakes[n] = next;
         }
-        if (flake.x < -8) flake.x = w + 8;
-        if (flake.x > w + 8) flake.x = -8;
       }
-      paint();
+      paint(t);
     }
-
+    function loop(now) {
+      raf = 0;
+      if (!running) return;
+      step(now);
+      raf = window.requestAnimationFrame(loop);
+    }
+    function pause() {
+      running = false;
+      if (raf) window.cancelAnimationFrame(raf);
+      raf = 0;
+    }
+    function resume() {
+      if (running || document.hidden || !onScreen) return;
+      running = true;
+      prev = performance.now();
+      raf = window.requestAnimationFrame(loop);
+    }
     layout();
-    paint();
-    raf = window.requestAnimationFrame(frame);
+    paint(0);
+    new IntersectionObserver(function (entries) {
+      onScreen = entries[0].isIntersecting;
+      if (onScreen) resume();
+      else pause();
+    }, { threshold: 0 }).observe(hero);
     document.addEventListener("visibilitychange", function () {
-      if (document.hidden) {
-        running = false;
-        window.cancelAnimationFrame(raf);
-      } else if (!running) {
-        running = true;
-        last = 0;
-        raf = window.requestAnimationFrame(frame);
-      }
+      if (document.hidden) pause();
+      else resume();
     });
     var resizeTimer = 0;
     window.addEventListener("resize", function () {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(function () {
         layout();
-        paint();
+        paint(performance.now() / 1000);
       }, 180);
     });
+    resume();
   }
 
-  if ("requestIdleCallback" in window) window.requestIdleCallback(bootSnow, { timeout: 900 });
-  else window.setTimeout(bootSnow, 400);
+  function startSnow() {
+    if ("requestIdleCallback" in window) window.requestIdleCallback(bootSnow, { timeout: 1200 });
+    else window.setTimeout(bootSnow, 280);
+  }
+  if (document.readyState === "complete") startSnow();
+  else window.addEventListener("load", startSnow, { once: true });
 })();

@@ -30,6 +30,46 @@ export function inSeason(now = new Date()) {
   return today >= WINDOW_START && today <= WINDOW_END;
 }
 
+const PAGES = new Map([
+  ["/", "index.html"],
+  ["/about", "about.html"],
+  ["/apply", "apply.html"],
+  ["/book", "book.html"],
+  ["/coaching", "coaching.html"],
+  ["/free/framework", "free/framework.html"],
+  ["/glp1-blueprint", "glp1-blueprint.html"],
+  ["/glp1-nutrition", "glp1-nutrition.html"],
+  ["/guide", "guide/index.html"],
+  ["/is-online-personal-training-worth-it", "is-online-personal-training-worth-it.html"],
+  ["/links", "links/index.html"],
+  ["/magnum-opus", "magnum-opus/index.html"],
+  ["/muscle", "muscle/index.html"],
+  ["/nutrition", "nutrition.html"],
+  ["/offset-calculator", "offset-calculator.html"],
+  ["/online-personal-trainer-cost", "online-personal-trainer-cost.html"],
+  ["/online-personal-trainer-stockport", "online-personal-trainer-stockport.html"],
+  ["/online-vs-in-person-personal-trainer", "online-vs-in-person-personal-trainer.html"],
+  ["/os-setup", "os-setup/index.html"],
+  ["/pricing", "pricing/index.html"],
+  ["/privacy", "privacy.html"],
+  ["/protein-calculator", "protein-calculator.html"],
+  ["/rebuild", "rebuild.html"],
+  ["/results", "results.html"],
+  ["/start", "start/index.html"],
+  ["/supplements", "supplements/index.html"],
+  ["/tdee-calculator", "tdee-calculator.html"],
+  ["/terms", "terms.html"],
+  ["/terms-coaching", "terms-coaching.html"],
+  ["/the-inches-you-keep", "the-inches-you-keep/index.html"],
+  ["/the-ninety", "the-ninety/index.html"],
+  ["/trt-starter", "trt-starter/index.html"],
+]);
+
+export function pageFile(pathname) {
+  const clean = pathname.replace(/\/+$/, "") || "/";
+  return PAGES.get(clean) || "";
+}
+
 export function applySeasonalOg(html) {
   if (!html.includes(OG_FROM)) return html;
   let out = html.split(OG_FROM).join(OG_TO);

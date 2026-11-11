@@ -1,24 +1,19 @@
-import { applySeasonalOg, inSeason } from "./seasonal/og-share.mjs";
+import { next, rewrite } from "@vercel/functions";
+import { inSeason, pageFile } from "./seasonal/og-share.mjs";
 
 export const config = {
-  matcher: ["/((?!api/|seasonal/|assets/|brand_assets/|guides/|chat/).*)"],
+  matcher: ["/((?!api/|seasonal/|assets/|brand_assets/|guides/|chat/|tools/).*)"],
 };
 
-export default async function middleware(request) {
+export default function middleware(request) {
   const url = new URL(request.url);
-  // The inner fetch carries this so it is not rewritten again.
-  if (url.searchParams.has("_static")) return;
-  if (url.pathname.includes(".")) return;
-  if (!inSeason()) return;
+  if (request.method !== "GET" && request.method !== "HEAD") return next();
+  if (url.pathname.includes(".")) return next();
+  if (!inSeason() || !pageFile(url.pathname)) return next();
 
-  url.searchParams.set("_static", "1");
-  const response = await fetch(url, { headers: request.headers, redirect: "manual" });
-  const type = response.headers.get("content-type") || "";
-  if (!type.includes("text/html")) return response;
-
-  const html = await response.text();
-  const next = applySeasonalOg(html);
-  const headers = new Headers(response.headers);
-  headers.delete("content-length");
-  return new Response(next, { status: response.status, headers });
+  const dest = new URL(request.url);
+  dest.pathname = "/api/season-html";
+  dest.search = "";
+  dest.searchParams.set("path", url.pathname);
+  return rewrite(dest);
 }

@@ -40,19 +40,19 @@ html.season-christmas .nav .mark::before {
   content: "";
   position: absolute;
   z-index: 3;
-  left: 4px;
-  top: -4px;
-  width: 18px;
-  height: 15px;
+  left: 0;
+  top: -5px;
+  width: 20px;
+  height: 16px;
   background: url("/seasonal/hat.svg") center / contain no-repeat;
   pointer-events: none;
 }
 @media (max-width: 520px) {
   html.season-christmas .nav .mark::before {
-    left: 3px;
-    top: -3px;
-    width: 16px;
-    height: 13px;
+    left: 0;
+    top: -4px;
+    width: 18px;
+    height: 14px;
   }
 }
 html.season-christmas .nav .mark img,

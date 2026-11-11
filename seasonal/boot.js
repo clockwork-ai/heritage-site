@@ -27,7 +27,7 @@
 
   function inWindow(now) {
     var today = londonDate(now);
-    var start = String(cfg.windowStart || "2026-12-01").slice(0, 10);
+    var start = String(cfg.windowStart || "2026-11-11").slice(0, 10);
     var end = String(cfg.windowEnd || "2027-01-06").slice(0, 10);
     return today >= start && today <= end;
   }

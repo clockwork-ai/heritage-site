@@ -1,56 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 88" width="120" height="88" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100" width="160" height="100" fill="none">
   <defs>
-    <linearGradient id="velvet" x1="18" y1="20" x2="96" y2="74" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#8E242C"/>
-      <stop offset="0.28" stop-color="#B4333C"/>
-      <stop offset="0.55" stop-color="#7A1C24"/>
-      <stop offset="1" stop-color="#4C1218"/>
+    <linearGradient id="velvet" x1="18" y1="20" x2="120" y2="88" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D06A70"/>
+      <stop offset="0.28" stop-color="#A33A42"/>
+      <stop offset="0.62" stop-color="#7A222A"/>
+      <stop offset="1" stop-color="#4A141A"/>
     </linearGradient>
-    <linearGradient id="sheen" x1="30" y1="24" x2="78" y2="58" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#F0B8B4" stop-opacity="0"/>
-      <stop offset="0.42" stop-color="#F3C2BC" stop-opacity=".55"/>
-      <stop offset="0.7" stop-color="#F0B8B4" stop-opacity="0"/>
+    <linearGradient id="sheen" x1="20" y1="30" x2="90" y2="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8D4D0" stop-opacity=".15"/>
+      <stop offset="0.4" stop-color="#F8D4D0" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#F8D4D0" stop-opacity="0"/>
     </linearGradient>
-    <linearGradient id="fold" x1="40" y1="40" x2="90" y2="70" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#5A141C" stop-opacity="0"/>
-      <stop offset="1" stop-color="#3A0C12" stop-opacity=".85"/>
-    </linearGradient>
-    <radialGradient id="pom" cx="36%" cy="32%" r="68%">
-      <stop offset="0" stop-color="#FFFcf8"/>
-      <stop offset="0.42" stop-color="#F4EEE6"/>
-      <stop offset="0.78" stop-color="#E4D9CC"/>
-      <stop offset="1" stop-color="#CFC3B4"/>
+    <radialGradient id="pom" cx="30%" cy="28%" r="72%">
+      <stop offset="0" stop-color="#FFFDF9"/>
+      <stop offset="0.45" stop-color="#F4EEE6"/>
+      <stop offset="1" stop-color="#CDBEAE"/>
     </radialGradient>
     <linearGradient id="fur" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#FFFcf8"/>
-      <stop offset="0.5" stop-color="#F3EBE2"/>
-      <stop offset="1" stop-color="#DDD2C6"/>
+      <stop offset="0" stop-color="#FFFDF8"/>
+      <stop offset=".6" stop-color="#F1E8DE"/>
+      <stop offset="1" stop-color="#D5CBBE"/>
     </linearGradient>
   </defs>
-  <ellipse cx="52" cy="70" rx="30" ry="6" fill="#1A0A0C" opacity=".28"/>
-  <path d="M24 62C22 38 40 22 62 20C78 19 94 28 100 40C92 34 78 36 66 44C52 52 36 58 26 66C25 65 24 63 24 62Z" fill="url(#velvet)"/>
-  <path d="M40 34C52 28 70 30 86 40C74 36 58 40 46 50C40 44 38 38 40 34Z" fill="url(#sheen)"/>
-  <path d="M62 44C78 40 94 46 102 56C90 50 74 52 62 60C58 54 58 48 62 44Z" fill="url(#fold)"/>
-  <g>
-    <ellipse cx="46" cy="64" rx="28" ry="9.5" fill="url(#fur)" transform="rotate(-8 46 64)"/>
-    <g fill="#F7F1E8">
-      <circle cx="20" cy="62" r="5.2"/>
-      <circle cx="28" cy="58.5" r="4.6"/>
-      <circle cx="36" cy="56.8" r="5"/>
-      <circle cx="44" cy="56.2" r="4.4"/>
-      <circle cx="52" cy="57" r="5.1"/>
-      <circle cx="60" cy="58.6" r="4.5"/>
-      <circle cx="67" cy="61" r="4.8"/>
-      <circle cx="73" cy="64.2" r="4.2"/>
+  <ellipse cx="108" cy="58" rx="34" ry="9" fill="#120C08" opacity=".48" transform="rotate(-18 108 46)"/>
+  <path d="M96 40C78 46 58 58 40 72C28 82 18 90 26 96C36 88 50 76 68 64C82 54 98 46 112 42C108 38 102 38 96 40Z" fill="url(#velvet)"/>
+  <path d="M48 66C66 54 88 46 108 42C92 48 70 58 52 72C48 68 46 66 48 66Z" fill="url(#sheen)"/>
+  <path d="M36 80C56 68 84 56 108 50C94 60 68 72 46 86C38 82 34 80 36 80Z" fill="#3A1016" opacity=".55"/>
+  <g transform="rotate(-18 108 44)">
+    <ellipse cx="108" cy="44" rx="40" ry="15" fill="url(#fur)"/>
+    <g fill="#F6F0E8">
+      <circle cx="76" cy="48" r="7"/>
+      <circle cx="88" cy="42" r="6.4"/>
+      <circle cx="100" cy="38.5" r="7.2"/>
+      <circle cx="112" cy="37" r="6.6"/>
+      <circle cx="124" cy="38.5" r="7.2"/>
+      <circle cx="135" cy="43" r="6.4"/>
+      <circle cx="144" cy="49" r="6.2"/>
     </g>
     <g fill="#FFFDF9" opacity=".85">
-      <circle cx="22" cy="60" r="1.5"/>
-      <circle cx="37" cy="54.6" r="1.4"/>
-      <circle cx="53" cy="55" r="1.6"/>
-      <circle cx="68" cy="59" r="1.3"/>
+      <circle cx="90" cy="39" r="2"/>
+      <circle cx="112" cy="34" r="2.1"/>
+      <circle cx="132" cy="40" r="1.8"/>
     </g>
   </g>
-  <circle cx="102" cy="36" r="11" fill="#C9B8A8" opacity=".35"/>
-  <circle cx="100" cy="34" r="11.5" fill="url(#pom)"/>
-  <circle cx="96" cy="30" r="3.2" fill="#FFFcf8" opacity=".7"/>
+  <ellipse cx="28" cy="96" rx="13" ry="5" fill="#140E0A" opacity=".35"/>
+  <circle cx="24" cy="86" r="13" fill="url(#pom)"/>
+  <circle cx="18" cy="80" r="3.6" fill="#FFFDF9" opacity=".8"/>
 </svg>

@@ -40,27 +40,28 @@ html.season-christmas .nav .mark::before {
   content: "";
   position: absolute;
   z-index: 3;
-  left: 5px;
-  top: -2px;
-  width: 18px;
-  height: 15px;
+  left: -8px;
+  top: 3px;
+  width: 34px;
+  height: 24px;
   background: url("/seasonal/hat.svg") center / contain no-repeat;
   pointer-events: none;
-  transform: rotate(8deg);
-  transform-origin: 28% 88%;
 }
 @media (max-width: 520px) {
   html.season-christmas .nav .mark::before {
-    left: 3px;
-    top: -2px;
-    width: 16px;
-    height: 13px;
+    left: -7px;
+    top: 3px;
+    width: 29px;
+    height: 20px;
   }
 }
 html.season-christmas .nav .mark img,
 html.season-christmas .foot .mark img {
   -webkit-text-fill-color: unset;
   filter: none;
+}
+html.season-christmas .nav .mark img {
+  clip-path: inset(22% 0 0 0);
 }
 
 /* One string of small glowing bulbs on a thin dark wire. */

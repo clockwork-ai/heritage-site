@@ -1,5 +1,5 @@
-/* Decorative bits for the Christmas skin. Art is original SVG.
-   Nothing here is interactive. Snow does not run when motion is reduced. */
+/* Lights and snow for the Christmas skin. Nothing here is clickable.
+   Snow is omitted entirely when the reader prefers reduced motion. */
 (function () {
   if (!document.documentElement.classList.contains("season-christmas")) return;
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -8,58 +8,23 @@
     var row = document.createElement("div");
     row.className = className;
     row.setAttribute("aria-hidden", "true");
-    var colors = ["#d24b4b", "#E8C987", "#6faf86", "#F3EAD6", "#d98a6a", "#C9A96E"];
+    var colors = ["#F3E6C8", "#C4473A", "#6E9A72", "#E0C17A"];
     for (var i = 0; i < count; i++) {
       var bulb = document.createElement("i");
       bulb.style.setProperty("--c", colors[i % colors.length]);
-      bulb.style.setProperty("--d", (i % 6) * 0.32 + "s");
+      bulb.style.setProperty("--d", (i % 7) * 0.45 + "s");
       row.appendChild(bulb);
     }
     parent.appendChild(row);
-    return row;
   }
 
   var nav = document.querySelector(".nav");
   if (nav) {
     var width = nav.clientWidth || window.innerWidth;
-    var count = Math.max(8, Math.min(22, Math.round(width / 64)));
+    var count = Math.max(8, Math.min(16, Math.round(width / 88)));
     bulbRow(nav, count, "season-lights");
   } else {
-    bulbRow(document.body, 10, "season-lights season-lights--fixed");
-  }
-
-  var hero = document.getElementById("promise");
-  if (hero && hero.classList.contains("hero")) {
-    var host = hero.querySelector(".hero__media") || hero;
-    var tree = document.createElement("img");
-    tree.className = "season-tree";
-    tree.alt = "";
-    tree.setAttribute("aria-hidden", "true");
-    tree.src = "/seasonal/tree.svg";
-    tree.width = 200;
-    tree.height = 260;
-    host.appendChild(tree);
-
-    var globe = document.createElement("img");
-    globe.className = "season-globe";
-    globe.alt = "";
-    globe.setAttribute("aria-hidden", "true");
-    globe.src = "/seasonal/globe.svg";
-    globe.width = 148;
-    globe.height = 174;
-    host.appendChild(globe);
-  }
-
-  var options = document.getElementById("options");
-  if (options && !hero) {
-    var linkGlobe = document.createElement("img");
-    linkGlobe.className = "season-globe season-globe--links";
-    linkGlobe.alt = "";
-    linkGlobe.setAttribute("aria-hidden", "true");
-    linkGlobe.src = "/seasonal/globe.svg";
-    linkGlobe.width = 86;
-    linkGlobe.height = 102;
-    options.appendChild(linkGlobe);
+    bulbRow(document.body, 8, "season-lights season-lights--fixed");
   }
 
   var mnav = document.querySelector(".mnav");
@@ -69,9 +34,9 @@
     top.setAttribute("aria-hidden", "true");
     var lights = document.createElement("div");
     lights.className = "season-drawer-lights";
-    for (var i = 0; i < 9; i++) {
+    for (var i = 0; i < 8; i++) {
       var dot = document.createElement("i");
-      dot.style.setProperty("--d", (i % 5) * 0.28 + "s");
+      dot.style.setProperty("--d", (i % 5) * 0.4 + "s");
       lights.appendChild(dot);
     }
     var mark = document.createElement("p");
@@ -82,18 +47,19 @@
     mnav.insertBefore(top, mnav.firstChild);
   }
 
+  if (reduce) return;
+
   function bootSnow() {
     var mobile = window.matchMedia("(max-width: 799px)").matches;
-    var count = mobile ? 10 : 22;
+    var count = mobile ? 8 : 16;
     var canvas = document.createElement("canvas");
     canvas.className = "season-snow";
     canvas.setAttribute("aria-hidden", "true");
-    if (reduce) canvas.setAttribute("data-static", "1");
     document.body.appendChild(canvas);
     var ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
     var flakes = [];
-    var running = !reduce;
+    var running = true;
     var raf = 0;
     var last = 0;
 
@@ -109,10 +75,10 @@
         flakes.push({
           x: Math.random() * w,
           y: Math.random() * h,
-          r: Math.random() * 1.5 + 0.5,
-          s: Math.random() * 0.35 + 0.12,
-          drift: Math.random() * 0.3 - 0.15,
-          a: Math.random() * 0.35 + 0.18
+          r: Math.random() * 5 + 2.4,
+          s: Math.random() * 0.22 + 0.08,
+          drift: Math.random() * 0.18 - 0.09,
+          a: Math.random() * 0.22 + 0.08
         });
       }
     }
@@ -121,15 +87,17 @@
       var w = window.innerWidth;
       var h = window.innerHeight;
       ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = "#F7FBFF";
       for (var n = 0; n < flakes.length; n++) {
         var flake = flakes[n];
-        ctx.globalAlpha = flake.a;
+        var g = ctx.createRadialGradient(flake.x, flake.y, 0, flake.x, flake.y, flake.r);
+        g.addColorStop(0, "rgba(244, 240, 232, " + flake.a + ")");
+        g.addColorStop(0.45, "rgba(226, 220, 206, " + (flake.a * 0.35) + ")");
+        g.addColorStop(1, "rgba(244, 240, 232, 0)");
+        ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(flake.x, flake.y, flake.r, 0, 6.3);
         ctx.fill();
       }
-      ctx.globalAlpha = 1;
     }
 
     function frame(now) {
@@ -143,31 +111,29 @@
         var flake = flakes[n];
         flake.y += flake.s;
         flake.x += flake.drift;
-        if (flake.y > h + 4) {
-          flake.y = -4;
+        if (flake.y - flake.r > h) {
+          flake.y = -flake.r;
           flake.x = Math.random() * w;
         }
-        if (flake.x < -4) flake.x = w + 4;
-        if (flake.x > w + 4) flake.x = -4;
+        if (flake.x < -8) flake.x = w + 8;
+        if (flake.x > w + 8) flake.x = -8;
       }
       paint();
     }
 
     layout();
     paint();
-    if (running) raf = window.requestAnimationFrame(frame);
-
+    raf = window.requestAnimationFrame(frame);
     document.addEventListener("visibilitychange", function () {
-      if (reduce) return;
       if (document.hidden) {
         running = false;
         window.cancelAnimationFrame(raf);
       } else if (!running) {
         running = true;
+        last = 0;
         raf = window.requestAnimationFrame(frame);
       }
     });
-
     var resizeTimer = 0;
     window.addEventListener("resize", function () {
       window.clearTimeout(resizeTimer);
@@ -178,9 +144,6 @@
     });
   }
 
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(bootSnow, { timeout: 900 });
-  } else {
-    window.setTimeout(bootSnow, 400);
-  }
+  if ("requestIdleCallback" in window) window.requestIdleCallback(bootSnow, { timeout: 900 });
+  else window.setTimeout(bootSnow, 400);
 })();

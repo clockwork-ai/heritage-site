@@ -53,14 +53,57 @@
   if (!on) return;
   document.documentElement.classList.add("season-christmas");
   var href = "/seasonal/christmas.css";
+  var home = location.pathname === "/" || location.pathname === "/index.html";
+  var preload = "";
+  if (home) {
+    preload += '<link rel="preload" as="image" type="image/avif" href="/seasonal/img/hero-desktop-1280.avif" imagesrcset="/seasonal/img/hero-desktop-960.avif 960w, /seasonal/img/hero-desktop-1280.avif 1280w" imagesizes="100vw" media="(min-width: 700px)">';
+    preload += '<link rel="preload" as="image" type="image/avif" href="/seasonal/img/hero-mobile-720.avif" imagesrcset="/seasonal/img/hero-mobile-480.avif 480w, /seasonal/img/hero-mobile-720.avif 720w" imagesizes="100vw" media="(max-width: 699px)">';
+  }
   if (document.readyState === "loading") {
-    document.write('<link rel="stylesheet" href="' + href + '">');
+    document.write(preload + '<link rel="stylesheet" href="' + href + '">');
   } else {
+    if (home) document.head.insertAdjacentHTML("beforeend", preload);
     var link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = href;
     document.head.appendChild(link);
   }
+
+  function heroPlate() {
+    if (!home || document.querySelector(".season-hero")) return;
+    var hero = document.getElementById("promise");
+    if (!hero) return;
+    var pic = document.createElement("picture");
+    pic.className = "season-hero";
+    pic.setAttribute("aria-hidden", "true");
+    var sources = [
+      ["(max-width: 699px)", "image/avif", "/seasonal/img/hero-mobile-480.avif 480w, /seasonal/img/hero-mobile-720.avif 720w"],
+      ["(max-width: 699px)", "image/webp", "/seasonal/img/hero-mobile-480.webp 480w, /seasonal/img/hero-mobile-720.webp 720w"],
+      ["(max-width: 699px)", "image/jpeg", "/seasonal/img/hero-mobile-480.jpg 480w, /seasonal/img/hero-mobile-720.jpg 720w"],
+      ["(min-width: 700px)", "image/avif", "/seasonal/img/hero-desktop-960.avif 960w, /seasonal/img/hero-desktop-1280.avif 1280w"],
+      ["(min-width: 700px)", "image/webp", "/seasonal/img/hero-desktop-960.webp 960w, /seasonal/img/hero-desktop-1280.webp 1280w"],
+      ["(min-width: 700px)", "image/jpeg", "/seasonal/img/hero-desktop-960.jpg 960w, /seasonal/img/hero-desktop-1280.jpg 1280w"]
+    ];
+    for (var i = 0; i < sources.length; i++) {
+      var source = document.createElement("source");
+      source.media = sources[i][0];
+      source.type = sources[i][1];
+      source.srcset = sources[i][2];
+      source.sizes = "100vw";
+      pic.appendChild(source);
+    }
+    var img = document.createElement("img");
+    img.src = "/seasonal/img/hero-desktop-1280.jpg";
+    img.alt = "";
+    img.width = 1280;
+    img.height = 720;
+    img.decoding = "async";
+    img.setAttribute("fetchpriority", "high");
+    pic.appendChild(img);
+    hero.insertBefore(pic, hero.firstChild);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", heroPlate);
+  else heroPlate();
 
   function mount() {
     if (document.querySelector("script[data-season-mount]")) return;

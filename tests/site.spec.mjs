@@ -885,16 +885,20 @@ test("seasonal skin stays behind the switch", async ({ page }) => {
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/?season=off");
   await expect(page.locator("html")).not.toHaveClass(/season-christmas/);
-  await expect(page.locator(".season-snow, .season-lights, .season-tree")).toHaveCount(0);
+  await expect(page.locator(".season-snow, .season-lights, .season-hero")).toHaveCount(0);
   await page.goto("/?season=christmas");
   await expect(page.locator("html")).toHaveClass(/season-christmas/);
   await expect(page.locator(".season-lights")).toHaveCount(1);
-  await expect(page.locator(".season-tree")).toHaveCount(1);
+  await expect(page.locator(".season-hero")).toHaveCount(1);
   await expect(page.locator(".season-snow")).toHaveCount(1);
+  const heroImg = page.locator(".season-hero img");
+  await expect(heroImg).toHaveJSProperty("complete", true);
+  expect(await heroImg.evaluate((el) => el.naturalWidth)).toBeGreaterThan(0);
   const snow = page.locator(".season-snow");
   await expect(snow).toHaveAttribute("aria-hidden", "true");
   expect(await snow.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe("none");
   expect(await page.locator(".season-lights").evaluate((el) => getComputedStyle(el).pointerEvents)).toBe("none");
+  expect(await page.locator(".season-hero").evaluate((el) => getComputedStyle(el).pointerEvents)).toBe("none");
   expect(errors, errors.join("\n")).toEqual([]);
 });
 
@@ -908,6 +912,7 @@ test("seasonal motion stops when reduced motion is on", async ({ browser }) => {
   const bulb = page.locator(".season-lights i").first();
   await expect(bulb).toBeAttached();
   expect(await bulb.evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
-  await expect(page.locator(".season-snow")).toHaveAttribute("data-static", "1");
+  await page.waitForTimeout(400);
+  await expect(page.locator(".season-snow")).toHaveCount(0);
   await context.close();
 });

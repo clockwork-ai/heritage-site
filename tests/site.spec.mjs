@@ -305,11 +305,12 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
   expect(linksHtml).toContain("Late joiners finish with the group");
   const linksLive = linksHtml.replace(/<!--[\s\S]*?-->/g, "");
   expect(linksLive).not.toContain("GK689386");
-  expect(linksLive).not.toContain("coach.everfit.io/package");
+  expect(linksLive).toContain("https://coach.everfit.io/package/NW877413");
   await expect(page.locator('a[data-ev="Physique OS click"]')).toHaveAttribute(
     "href",
-    "/start/?utm_source=instagram&utm_medium=bio",
+    /https:\/\/coach\.everfit\.io\/package\/NW877413\?.*utm_source=instagram/,
   );
+  await expect(page.locator('a[data-ev="Physique OS click"]')).toHaveAttribute("rel", "noopener");
   await expect(page.locator('a[data-ev="Physique OS click"]')).toContainText("£29 a month");
   await expect(page.locator('a[data-ev="The 90 click"]')).toHaveAttribute(
     "href",
@@ -417,6 +418,7 @@ test("pricing Head Start uses the live cohort dates", async ({ page }) => {
   const os = page.locator("article.plan", { has: page.getByRole("heading", { name: "Physique OS" }) });
   await expect(os).toContainText("£29");
   await expect(os).toContainText("Run the system yourself.");
+  await expect(os.locator("a.btn")).toHaveAttribute("href", "https://coach.everfit.io/package/NW877413");
   const ninety = page.locator("article.plan", { has: page.getByRole("heading", { name: "The Ninety" }) });
   await expect(ninety).toContainText("£297");
   await expect(ninety).toContainText("90 days with a monthly call and review.");
@@ -427,6 +429,24 @@ test("pricing Head Start uses the live cohort dates", async ({ page }) => {
   expect(text).not.toContain("\u2014");
   expect(text).not.toContain("\u2013");
   expect(text).not.toMatch(/8[- ]weeks?/i);
+});
+
+test("Physique OS trial buttons go to the Everfit checkout", async ({ page }) => {
+  const checkout = "https://coach.everfit.io/package/NW877413";
+  await page.goto("/start");
+  await expect(page.locator("h1")).toContainText(/yourself/i);
+  const trials = page.locator("a.btn-solid", { hasText: /start/i });
+  expect(await trials.count()).toBeGreaterThan(0);
+  const n = await trials.count();
+  for (let i = 0; i < n; i++) await expect(trials.nth(i)).toHaveAttribute("href", checkout);
+  await page.locator("#ptMonthly").click();
+  await expect(page.locator("#ptCta")).toHaveAttribute("href", checkout);
+  await expect(page.locator("#ptPrice")).toHaveText("£29");
+  await page.locator("#ptAnnual").click();
+  await expect(page.locator("#ptCta")).toHaveAttribute("href", checkout);
+  await expect(page.locator("#ptPrice")).toHaveText("£249");
+  await expect(page.locator('nav a[href="/the-ninety/"]')).toHaveCount(1);
+  await expect(page.locator('a[href="/coaching"]')).toHaveCount(1);
 });
 
 function noDashes(text) {

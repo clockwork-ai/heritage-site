@@ -275,7 +275,6 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
   const folded = text.toLowerCase();
   const order = [
     "coaching options",
-    "head start",
     "physique os",
     "the 90",
     "one-to-one",
@@ -297,14 +296,16 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
     expect(next, label).toBeGreaterThan(at);
     at = next;
   }
-  const head = page.locator('a[data-ev="Head Start click"]');
-  await expect(head).toContainText("£47 one-off");
-  await expect(head).toContainText("9 Nov 2026 to 3 Jan 2027");
-  await expect(head).toContainText("Late joiners finish with the group");
-  await expect(head).not.toContainText(/8 weeks/i);
-  await expect(head).not.toContainText(/check-?in/i);
-  await expect(head).toHaveAttribute("href", /https:\/\/coach\.everfit\.io\/package\/GK689386\?.*utm_source=instagram/);
-  await expect(head).toHaveAttribute("rel", "noopener");
+  await expect(page.locator('a[data-ev="Head Start click"]')).toHaveCount(0);
+  await expect(page.locator('a[href*="GK689386"]')).toHaveCount(0);
+  const linksHtml = await page.content();
+  expect(linksHtml).toContain("HEAD START PAUSED");
+  expect(linksHtml).toContain("£47 one-off");
+  expect(linksHtml).toContain("9 Nov 2026 to 3 Jan 2027");
+  expect(linksHtml).toContain("Late joiners finish with the group");
+  const linksLive = linksHtml.replace(/<!--[\s\S]*?-->/g, "");
+  expect(linksLive).not.toContain("GK689386");
+  expect(linksLive).not.toContain("coach.everfit.io/package");
   await expect(page.locator('a[data-ev="Physique OS click"]')).toHaveAttribute(
     "href",
     "/start/?utm_source=instagram&utm_medium=bio",
@@ -404,7 +405,15 @@ test("pricing Head Start uses the live cohort dates", async ({ page }) => {
   await expect(head).toContainText("Cohort, 9 Nov 2026 to 3 Jan 2027. Late joiners finish with the group.");
   await expect(head).not.toContainText(/8[- ]weeks?/i);
   await expect(head).not.toContainText(/check-?in/i);
-  await expect(head.locator("a.btn")).toHaveAttribute("href", "https://coach.everfit.io/package/GK689386");
+  await expect(head).toContainText("Paused until January");
+  await expect(head.locator("a.btn")).toHaveCount(0);
+  await expect(head.locator('a[href*="everfit.io"]')).toHaveCount(0);
+  const pricingHtml = await page.content();
+  expect(pricingHtml).toContain("HEAD START PAUSED");
+  expect(pricingHtml).toContain("https://coach.everfit.io/package/GK689386");
+  const pricingLive = pricingHtml.replace(/<!--[\s\S]*?-->/g, "");
+  expect(pricingLive).not.toContain("GK689386");
+  expect(pricingLive).not.toContain("Get your spot");
   const os = page.locator("article.plan", { has: page.getByRole("heading", { name: "Physique OS" }) });
   await expect(os).toContainText("£29");
   await expect(os).toContainText("Run the system yourself.");

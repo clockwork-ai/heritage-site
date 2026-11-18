@@ -41,9 +41,9 @@ def note(text):
 
 PROOF = ul([
     '<b>Mark, 44, tiler and dad.</b> Waist down 28cm in nine weeks, 119cm to 91cm, measured by him at the navel every week. Chest up 6cm.',
-    '<b>Dale.</b> Blood pressure 180/126 in hospital, 114/74 ten weeks in, and 8.7kg down. His own readings, from his own post. Medication decisions stayed with his GP.',
+    '<b>Dale.</b> 8.7kg down in ten weeks. His own blood pressure readings, from his own post: 180/126 in hospital, 114/74 ten weeks in. One man\'s experience, not a typical result. Medication decisions stayed with his GP.',
     '<b>Jonny.</b> Over ten years of trying on his own. Eight weeks in: "I\'m feeling and looking the best I ever have."',
-    '<b>Me.</b> Stage 2 hypertension, 151/105 in January 2023, to 113/69 in March 2024 on the same monitor, with no medication.',
+    '<b>Me.</b> My blood pressure went from 151/105 to 113/69 and my insulin markers improved. These are my own readings, not a promise and not medical advice. If yours is high, speak to your GP.',
 ])
 
 KEEP_READING = [

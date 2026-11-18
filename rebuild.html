@@ -242,7 +242,7 @@
     <form class="applyf" id="rebuildGate" novalidate>
       <p class="body" id="rebuildRecipient" style="margin:0">Sent to me, Callum Broadfoot (CALLUM.B), using Formspree and my website host. I use it only to get ready for your call and reply. <a class="tlink" href="/privacy">Privacy</a>.</p>
       <fieldset class="field"><legend>How often are you drinking right now?</legend>
-        <p class="hint">I ask the drinking questions so I can judge whether The Full Rebuild is right for you. You can pick that you'd rather say it on the call.</p>
+        <p class="hint">I ask the drinking questions so I can judge whether The Full Rebuild is right for you. If you'd rather tell me on the call, pick that option.</p>
         <div class="chips">
           <label><input type="radio" name="often" value="Every night"><span>Every night</span></label>
           <label><input type="radio" name="often" value="Most nights"><span>Most nights</span></label>
@@ -362,6 +362,8 @@
       if (detail.amount) posted.amount = detail.amount;
       if (detail.gp) posted.gp = detail.gp;
       if (detail.needs) posted.healthConsent = "yes";
+      const submitter = e.submitter;
+      if (submitter) submitter.disabled = true;
       try {
         const r = await fetch(sendUrl, {
           method: "POST",
@@ -369,11 +371,13 @@
           body: JSON.stringify(posted)
         });
         if (r.status === 422) {
+          if (submitter) submitter.disabled = false;
           if (consentErr) consentErr.hidden = false;
           if (box) box.focus();
           return;
         }
       } catch (errPost) {}
+      if (submitter) submitter.disabled = false;
       location.href = "/book";
       return;
     }

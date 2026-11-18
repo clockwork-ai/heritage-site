@@ -279,6 +279,28 @@ test("discovery call does not send drinking answers without consent", async ({ p
   expect(direct).toBe(0);
 });
 
+test("rebuild shows the consent error when the server refuses", async ({ page }) => {
+  await page.route("**/formspree.io/**", (route) => route.abort());
+  await page.route("**/api/apply-forward", (route) => route.fulfill({
+    status: 422,
+    contentType: "application/json",
+    body: "{\"ok\":false,\"error\":\"consent\"}",
+  }));
+  await page.goto("/rebuild");
+  await page.locator("#screen").scrollIntoViewIfNeeded();
+  const gate = page.locator("#rebuildGate");
+  await expect(gate.getByText("I ask the drinking questions so I can judge whether The Full Rebuild is right for you. If you'd rather tell me on the call, pick that option.")).toBeVisible();
+  await gate.getByText("Every night", { exact: true }).click();
+  await page.locator("#rb-amount").fill("A bottle of wine");
+  await page.locator("#rb-health-consent").check();
+  const book = page.getByRole("button", { name: /book the discovery call/i });
+  await book.click();
+  await expect(page).toHaveURL(/\/rebuild/);
+  await expect(page.locator("#rbHealthConsentErr")).toBeVisible();
+  await expect(page.locator("#rbHealthConsentErr")).toHaveText("Please tick this box so I can read your answers.");
+  await expect(book).toBeEnabled();
+});
+
 test("home: client app tabs switch screens", async ({ page }) => {
   await page.goto("/");
   await page.locator(".cli").scrollIntoViewIfNeeded();

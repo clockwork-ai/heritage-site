@@ -163,6 +163,12 @@ test("Full Rebuild screen carries drinking answers into the application", async 
   await gate.getByText("Every night", { exact: true }).click();
   await page.locator("#rb-amount").fill("A bottle of wine");
   await gate.getByText(/I've read that/).click();
+  await expect(page.locator("#rebuildRecipient")).toBeVisible();
+  await expect(page.locator("#rb-health-consent")).not.toBeChecked();
+  await page.getByRole("button", { name: /continue to the form/i }).click();
+  await expect(page).toHaveURL(/\/rebuild/);
+  await expect(page.locator("#rbHealthConsentErr")).toBeVisible();
+  await page.locator("#rb-health-consent").check();
   await page.getByRole("button", { name: /continue to the form/i }).click();
   await page.waitForURL(/\/apply\?plan=The(?:\+|%20)Full(?:\+|%20)Rebuild/);
   await expect(page.locator('input[name="plan"][value="The Full Rebuild"]')).toBeChecked();
@@ -182,6 +188,41 @@ test("Full Rebuild screen carries drinking answers into the application", async 
   await expect(page.locator("#applyText")).toContainText("Drinking: Every night");
   await expect(page.locator("#applyText")).toContainText("A bottle of wine");
   await expect(page.locator("#applyText")).toContainText("GP note");
+});
+
+test("discovery call does not send drinking answers without consent", async ({ page }) => {
+  const posts = [];
+  await page.route("**/formspree.io/**", async (route) => {
+    posts.push(route.request().postDataJSON());
+    await route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+  });
+  await page.goto("/rebuild");
+  await page.locator("#screen").scrollIntoViewIfNeeded();
+  const gate = page.locator("#rebuildGate");
+  await expect(page.locator("#rebuildRecipient")).toContainText("Formspree");
+  await expect(page.locator("#rebuildRecipient a")).toHaveAttribute("href", "/privacy");
+  await expect(page.locator("#rb-health-consent")).not.toBeChecked();
+  await gate.getByText("Every night", { exact: true }).click();
+  await page.locator("#rb-amount").fill("A bottle of wine");
+  await gate.getByText(/I've read that/).click();
+  await page.getByRole("button", { name: /book the discovery call/i }).click();
+  await expect(page).toHaveURL(/\/rebuild/);
+  await expect(page.locator("#rbHealthConsentErr")).toBeVisible();
+  expect(posts).toHaveLength(0);
+  await page.locator("#rb-health-consent").check();
+  const sent = page.waitForRequest("**/formspree.io/**");
+  await page.getByRole("button", { name: /book the discovery call/i }).click();
+  const req = await sent;
+  expect(req.postDataJSON()).toMatchObject({
+    _subject: "Full Rebuild: drinking screen, booking the call",
+    plan: "The Full Rebuild",
+    drinking: "Every night",
+    amount: "A bottle of wine",
+    gp: "Read the GP note",
+    healthConsent: "yes",
+  });
+  await page.waitForURL(/\/book/);
+  expect(posts).toHaveLength(1);
 });
 
 test("home: client app tabs switch screens", async ({ page }) => {

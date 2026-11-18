@@ -240,6 +240,8 @@
       <p class="body">If you are drinking heavily, or your blood pressure is high, speak to your GP before you change your drinking, your food or your training. I'm a coach, not a doctor. This is online coaching. It is not medical treatment, and it is not a reason to start, stop or change any medication.</p>
     </div>
     <form class="applyf" id="rebuildGate" novalidate>
+      <p class="body" id="rebuildRecipient" style="margin:0">Sent to me, Callum Broadfoot (CALLUM.B), using Formspree and my website host. I use it only to assess your application and reply. <a class="tlink" href="/privacy">Privacy</a>.</p>
+      <label class="field" style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" id="rb-health-consent" name="healthConsent" value="yes" required autocomplete="off" aria-describedby="rbHealthConsentErr" style="margin-top:4px"><span>I agree to Callum using the health and lifestyle details I give here to assess my application.<span class="hint" id="rbHealthConsentErr" role="alert" hidden style="display:block;margin-top:8px">Tick this box before I can take the application.</span></span></label>
       <fieldset class="field"><legend>How often are you drinking right now?</legend>
         <div class="chips">
           <label><input type="radio" name="often" value="Every night"><span>Every night</span></label>
@@ -301,6 +303,12 @@
     err.textContent = msg;
     if (el && el.focus) el.focus();
   };
+  form.addEventListener("change", (e) => {
+    if (e.target && e.target.name === "healthConsent" && e.target.checked) {
+      const consentErr = document.getElementById("rbHealthConsentErr");
+      if (consentErr) consentErr.hidden = true;
+    }
+  });
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     err.hidden = true;
@@ -313,6 +321,14 @@
     const skipAmount = often === "I've stopped" || often === "I'd rather say it on the call";
     if (!skipAmount && !amount) return showErr("Tell me roughly how much on a drinking day, or pick that you'd rather say it on the call.", form.querySelector("#rb-amount"));
     if (!gp) return showErr("Read the note about your GP, then tick the box. I need to know you've seen it.", form.querySelector('input[name="gp"]'));
+    const consentErr = document.getElementById("rbHealthConsentErr");
+    if (d.get("healthConsent") !== "yes") {
+      if (consentErr) consentErr.hidden = false;
+      const box = form.querySelector("#rb-health-consent");
+      if (box) box.focus();
+      return;
+    }
+    if (consentErr) consentErr.hidden = true;
     const screen = { often, amount, gp: true, go };
     try { sessionStorage.setItem(KEY, JSON.stringify(screen)); } catch (errStore) {}
     if (go === "book") {
@@ -325,7 +341,8 @@
             plan: "The Full Rebuild",
             drinking: often,
             amount: amount || "-",
-            gp: "Read the GP note"
+            gp: "Read the GP note",
+            healthConsent: "yes"
           }),
           keepalive: true
         }).catch(() => {});

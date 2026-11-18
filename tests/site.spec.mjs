@@ -435,6 +435,7 @@ test("Physique OS trial buttons go to the Everfit checkout", async ({ page }) =>
   const checkout = "https://coach.everfit.io/package/NW877413";
   await page.goto("/start");
   await expect(page.locator("h1")).toContainText(/yourself/i);
+  await expect(page.locator("main")).toContainText("the 4-weekly self-review that keeps progress moving");
   const trials = page.locator("a.btn-solid", { hasText: /start/i });
   expect(await trials.count()).toBeGreaterThan(0);
   const n = await trials.count();
@@ -480,6 +481,7 @@ test("os-setup is self-led and does not offer to load the plan", async ({ page }
   const text = await page.locator("body").innerText();
   await expect(page.locator("body")).toContainText("Set your numbers");
   await expect(page.locator("body")).toContainText("Where are you starting?");
+  await expect(page.locator("body")).toContainText("Nobody builds a plan from it.");
   await expect(page.locator("body")).toContainText("Home or Minimal Equipment 3-Day");
   await expect(page.locator("body")).toContainText("Fat Loss 3-Day Strength + Conditioning");
   expect(text).not.toContain("I'll have your macros");

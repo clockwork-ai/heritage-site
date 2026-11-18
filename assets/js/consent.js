@@ -129,16 +129,16 @@
     var wrap = document.createElement("div");
     wrap.style.cssText = "display:flex;gap:8px;flex:1 1 220px;";
 
-    function button(label, fill) {
+    function button(label) {
       var b = document.createElement("button");
       b.type = "button";
       b.textContent = label;
-      b.style.cssText = "flex:1 1 0;min-width:0;min-height:40px;font-family:\"JetBrains Mono\",ui-monospace,monospace;font-weight:500;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:9px 17px;cursor:pointer;border:1px solid #C9A96E;background:" + (fill ? "#C9A96E" : "transparent") + ";color:" + (fill ? "#09150F" : "#F3EAD6") + ";";
+      b.style.cssText = "flex:1 1 0;min-width:0;min-height:40px;font-family:\"JetBrains Mono\",ui-monospace,monospace;font-weight:500;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:9px 17px;cursor:pointer;border:1px solid #C9A96E;background:#C9A96E;color:#0B1A13;";
       return b;
     }
 
-    var decline = button("Decline", false);
-    var accept = button("Accept", true);
+    var decline = button("Decline");
+    var accept = button("Accept");
     decline.addEventListener("click", function () {
       refuse();
       bar.remove();

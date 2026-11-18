@@ -30,6 +30,16 @@ async function banner(page) {
   const acceptBox = await accept.boundingBox();
   expect(Math.abs(declineBox.width - acceptBox.width)).toBeLessThan(2);
   expect(Math.abs(declineBox.height - acceptBox.height)).toBeLessThan(2);
+  const declineStyle = await decline.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return s.backgroundColor + " " + s.color + " " + s.borderTopColor;
+  });
+  const acceptStyle = await accept.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return s.backgroundColor + " " + s.color + " " + s.borderTopColor;
+  });
+  expect(declineStyle).toBe(acceptStyle);
+  expect(declineStyle).toBe("rgb(201, 169, 110) rgb(11, 26, 19) rgb(201, 169, 110)");
   return dialog;
 }
 
@@ -146,9 +156,9 @@ test("privacy cookie section names Plausible, GA4 and the Meta Pixel", async ({ 
   expect(copy).toContain("Plausible");
   expect(copy).toContain("G-092ML2YGQ2");
   expect(copy).toContain("1778009826073109");
-  expect(copy).toContain("The Pixel sends the visit to Meta and does not set a cookie on this site.");
+  expect(copy).toContain("Google Analytics then sets cookies on this site named _ga and _ga_092ML2YGQ2, each for about two years. The Pixel sends the visit to Meta. It may also set a first-party cookie on this site named _fbp, usually for 90 days.");
+  expect(copy).toContain("If you open the booking calendar, Cal.com may set its own cookies on cal.com to run the booking form.");
   expect(copy).not.toContain("tucked behind");
-  expect(copy).not.toContain("_fbp");
   expect(copy).not.toContain("privacy.html");
   expect(copy).not.toContain("\u2014");
   expect(copy).not.toContain("\u2013");

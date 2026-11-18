@@ -66,65 +66,74 @@
         <p class="lead" style="margin:0 auto 6px;max-width:560px;">Just you and me, by phone. I'll ask where you are now, what you want to change and what has got in the way before. Then I'll tell you straight whether 1:1 coaching is the right fit. No pressure and no hard sell.</p>
         <p class="note" id="rebuildBrought" hidden style="margin:16px auto 0;max-width:560px;">You already told me about your drinking on The Full Rebuild page. If you're drinking heavily, or your blood pressure is high, speak to your GP first. I'll ask about it on the call.</p>
         <p class="note" style="margin:16px auto 0;max-width:560px;">If the calendar does not load, <a class="green" href="https://cal.com/callumbcoaching/discovery-call" style="text-decoration:underline;">book the call here</a>.</p>
-        <div id="cal-inline"></div>
+        <p style="margin:18px auto 0;"><button type="button" class="btn" id="cal-open">Show the calendar</button></p>
+        <div id="cal-inline" hidden></div>
         <script>
-          (function (C, A, L) {
-            var p = function (a, ar) { a.q.push(ar); };
-            var d = C.document;
-            C.Cal = C.Cal || function () {
-              var cal = C.Cal;
-              var ar = arguments;
-              if (!cal.loaded) {
-                cal.ns = {};
-                cal.q = cal.q || [];
-                d.head.appendChild(d.createElement("script")).src = A;
-                cal.loaded = true;
-              }
-              if (ar[0] === L) {
-                var api = function () { p(api, arguments); };
-                var namespace = ar[1];
-                api.q = api.q || [];
-                if (typeof namespace === "string") {
-                  cal.ns[namespace] = cal.ns[namespace] || api;
-                  p(cal.ns[namespace], ar);
-                  p(cal, ["initNamespace", namespace]);
-                } else p(cal, ar);
-                return;
-              }
-              p(cal, ar);
-            };
-          })(window, "https://app.cal.com/embed/embed.js", "init");
-          Cal("init", { origin: "https://cal.com" });
-          Cal("inline", {
-            elementOrSelector: "#cal-inline",
-            calLink: "callumbcoaching/discovery-call",
-            config: {
-              layout: "month_view",
-              theme: "dark",
-              "ui.color-scheme": "dark",
-              useSlotsViewOnSmallScreen: "true",
-              iframeAttrs: { title: "Book a free 20-minute call" }
-            }
-          });
           try {
             var brought = JSON.parse(sessionStorage.getItem("cb-rebuild-screen") || "null");
             if (brought && brought.gp) document.getElementById("rebuildBrought").hidden = false;
           } catch (e) {}
-          Cal("ui", {
-            theme: "dark",
-            styles: { branding: { brandColor: "#C9A96E" } },
-            cssVarsPerTheme: {
-              dark: {
-                "cal-brand": "#C9A96E",
-                "cal-bg": "#09150F",
-                "cal-bg-emphasis": "#112418",
-                "cal-text": "#F3EAD6",
-                "cal-text-emphasis": "#F3EAD6"
+          document.getElementById("cal-open").addEventListener("click", function () {
+            var open = this;
+            if (open.disabled) return;
+            open.disabled = true;
+            var box = document.getElementById("cal-inline");
+            box.hidden = false;
+            (function (C, A, L) {
+              var p = function (a, ar) { a.q.push(ar); };
+              var d = C.document;
+              C.Cal = C.Cal || function () {
+                var cal = C.Cal;
+                var ar = arguments;
+                if (!cal.loaded) {
+                  cal.ns = {};
+                  cal.q = cal.q || [];
+                  d.head.appendChild(d.createElement("script")).src = A;
+                  cal.loaded = true;
+                }
+                if (ar[0] === L) {
+                  var api = function () { p(api, arguments); };
+                  var namespace = ar[1];
+                  api.q = api.q || [];
+                  if (typeof namespace === "string") {
+                    cal.ns[namespace] = cal.ns[namespace] || api;
+                    p(cal.ns[namespace], ar);
+                    p(cal, ["initNamespace", namespace]);
+                  } else p(cal, ar);
+                  return;
+                }
+                p(cal, ar);
+              };
+            })(window, "https://app.cal.com/embed/embed.js", "init");
+            Cal("init", { origin: "https://cal.com" });
+            Cal("inline", {
+              elementOrSelector: "#cal-inline",
+              calLink: "callumbcoaching/discovery-call",
+              config: {
+                layout: "month_view",
+                theme: "dark",
+                "ui.color-scheme": "dark",
+                useSlotsViewOnSmallScreen: "true",
+                iframeAttrs: { title: "Book a free 20-minute call" }
+              }
+            });
+            Cal("ui", {
+              theme: "dark",
+              styles: { branding: { brandColor: "#C9A96E" } },
+              cssVarsPerTheme: {
+                dark: {
+                  "cal-brand": "#C9A96E",
+                  "cal-bg": "#09150F",
+                  "cal-bg-emphasis": "#112418",
+                  "cal-text": "#F3EAD6",
+                  "cal-text-emphasis": "#F3EAD6"
+                },
+                light: { "cal-brand": "#C9A96E" }
               },
-              light: { "cal-brand": "#C9A96E" }
-            },
-            hideEventTypeDetails: false,
-            layout: "month_view"
+              hideEventTypeDetails: false,
+              layout: "month_view"
+            });
+            open.hidden = true;
           });
         </script>
         <p class="note" style="margin-top:4px;">Prefer WhatsApp? <a class="green" href="https://wa.me/447359838866?text=Hi%20Callum%2C%20I%27d%20like%20to%20book%20a%20free%20call" style="text-decoration:underline;">Message me</a> and we'll sort a time.</p>

@@ -62,8 +62,47 @@
   }
 
   function enable() {
+    window["ga-disable-" + GA_ID] = false;
     loadPixel();
     loadGA();
+  }
+
+  function clearTrackerCookies() {
+    var names = [];
+    (document.cookie || "").split(";").forEach(function (part) {
+      var name = part.split("=")[0].replace(/^\s+|\s+$/g, "");
+      if (name === "_ga" || name === "_fbp" || name.indexOf("_ga_") === 0) names.push(name);
+    });
+    var host = location.hostname;
+    var domains = [host, "." + host];
+    var bits = host.split(".");
+    for (var i = 1; i < bits.length - 1; i++) domains.push("." + bits.slice(i).join("."));
+    var expires = "Thu, 01 Jan 1970 00:00:00 GMT";
+    var secure = location.protocol === "https:" ? "; Secure" : "";
+    names.forEach(function (name) {
+      document.cookie = name + "=; Path=/; Expires=" + expires + "; Max-Age=0; SameSite=Lax" + secure;
+      domains.forEach(function (domain) {
+        document.cookie = name + "=; Path=/; Expires=" + expires + "; Max-Age=0; SameSite=Lax; Domain=" + domain + secure;
+      });
+    });
+  }
+
+  function allow() {
+    writeCookie("granted");
+    if (window.fbq) {
+      try { window.fbq("consent", "grant"); } catch (e) {}
+    }
+    enable();
+  }
+
+  function refuse() {
+    window["ga-disable-" + GA_ID] = true;
+    writeCookie("denied");
+    if (window.fbq) {
+      try { window.fbq("consent", "revoke"); } catch (e) {}
+    }
+    clearTrackerCookies();
+    setTimeout(clearTrackerCookies, 500);
   }
 
   function banner() {
@@ -75,7 +114,7 @@
     bar.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:99999;display:flex;justify-content:center;padding:16px;box-sizing:border-box;pointer-events:none;";
 
     var card = document.createElement("div");
-    card.style.cssText = "pointer-events:auto;width:100%;max-width:680px;box-sizing:border-box;background:#0C1C14;color:#F3EAD6;border:1px solid rgba(201,169,110,.45);padding:15px 18px;font-family:Inter,system-ui,sans-serif;font-size:13.5px;line-height:1.5;box-shadow:0 22px 55px -22px rgba(0,0,0,.7);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;";
+    card.style.cssText = "pointer-events:auto;width:100%;max-width:680px;box-sizing:border-box;background:#0B1A13;color:#F3EAD6;border:1px solid rgba(201,169,110,.45);padding:15px 18px;font-family:Inter,system-ui,sans-serif;font-size:13.5px;line-height:1.5;box-shadow:0 22px 55px -22px rgba(0,0,0,.7);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;";
 
     var txt = document.createElement("p");
     txt.style.cssText = "flex:1;min-width:230px;margin:0;";
@@ -101,13 +140,12 @@
     var decline = button("Decline", false);
     var accept = button("Accept", true);
     decline.addEventListener("click", function () {
-      writeCookie("denied");
+      refuse();
       bar.remove();
     });
     accept.addEventListener("click", function () {
-      writeCookie("granted");
+      allow();
       bar.remove();
-      enable();
     });
 
     wrap.appendChild(decline);
@@ -118,11 +156,38 @@
     document.body.appendChild(bar);
   }
 
+  function mountSettings() {
+    if (document.querySelector("[data-cookie-settings]")) return;
+    var footer = document.querySelector("footer");
+    var host = footer || document.body;
+    var link = document.createElement("a");
+    link.href = "#cookie-settings";
+    link.setAttribute("data-cookie-settings", "");
+    link.textContent = "Cookie settings";
+    link.style.cssText = "color:#C9A96E;font-family:Inter,system-ui,sans-serif;font-size:12px;line-height:1.4;text-decoration:underline;text-underline-offset:2px;";
+    link.addEventListener("click", function (event) {
+      event.preventDefault();
+      banner();
+    });
+    var base = host.querySelector(".foot__base");
+    if (base) {
+      var slot = document.createElement("span");
+      slot.style.cssText = "flex:1 1 100%;";
+      slot.appendChild(link);
+      base.appendChild(slot);
+    } else {
+      var row = document.createElement("p");
+      row.style.cssText = "margin:10px 0 0;";
+      row.appendChild(link);
+      host.appendChild(row);
+    }
+  }
+
   function start() {
+    mountSettings();
     var current = choice();
     if (current === "granted") enable();
-    else if (current === "denied") return;
-    else banner();
+    else if (current !== "denied") banner();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);

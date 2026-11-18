@@ -50,7 +50,7 @@ test("every public page includes the one consent script", () => {
   for (const file of html) {
     const text = fs.readFileSync(file, "utf8");
     const rel = path.relative(root, file);
-    expect(text.split('src="/assets/js/consent.js?v=1"').length - 1, rel).toBe(1);
+    expect(text.split('src="/assets/js/consent.js?v=2"').length - 1, rel).toBe(1);
     expect(text, rel).not.toContain("privacy.html");
     expect(text, rel).not.toContain("\u2014");
     expect(text, rel).not.toContain("\u2013");
@@ -142,12 +142,52 @@ test("an earlier Decline saved in local storage stays off and moves into the coo
 test("privacy cookie section names Plausible, GA4 and the Meta Pixel", async ({ page }) => {
   await page.goto("/privacy");
   const copy = await page.locator("main").innerText();
+  expect(copy).toContain("On a first visit, a banner offers Accept and Decline. Your choice is stored for 180 days in an essential cookie named cb-consent. That cookie only remembers Accept or Decline. Use the Cookie settings link at the bottom of any page to change your choice.");
   expect(copy).toContain("Plausible");
   expect(copy).toContain("G-092ML2YGQ2");
   expect(copy).toContain("1778009826073109");
-  expect(copy).toContain("cb-consent");
-  expect(copy).toContain("180 days");
+  expect(copy).toContain("The Pixel sends the visit to Meta and does not set a cookie on this site.");
+  expect(copy).not.toContain("tucked behind");
+  expect(copy).not.toContain("_fbp");
   expect(copy).not.toContain("privacy.html");
   expect(copy).not.toContain("\u2014");
   expect(copy).not.toContain("\u2013");
+});
+
+for (const pagePath of ["/", "/coaching", "/start", "/links", "/privacy", "/supplements/"]) {
+  test(`cookie settings on ${pagePath} reopens the banner`, async ({ page }) => {
+    await page.goto(pagePath, { waitUntil: "domcontentloaded" });
+    const settings = page.locator("footer [data-cookie-settings]");
+    await settings.scrollIntoViewIfNeeded();
+    await expect(settings).toHaveText("Cookie settings");
+    const colour = await settings.evaluate((el) => getComputedStyle(el).color);
+    expect(colour).toBe("rgb(201, 169, 110)");
+    await page.getByRole("button", { name: "Decline", exact: true }).click();
+    await expect(page.getByRole("dialog", { name: "Cookie consent" })).toHaveCount(0);
+    await settings.click();
+    const dialog = page.getByRole("dialog", { name: "Cookie consent" });
+    await expect(dialog).toBeVisible();
+    const card = dialog.locator(":scope > div");
+    expect(await card.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(11, 26, 19)");
+  });
+}
+
+test("switching from Accept to Decline clears Google cookies and stops the tags", async ({ page }) => {
+  const urls = watch(page);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const ga = page.waitForRequest((req) => req.url().includes("googletagmanager.com/gtag/js"));
+  await page.getByRole("button", { name: "Accept", exact: true }).click();
+  await ga;
+  await expect.poll(async () => page.evaluate(() => document.cookie)).toContain("_ga=");
+  await page.locator("footer [data-cookie-settings]").click();
+  await page.getByRole("button", { name: "Decline", exact: true }).click();
+  await expect.poll(async () => page.evaluate(() => document.cookie), { timeout: 2000 }).not.toContain("_ga");
+  expect(await page.evaluate(() => document.cookie)).toContain("cb-consent=denied");
+  expect(await page.evaluate(() => document.cookie)).not.toContain("_fbp");
+  const beforeReload = urls.length;
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(800);
+  const afterReload = urls.slice(beforeReload);
+  expect(trackerUrls(afterReload), trackerUrls(afterReload).join("\n")).toEqual([]);
+  await expect(page.locator('script[src*="googletagmanager.com"], script[src*="fbevents.js"]')).toHaveCount(0);
 });

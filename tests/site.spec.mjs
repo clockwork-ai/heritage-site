@@ -852,6 +852,8 @@ test("body-fat photo step shows the estimate the endpoint returns", async ({ pag
     buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64"),
   });
   await expect(page.locator("#bf-file-name")).toBeVisible();
+  await expect(page.locator("#bf-photo-consent")).not.toBeChecked();
+  await page.locator("#bf-photo-consent").check();
   await page.getByRole("button", { name: /Reveal my body-fat/ }).click();
   await expect(page.locator("#bf-gate")).toBeVisible();
   await page.locator("#bf-email").fill("test+preview@callumbcoaching.co.uk");
@@ -866,12 +868,39 @@ test("body-fat photo step shows the estimate the endpoint returns", async ({ pag
   expect(posted[0].age).toBe(30);
   expect(posted[0].height_cm).toBe(178);
   expect(posted[0].weight_kg).toBe(85);
+  expect(posted[0]["photo-consent"]).toBe("yes");
   expect(mailerlite).toEqual([]);
   expect(String(posted[0].image)).toMatch(/^data:image\/jpeg;base64,/);
   const text = await page.locator("#bodyfat").innerText();
   expect(text).not.toContain("\u2014");
   expect(text).not.toContain("\u2013");
   expect(text).not.toContain("3 to 4%");
+});
+
+test("body-fat photo waits for the OpenAI box", async ({ page }) => {
+  let calls = 0;
+  await page.route("**/api/bf", async (route) => {
+    calls += 1;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        data: { valid: true, body_fat_percent: 20, range_low: 16, range_high: 24, note: "Rough visual estimate.", method: "photo" },
+      }),
+    });
+  });
+  await page.goto("/tdee-calculator#bodyfat");
+  await page.locator("#bf-file").setInputFiles({
+    name: "progress.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64"),
+  });
+  await expect(page.locator("#bf-file-name")).toBeVisible();
+  await expect(page.locator("#bf-photo-consent")).not.toBeChecked();
+  await page.getByRole("button", { name: /Reveal my body-fat/ }).click();
+  await expect(page.locator("#bf-photo-err")).toHaveText("Please tick this box so I can send your photo.");
+  await expect(page.locator("#bf-gate")).toBeHidden();
+  expect(calls).toBe(0);
 });
 
 test("book page has no Stripe checkout", async ({ page, request }) => {

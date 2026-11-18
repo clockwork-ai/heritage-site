@@ -468,6 +468,11 @@ async function POST(request, estimate) {
   });
   const image = imageFromDataUrl(data.image);
   const formula = stats ? deurenberg(stats) : null;
+  const photoConsent = data["photo-consent"] === true || data["photo-consent"] === "yes" || data.photoConsent === true || data.photoConsent === "yes";
+  if (image && !photoConsent) {
+    console.info("bf estimate refused: no photo consent");
+    return fail(request, "Please tick this box so I can send your photo.", 422);
+  }
   if (image) {
     const size = imageSize(image.bytes);
     if (size && Math.min(size.width, size.height) < 200) {

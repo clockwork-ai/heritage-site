@@ -63,7 +63,7 @@ test("an unreadable photo with calculator stats uses the formula", async () => {
 test("a tiny photo uses the formula instead of inventing a reading", async () => {
   resetRateLimits();
   let called = false;
-  const res = await POST(request({ ...stats, image: PIXEL }, "203.0.113.24"), async () => {
+  const res = await POST(request({ ...stats, image: PIXEL, "photo-consent": "yes" }, "203.0.113.24"), async () => {
     called = true;
     throw new Error("should not run");
   });
@@ -76,7 +76,7 @@ test("a tiny photo uses the formula instead of inventing a reading", async () =>
 test("a photo read is returned with a wide range", async () => {
   resetRateLimits();
   const res = await POST(
-    request({ ...stats, image: PHOTO }, "203.0.113.21"),
+    request({ ...stats, image: PHOTO, "photo-consent": "yes" }, "203.0.113.21"),
     async (): Promise<PhotoRead> => ({
       valid: true,
       body_fat_percent: 18.2,
@@ -96,7 +96,7 @@ test("a photo read is returned with a wide range", async () => {
 test("a failed photo read falls back to the formula when stats are present", async () => {
   resetRateLimits();
   const res = await POST(
-    request({ ...stats, image: PHOTO }, "203.0.113.22"),
+    request({ ...stats, image: PHOTO, photoConsent: true }, "203.0.113.22"),
     async () => {
       throw new Error("gateway down");
     },
@@ -110,7 +110,7 @@ test("a failed photo read falls back to the formula when stats are present", asy
 test("a failed photo read without stats tells the visitor to use the tape", async () => {
   resetRateLimits();
   const res = await POST(
-    request({ email: "test+preview@callumbcoaching.co.uk", image: PHOTO }, "203.0.113.23"),
+    request({ email: "test+preview@callumbcoaching.co.uk", image: PHOTO, "photo-consent": "yes" }, "203.0.113.23"),
     async () => {
       throw new Error("gateway down");
     },
@@ -118,6 +118,35 @@ test("a failed photo read without stats tells the visitor to use the tape", asyn
   assert.equal(res.status, 502);
   const body = await res.json();
   assert.match(body.error.message, /tape measure/);
+});
+
+test("a photo is refused unless consent is yes or true", async () => {
+  for (const consent of [undefined, "no", false, "YES", "on", "true", ""]) {
+    resetRateLimits();
+    let called = false;
+    const body: Record<string, unknown> = { ...stats, image: PHOTO };
+    if (consent !== undefined) body["photo-consent"] = consent;
+    const res = await POST(request(body, "203.0.113.40"), async () => {
+      called = true;
+      throw new Error("should not run");
+    });
+    assert.equal(called, false, String(consent));
+    assert.equal(res.status, 422, String(consent));
+    const payload = await res.json();
+    assert.equal(payload.error.message, "Please tick this box so I can send your photo.");
+  }
+
+  resetRateLimits();
+  let called = false;
+  const marketingOnly = await POST(
+    request({ ...stats, image: PHOTO, "marketing-consent": "yes" }, "203.0.113.41"),
+    async () => {
+      called = true;
+      throw new Error("should not run");
+    },
+  );
+  assert.equal(called, false);
+  assert.equal(marketingOnly.status, 422);
 });
 
 test("another site cannot call the estimate", async () => {

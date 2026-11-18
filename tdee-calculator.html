@@ -277,6 +277,11 @@
                 <p class="note" id="bf-file-name" style="margin-top:8px;" hidden></p>
               </div>
               <p class="note" style="margin-bottom:16px;">Best results: front-on, decent light, form-fitting or minimal clothing (like a progress photo). <b style="color:var(--body);">Used for the estimate and not stored</b>. The photo isn't saved and no person sees it. Your email unlocks it in this browser.</p>
+              <label class="consent" style="margin-bottom:8px;">
+                <input type="checkbox" id="bf-photo-consent" name="photo-consent" value="yes">
+                <span>I agree to my photo being sent to OpenAI to estimate my body fat. It is not kept by me.</span>
+              </label>
+              <p class="note" id="bf-photo-err" hidden style="color:var(--red);margin:0 0 12px;">Please tick this box so I can send your photo.</p>
             </div>
 
             <!-- Tape pane -->
@@ -481,7 +486,8 @@
       function toCm(v){ return isMetric()? v : v*2.54; }
       function log10(x){ return Math.log(x)/Math.LN10; }
       function fail(msg){ var e=$('bf-err'); e.textContent=msg; e.hidden=false; $('bf-busy').hidden=true; }
-      function clearMsgs(){ $('bf-err').hidden=true; $('bf-busy').hidden=true; }
+      function clearMsgs(){ $('bf-err').hidden=true; $('bf-busy').hidden=true; if($('bf-photo-err')) $('bf-photo-err').hidden=true; }
+      function photoConsent(){ return !!($('bf-photo-consent') && $('bf-photo-consent').checked); }
 
       // mode tabs
       document.querySelectorAll('#bf-mode button').forEach(function(b){
@@ -573,6 +579,11 @@
           : '/api/bf';
       }
       function runAI(email){
+        if(!photoConsent()){
+          if($('bf-photo-err')) $('bf-photo-err').hidden=false;
+          $('bf-busy').hidden=true;
+          return;
+        }
         $('bf-busy').hidden=false; $('bf-err').hidden=true;
         var payload={
           email:email,
@@ -580,7 +591,8 @@
           sex:sexNow(),
           age:parseFloat($('age').value)||0,
           height_cm:heightCm(),
-          weight_kg:Math.round(weightKg()*10)/10
+          weight_kg:Math.round(weightKg()*10)/10,
+          'photo-consent':'yes'
         };
         fetch(bfUrl(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
           .then(function(r){
@@ -614,7 +626,10 @@
       }
 
       function readyCheck(){
-        if(mode==='ai'){ if(!photoData){ fail('Choose a photo first.'); return false; } }
+        if(mode==='ai'){
+          if(!photoData){ fail('Choose a photo first.'); return false; }
+          if(!photoConsent()){ if($('bf-photo-err')) $('bf-photo-err').hidden=false; return false; }
+        }
         else { var r=tapeCompute(); if(r.err){ fail(r.err); return false; } }
         return true;
       }

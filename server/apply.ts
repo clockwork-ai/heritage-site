@@ -108,6 +108,13 @@ export async function POST(request: Request): Promise<Response> {
     return json(request, { ok: true, skipped: "honeypot" });
   }
 
+  // Drinking and other health details are special category data.
+  // Copy the application only when healthConsent is the string yes.
+  if (cleanText(data.healthConsent, 8) !== "yes") {
+    console.info("apply mailerlite skipped: no health consent");
+    return json(request, { ok: true, skipped: "consent" });
+  }
+
   const group = optionalGroup("MAILERLITE_GROUP_APPLICATIONS");
   if (!group) {
     console.info("apply mailerlite skipped: MAILERLITE_GROUP_APPLICATIONS unset");

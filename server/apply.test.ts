@@ -85,7 +85,7 @@ test("an unset applications group skips without calling MailerLite", async () =>
       return new Response("{}", { status: 200 });
     }) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat", healthConsent: "yes" }));
       assert.equal(res.status, 200);
       const body = await res.json();
       assert.equal(body.skipped, "group");
@@ -105,7 +105,7 @@ test("a phone-only application is skipped because MailerLite needs an email", as
       return new Response("{}", { status: 200 });
     }) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "07359 838866" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "07359 838866", healthConsent: "yes" }));
       const body = await res.json();
       assert.equal(body.skipped, "email");
       assert.equal(called, false);
@@ -134,6 +134,7 @@ test("an email application is copied with signup_source apply", async () => {
           plan: "12 weeks, Foundation",
           reply: "Email",
           website: "",
+          healthConsent: "yes",
         }),
       );
       assert.equal(res.status, 200);
@@ -168,7 +169,7 @@ test("a rejected note field is retried without it and still counts as mailed", a
       return new Response(JSON.stringify({ data: { id: "99" } }), { status: 200 });
     }) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat", healthConsent: "yes" }));
       assert.equal((await res.json()).mailed, true);
       assert.equal(sent.length, 2);
       assert.equal("note" in (sent[1].fields as object), false);
@@ -184,7 +185,7 @@ test("a MailerLite failure still answers 200", async () => {
     const real = globalThis.fetch;
     globalThis.fetch = (async () => new Response("nope", { status: 500 })) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", healthConsent: "yes" }));
       assert.equal(res.status, 200);
       assert.equal((await res.json()).mailed, false);
     } finally {
@@ -205,6 +206,66 @@ test("a filled honeypot does not subscribe", async () => {
       const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", website: "http://spam.test" }));
       assert.equal((await res.json()).skipped, "honeypot");
       assert.equal(called, false);
+    } finally {
+      globalThis.fetch = real;
+    }
+  });
+});
+
+test("drinking and health details are not copied without an explicit yes", async () => {
+  await withEnv({ MAILERLITE_API_KEY: "test", MAILERLITE_GROUP_APPLICATIONS: "444" }, async () => {
+    const real = globalThis.fetch;
+    for (const healthConsent of [undefined, "", "on", "true", "YES", "yes please"]) {
+      let called = false;
+      globalThis.fetch = (async () => {
+        called = true;
+        return new Response("{}", { status: 200 });
+      }) as typeof fetch;
+      resetRateLimits();
+      try {
+        const res = await POST(siteRequest({
+          name: "Dave",
+          contact: "dave@example.com",
+          goals: "Get my health back",
+          plan: "The Full Rebuild",
+          drinking: "Every night",
+          amount: "A bottle of wine",
+          gp: "yes",
+          healthConsent,
+        }));
+        assert.equal(res.status, 200);
+        assert.equal((await res.json()).skipped, "consent");
+        assert.equal(called, false, String(healthConsent));
+      } finally {
+        globalThis.fetch = real;
+      }
+    }
+  });
+});
+
+test("a consented application can include the drinking answers", async () => {
+  await withEnv({ MAILERLITE_API_KEY: "test", MAILERLITE_GROUP_APPLICATIONS: "444" }, async () => {
+    const sent: Array<Record<string, unknown>> = [];
+    const real = globalThis.fetch;
+    globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
+      sent.push(JSON.parse(String(init?.body)) as Record<string, unknown>);
+      return new Response(JSON.stringify({ data: { id: "99" } }), { status: 201 });
+    }) as typeof fetch;
+    try {
+      const res = await POST(siteRequest({
+        name: "Dave",
+        contact: "dave@example.com",
+        plan: "The Full Rebuild",
+        drinking: "Every night",
+        amount: "A bottle of wine",
+        gp: "yes",
+        healthConsent: "yes",
+      }));
+      assert.equal((await res.json()).mailed, true);
+      const fields = (sent[0].fields as { note: string });
+      assert.match(fields.note, /Drinking: Every night/);
+      assert.match(fields.note, /On a drinking day: A bottle of wine/);
+      assert.match(fields.note, /GP note read/);
     } finally {
       globalThis.fetch = real;
     }

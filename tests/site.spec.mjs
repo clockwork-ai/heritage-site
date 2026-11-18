@@ -89,12 +89,18 @@ test("apply form builds the WhatsApp message", async ({ page }) => {
     await route.fulfill({ status: 500, contentType: "application/json", body: "{\"ok\":false}" });
   });
   await page.goto("/apply");
+  await expect(page.locator("#applyRecipient")).toBeVisible();
+  await expect(page.locator("#applyRecipient")).toContainText("Callum Broadfoot (CALLUM.B)");
+  await expect(page.locator("#applyRecipient")).toContainText("Formspree");
+  await expect(page.locator("#applyRecipient a")).toHaveAttribute("href", "/privacy");
+  await expect(page.locator("#f-health-consent")).not.toBeChecked();
   await page.fill("#f-name", "Dave");
   await page.fill("#f-age", "42");
   await page.fill("#f-contact", "dave@example.com");
   await page.getByText("Lose fat", { exact: true }).click();
   await page.fill("#f-tried", "Fall off by week three.");
   await page.getByText("12 months", { exact: true }).click();
+  await page.locator("#f-health-consent").check();
   await page.getByRole("button", { name: /send my application/i }).click();
   await expect(page.locator("#applyDone")).toBeVisible();
   await expect(page.locator("#doneHead")).toHaveText("Got it. I'll be in touch within 24 hours.");
@@ -111,8 +117,38 @@ test("apply form builds the WhatsApp message", async ({ page }) => {
     goals: "Lose fat",
     tried: "Fall off by week three.",
     plan: "12 months, Structured Development",
+    healthConsent: "yes",
   });
   expect(copies[0].website).toBe("");
+});
+
+test("apply form does not send without the health consent tick", async ({ page }) => {
+  let posts = 0;
+  await page.route("**/formspree.io/**", (route) => {
+    posts += 1;
+    return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+  });
+  await page.route("**/api/apply", (route) => {
+    posts += 1;
+    return route.fulfill({ status: 200, contentType: "application/json", body: "{\"ok\":true}" });
+  });
+  await page.goto("/apply");
+  const box = page.locator("#f-health-consent");
+  await expect(box).not.toBeChecked();
+  await expect(page.getByText("I agree to Callum using the health and lifestyle details I give here to assess my application.")).toBeVisible();
+  await page.fill("#f-name", "Dave");
+  await page.fill("#f-contact", "dave@example.com");
+  await page.getByText("Get my health back", { exact: true }).click();
+  await page.getByRole("button", { name: /send my application/i }).click();
+  await expect(page.locator("#applyForm")).toBeVisible();
+  await expect(page.locator("#applyDone")).toBeHidden();
+  await expect(page.locator("#healthConsentErr")).toBeVisible();
+  await expect(box).toBeFocused();
+  expect(posts).toBe(0);
+  await box.check();
+  await page.getByRole("button", { name: /send my application/i }).click();
+  await expect(page.locator("#applyDone")).toBeVisible();
+  await expect.poll(() => posts).toBe(2);
 });
 
 test("Full Rebuild screen carries drinking answers into the application", async ({ page }) => {
@@ -134,8 +170,13 @@ test("Full Rebuild screen carries drinking answers into the application", async 
   await expect(page.locator('#applyForm input[value="Every night"]')).toBeChecked();
   await expect(page.locator("#f-amount")).toHaveValue("A bottle of wine");
   await expect(page.locator('#applyForm input[name="gp"]')).toBeChecked();
+  await expect(page.locator("#f-health-consent")).not.toBeChecked();
   await page.fill("#f-name", "Dave");
   await page.fill("#f-contact", "dave@example.com");
+  await page.getByRole("button", { name: /send my application/i }).click();
+  await expect(page.locator("#applyDone")).toBeHidden();
+  await expect(page.locator("#healthConsentErr")).toBeVisible();
+  await page.locator("#f-health-consent").check();
   await page.getByRole("button", { name: /send my application/i }).click();
   await expect(page.locator("#applyText")).toContainText("Plan: The Full Rebuild");
   await expect(page.locator("#applyText")).toContainText("Drinking: Every night");

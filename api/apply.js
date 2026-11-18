@@ -406,6 +406,10 @@ async function POST(request) {
   if (typeof data.website === "string" && data.website !== "") {
     return json(request, { ok: true, skipped: "honeypot" });
   }
+  if (cleanText(data.healthConsent, 8) !== "yes") {
+    console.info("apply mailerlite skipped: no health consent");
+    return json(request, { ok: true, skipped: "consent" });
+  }
   const group = optionalGroup("MAILERLITE_GROUP_APPLICATIONS");
   if (!group) {
     console.info("apply mailerlite skipped: MAILERLITE_GROUP_APPLICATIONS unset");

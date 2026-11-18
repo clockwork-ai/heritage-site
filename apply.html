@@ -81,11 +81,13 @@
     </div>
     <form class="applyf" id="applyForm" novalidate>
       <input type="text" id="f-website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
+      <p class="body" id="applyRecipient" style="margin:0">Sent to me, Callum Broadfoot (CALLUM.B), using Formspree and my website host. I use it only to assess your application and reply. <a class="tlink" href="/privacy">Privacy</a>.</p>
       <div class="two">
         <div class="field"><label for="f-name">First name</label><input type="text" id="f-name" name="name" autocomplete="given-name" required></div>
         <div class="field"><label for="f-age">Age</label><input type="number" id="f-age" name="age" min="18" max="90" inputmode="numeric"></div>
       </div>
       <div class="field"><label for="f-contact">Your WhatsApp number or email</label><p class="hint">So I can reply. It's only used for this.</p><input type="text" id="f-contact" name="contact" autocomplete="email" required></div>
+      <label class="field" style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" id="f-health-consent" name="healthConsent" value="yes" required autocomplete="off" aria-describedby="healthConsentErr" style="margin-top:4px"><span>I agree to Callum using the health and lifestyle details I give here to assess my application.<span class="hint" id="healthConsentErr" role="alert" hidden style="display:block;margin-top:8px">Tick this box before I can take the application.</span></span></label>
       <fieldset class="field"><legend>What do you want most?</legend>
         <div class="chips">
           <label><input type="checkbox" name="goal" value="Lose fat"><span>Lose fat</span></label>
@@ -186,6 +188,14 @@
       if (!skipAmount && !amount) { f.elements.amount.focus(); return; }
       if (d.get("gp") !== "yes") { f.elements.gp.focus(); return; }
     }
+    const consent = f.elements.healthConsent;
+    const consentErr = document.getElementById("healthConsentErr");
+    if (!consent || d.get("healthConsent") !== "yes") {
+      if (consentErr) consentErr.hidden = false;
+      if (consent) consent.focus();
+      return;
+    }
+    if (consentErr) consentErr.hidden = true;
     const goals = d.getAll("goal").join(", ");
     const lines = [
       plan === "The Full Rebuild" ? "Hi Callum, here's my application for The Full Rebuild." : "Hi Callum, here's my application for 1:1 coaching.", "",
@@ -206,7 +216,7 @@
     let saved = false;
     try {
       const r = await fetch("https://formspree.io/f/mvzjlroq", { method: "POST", headers: { "Accept": "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ _subject: (plan === "The Full Rebuild" ? "Full Rebuild application: " : "1:1 application: ") + v("name"), name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), drinking: v("often"), amount: v("amount"), gp: d.get("gp") === "yes" ? "yes" : "", application: msg }) });
+        body: JSON.stringify({ _subject: (plan === "The Full Rebuild" ? "Full Rebuild application: " : "1:1 application: ") + v("name"), name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), drinking: v("often"), amount: v("amount"), gp: d.get("gp") === "yes" ? "yes" : "", healthConsent: "yes", application: msg }) });
       saved = r.ok;
     } catch (err) {}
     // MailerLite copy. Formspree alone decides the message on screen.
@@ -214,7 +224,7 @@
       const site = document.getElementById("f-website");
       const onRebuild = plan === "The Full Rebuild";
       fetch(copyUrl, { method: "POST", keepalive: true, headers: { "Accept": "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), drinking: onRebuild ? v("often") : "", amount: onRebuild ? v("amount") : "", gp: onRebuild && d.get("gp") === "yes" ? "yes" : "", website: site ? site.value : "" }) }).catch(function () {});
+        body: JSON.stringify({ name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), drinking: onRebuild ? v("often") : "", amount: onRebuild ? v("amount") : "", gp: onRebuild && d.get("gp") === "yes" ? "yes" : "", healthConsent: "yes", website: site ? site.value : "" }) }).catch(function () {});
     }
     btn.disabled = false;
     track(saved ? "Application sent" : "Application save failed", { reply: v("reply") });
@@ -231,7 +241,13 @@
   });
   send.addEventListener("click", () => track("Application WhatsApp"));
   document.getElementById("applyMail").addEventListener("click", () => track("Application email"));
-  f.addEventListener("input", e => { const fl = e.target.closest(".field"); if (fl) fl.classList.remove("need"); });
+  f.addEventListener("input", e => {
+    const fl = e.target.closest(".field"); if (fl) fl.classList.remove("need");
+    if (e.target && e.target.name === "healthConsent" && e.target.checked) {
+      const err = document.getElementById("healthConsentErr");
+      if (err) err.hidden = true;
+    }
+  });
   document.getElementById("applyEdit").addEventListener("click", () => { done.hidden = true; f.hidden = false; f.scrollIntoView({ behavior: "smooth", block: "start" }); });
 })();
 </script>

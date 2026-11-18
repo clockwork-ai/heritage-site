@@ -1,7 +1,8 @@
-// Application copy into MailerLite. The page still posts to Formspree first.
+// Marketing copy into MailerLite. This is not the application itself.
+// The application is forwarded by server/apply-forward.ts.
 // This route is best-effort: a missing group, a missing email, or a MailerLite
 // error answers 200 so the visitor's success message is never blocked.
-// Group: MAILERLITE_GROUP_APPLICATIONS. Signup field: signup_source=apply.
+// Group: MAILERLITE_GROUP_APPLICATIONS. The subscriber is email and name only.
 
 import { business } from "../lib/business.ts";
 import { clientKey, corsHeaders, sameOrigin, takeRateLimit } from "../lib/guard.ts";
@@ -73,14 +74,6 @@ export function applicationSummary(input: {
   return bits.join(". ").slice(0, 500);
 }
 
-function ageText(value: unknown): string {
-  const text = cleanText(value, 3);
-  if (!/^\d{1,3}$/.test(text)) return "";
-  const age = Number(text);
-  if (age < 18 || age > 90) return "";
-  return String(age);
-}
-
 export async function POST(request: Request): Promise<Response> {
   if (!sameOrigin(request, business.origins)) return json(request, { ok: false }, 403);
 
@@ -108,15 +101,7 @@ export async function POST(request: Request): Promise<Response> {
     return json(request, { ok: true, skipped: "honeypot" });
   }
 
-  // Drinking and other health details are special category data.
-  // Copy the application only when healthConsent is the string yes.
-  if (cleanText(data.healthConsent, 8) !== "yes") {
-    console.info("apply mailerlite skipped: no health consent");
-    return json(request, { ok: true, skipped: "consent" });
-  }
-
-  // Marketing is separate. MailerLite only when the box is yes or true.
-  // The Formspree email still goes out either way.
+  // Tips list only. Health consent is not required, and health answers are not copied.
   const marketing = data.marketingConsent;
   const marketingYes = marketing === true || cleanText(marketing, 8) === "yes" || cleanText(marketing, 8) === "true";
   if (!marketingYes) {
@@ -144,27 +129,11 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const name = cleanText(data.name, 80);
-  const phone = contact.phone;
-  const note = applicationSummary({
-    age: ageText(data.age),
-    goals: cleanText(data.goals, 200),
-    tried: cleanText(data.tried, 240),
-    week: cleanText(data.week, 240),
-    plan: cleanText(data.plan, 80),
-    reply: cleanText(data.reply, 40),
-    phone,
-    drinking: cleanText(data.drinking, 80),
-    amount: cleanText(data.amount, 160),
-    gp: cleanText(data.gp, 8),
-  });
-
   const result = await subscribe(key, {
     email,
     name,
-    phone,
-    source: "apply",
+    source: "",
     group,
-    note,
   });
   if (!result.ok) {
     console.error("apply mailerlite failed", result.status);

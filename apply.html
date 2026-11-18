@@ -87,7 +87,6 @@
         <div class="field"><label for="f-age">Age</label><input type="number" id="f-age" name="age" min="18" max="90" inputmode="numeric"></div>
       </div>
       <div class="field"><label for="f-contact">Your WhatsApp number or email</label><p class="hint">So I can reply. It's only used for this.</p><input type="text" id="f-contact" name="contact" autocomplete="email" required></div>
-      <label class="field" style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" id="f-health-consent" name="healthConsent" value="yes" required autocomplete="off" aria-describedby="healthConsentErr" style="margin-top:4px"><span>I agree to Callum using the health, lifestyle and drinking details I give here to assess my application.<span class="hint" id="healthConsentErr" role="alert" hidden style="display:block;margin-top:8px">Please tick this box so I can read your answers.</span></span></label>
       <fieldset class="field"><legend>What do you want most?</legend>
         <div class="chips">
           <label><input type="checkbox" name="goal" value="Lose fat"><span>Lose fat</span></label>
@@ -109,6 +108,7 @@
       <div id="rebuildFields" hidden>
         <fieldset class="field"><legend>How often are you drinking right now?</legend>
           <p class="hint">The Full Rebuild asks this before we go any further.</p>
+          <p class="hint">I ask the drinking questions so I can judge whether The Full Rebuild is right for you. You can pick that you'd rather say it on the call.</p>
           <div class="chips">
             <label><input type="radio" name="often" value="Every night"><span>Every night</span></label>
             <label><input type="radio" name="often" value="Most nights"><span>Most nights</span></label>
@@ -122,6 +122,7 @@
           <p class="body">If you are drinking heavily, or your blood pressure is high, speak to your GP before you change your drinking, your food or your training. I'm a coach, not a doctor. This is online coaching. It is not medical treatment, and it is not a reason to start, stop or change any medication.</p>
         </div>
         <label class="field" style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" name="gp" value="yes" style="margin-top:4px"><span>I've read that. If I'm drinking heavily, or my blood pressure is high, I'll speak to my GP. I understand this is coaching, not medical care.</span></label>
+        <label class="field" id="healthConsentLabel" hidden style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" id="f-health-consent" name="healthConsent" value="yes" autocomplete="off" aria-describedby="healthConsentErr" style="margin-top:4px"><span>I agree to Callum Broadfoot (CALLUM.B) using the drinking and health details I give here to assess my application. They are sent to him using Formspree and the website host, Vercel. I can withdraw this by emailing the address on the <a class="tlink" href="/privacy">Privacy</a> page.<span class="hint" id="healthConsentErr" role="alert" hidden style="display:block;margin-top:8px">Please tick this box so I can read your answers.</span></span></label>
       </div>
       <fieldset class="field"><legend>How would you like me to reply?</legend>
         <div class="chips">
@@ -153,14 +154,41 @@
 <script>
 (() => {
   const f = document.getElementById("applyForm"), done = document.getElementById("applyDone"), out = document.getElementById("applyText"), send = document.getElementById("applySend");
-  const copyUrl = /(^|\.)callumbcoaching\.co\.uk$/.test(location.hostname)
-    ? "https://callumb-coaching.vercel.app/api/apply"
-    : "/api/apply";
+  const onLive = /(^|\.)callumbcoaching\.co\.uk$/.test(location.hostname);
+  const apiUrl = (path) => onLive ? "https://callumb-coaching.vercel.app" + path : path;
+  const copyUrl = apiUrl("/api/apply");
+  const sendUrl = apiUrl("/api/apply-forward");
+  const SOFT = ["I've stopped", "I'd rather say it on the call"];
   const rebuildFields = document.getElementById("rebuildFields");
+  const healthLabel = document.getElementById("healthConsentLabel");
+  const detailFrom = (d) => {
+    const plan = (d.get("plan") || "").toString();
+    if (plan !== "The Full Rebuild") return { drinking: "", amount: "", gp: "", needs: false };
+    const often = (d.get("often") || "").toString();
+    const amount = (d.get("amount") || "").toString().trim();
+    const softBlank = SOFT.indexOf(often) !== -1 && !amount;
+    const drinking = softBlank ? "" : often;
+    const keptAmount = softBlank ? "" : amount;
+    const gp = d.get("gp") === "yes" ? "yes" : "";
+    return { drinking, amount: keptAmount, gp, needs: Boolean(drinking || keptAmount || gp) };
+  };
+  const syncHealth = () => {
+    const needs = detailFrom(new FormData(f)).needs;
+    if (healthLabel) healthLabel.hidden = !needs;
+    if (!needs && f.elements.healthConsent) {
+      f.elements.healthConsent.checked = false;
+      const err = document.getElementById("healthConsentErr");
+      if (err) err.hidden = true;
+    }
+  };
   const syncRebuild = () => {
     const on = (new FormData(f).get("plan") === "The Full Rebuild");
     rebuildFields.hidden = !on;
-    rebuildFields.querySelectorAll("input, textarea").forEach(el => { el.disabled = !on; });
+    rebuildFields.querySelectorAll("input, textarea").forEach(el => {
+      if (el.name === "healthConsent") return;
+      el.disabled = !on;
+    });
+    syncHealth();
   };
   f.querySelectorAll('input[name="plan"]').forEach(r => r.addEventListener("change", syncRebuild));
   const wanted = new URLSearchParams(location.search).get("plan") || "";
@@ -177,6 +205,8 @@
     }
   } catch (errSaved) {}
   syncRebuild();
+  f.addEventListener("change", syncHealth);
+  f.addEventListener("input", syncHealth);
   let started = false;
   f.addEventListener("input", () => { if (!started) { started = true; track("Application started"); } });
   f.addEventListener("submit", async e => {
@@ -184,17 +214,10 @@
     const d = new FormData(f), v = k => (d.get(k) || "").toString().trim();
     for (const k of ["name", "contact"]) if (!v(k)) { const el = f.elements[k]; el.focus(); el.closest(".field").classList.add("need"); return; }
     const plan = v("plan");
-    if (plan === "The Full Rebuild") {
-      const often = v("often");
-      const amount = v("amount");
-      const skipAmount = often === "I've stopped" || often === "I'd rather say it on the call";
-      if (!often) { const el = f.querySelector('input[name="often"]'); if (el) el.focus(); return; }
-      if (!skipAmount && !amount) { f.elements.amount.focus(); return; }
-      if (d.get("gp") !== "yes") { f.elements.gp.focus(); return; }
-    }
+    const detail = detailFrom(d);
     const consent = f.elements.healthConsent;
     const consentErr = document.getElementById("healthConsentErr");
-    if (!consent || d.get("healthConsent") !== "yes") {
+    if (detail.needs && (!consent || d.get("healthConsent") !== "yes")) {
       if (consentErr) consentErr.hidden = false;
       if (consent) consent.focus();
       return;
@@ -209,7 +232,12 @@
       "My week: " + (v("week") || "-"), "",
       "Plan: " + plan, "Best reply: " + v("reply")
     ];
-    if (plan === "The Full Rebuild") lines.push("", "Drinking: " + (v("often") || "-"), "On a drinking day: " + (v("amount") || "-"), "GP note: read. I'll speak to my GP if I'm drinking heavily or my blood pressure is high.");
+    if (detail.drinking || detail.amount || detail.gp) {
+      lines.push("");
+      if (detail.drinking) lines.push("Drinking: " + detail.drinking);
+      if (detail.amount) lines.push("On a drinking day: " + detail.amount);
+      if (detail.gp) lines.push("GP note: read. I'll speak to my GP if I'm drinking heavily or my blood pressure is high.");
+    }
     const msg = lines.join("\n");
     out.textContent = msg;
     const mail = document.getElementById("applyMail");
@@ -218,18 +246,27 @@
     // save it first, so it reaches me even if WhatsApp never gets opened
     const btn = document.getElementById("applyBtn"); btn.disabled = true;
     const tips = d.get("marketing") === "yes" ? "yes" : "";
+    const posted = { source: "apply", _subject: (plan === "The Full Rebuild" ? "Full Rebuild application: " : "1:1 application: ") + v("name"), name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), marketingConsent: tips, application: msg };
+    if (detail.drinking) posted.drinking = detail.drinking;
+    if (detail.amount) posted.amount = detail.amount;
+    if (detail.gp) posted.gp = detail.gp;
+    if (detail.needs) posted.healthConsent = "yes";
     let saved = false;
     try {
-      const r = await fetch("https://formspree.io/f/mvzjlroq", { method: "POST", headers: { "Accept": "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ _subject: (plan === "The Full Rebuild" ? "Full Rebuild application: " : "1:1 application: ") + v("name"), name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), drinking: v("often"), amount: v("amount"), gp: d.get("gp") === "yes" ? "yes" : "", healthConsent: "yes", marketingConsent: tips, application: msg }) });
+      const r = await fetch(sendUrl, { method: "POST", headers: { "Accept": "application/json", "Content-Type": "application/json" }, body: JSON.stringify(posted) });
+      if (r.status === 422) {
+        btn.disabled = false;
+        if (consentErr) consentErr.hidden = false;
+        if (consent) consent.focus();
+        return;
+      }
       saved = r.ok;
     } catch (err) {}
-    // MailerLite copy. Formspree alone decides the message on screen.
+    // Tips list only. Name and contact. No drinking or health answers.
     if (saved) {
       const site = document.getElementById("f-website");
-      const onRebuild = plan === "The Full Rebuild";
       fetch(copyUrl, { method: "POST", keepalive: true, headers: { "Accept": "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), drinking: onRebuild ? v("often") : "", amount: onRebuild ? v("amount") : "", gp: onRebuild && d.get("gp") === "yes" ? "yes" : "", healthConsent: "yes", marketingConsent: tips, website: site ? site.value : "" }) }).catch(function () {});
+        body: JSON.stringify({ name: v("name"), contact: v("contact"), marketingConsent: tips, website: site ? site.value : "" }) }).catch(function () {});
     }
     btn.disabled = false;
     track(saved ? "Application sent" : "Application save failed", { reply: v("reply") });

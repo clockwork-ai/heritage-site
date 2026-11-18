@@ -79,12 +79,19 @@ for (const p of pages) {
 
 test("apply form builds the WhatsApp message", async ({ page }) => {
   const copies = [];
-  await page.route("**/formspree.io/**", (route) => route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: "{}",
-  }));
-  await page.route("**/api/apply", async (route) => {
+  const forwarded = [];
+  let direct = 0;
+  await page.route("**/formspree.io/**", (route) => {
+    direct += 1;
+    return route.abort();
+  });
+  await page.route("**/api/apply**", async (route) => {
+    const url = route.request().url();
+    if (url.includes("apply-forward")) {
+      forwarded.push(route.request().postDataJSON());
+      await route.fulfill({ status: 200, contentType: "application/json", body: "{\"ok\":true}" });
+      return;
+    }
     copies.push(route.request().postDataJSON());
     await route.fulfill({ status: 500, contentType: "application/json", body: "{\"ok\":false}" });
   });
@@ -93,14 +100,13 @@ test("apply form builds the WhatsApp message", async ({ page }) => {
   await expect(page.locator("#applyRecipient")).toContainText("Callum Broadfoot (CALLUM.B)");
   await expect(page.locator("#applyRecipient")).toContainText("Formspree");
   await expect(page.locator("#applyRecipient a")).toHaveAttribute("href", "/privacy");
-  await expect(page.locator("#f-health-consent")).not.toBeChecked();
+  await expect(page.locator("#healthConsentLabel")).toBeHidden();
   await page.fill("#f-name", "Dave");
   await page.fill("#f-age", "42");
   await page.fill("#f-contact", "dave@example.com");
   await page.getByText("Lose fat", { exact: true }).click();
   await page.fill("#f-tried", "Fall off by week three.");
   await page.getByText("12 months", { exact: true }).click();
-  await page.locator("#f-health-consent").check();
   await page.getByRole("button", { name: /send my application/i }).click();
   await expect(page.locator("#applyDone")).toBeVisible();
   await expect(page.locator("#doneHead")).toHaveText("Got it. I'll be in touch within 24 hours.");
@@ -110,49 +116,70 @@ test("apply form builds the WhatsApp message", async ({ page }) => {
   expect(href).toMatch(/^https:\/\/wa\.me\/447359838866\?text=/);
   expect(decodeURIComponent(href)).toContain("Fall off by week three.");
   await expect.poll(() => copies.length).toBe(1);
-  expect(copies[0]).toMatchObject({
+  expect(copies[0]).toEqual({
     name: "Dave",
     contact: "dave@example.com",
-    age: "42",
-    goals: "Lose fat",
-    tried: "Fall off by week three.",
-    plan: "12 months, Structured Development",
-    healthConsent: "yes",
     marketingConsent: "",
+    website: "",
   });
-  expect(copies[0].website).toBe("");
+  expect(forwarded[0].plan).toBe("12 months, Structured Development");
+  expect(forwarded[0].drinking).toBeUndefined();
+  expect(forwarded[0].healthConsent).toBeUndefined();
+  expect(direct).toBe(0);
 });
 
-test("apply form does not send without the health consent tick", async ({ page }) => {
-  let posts = 0;
-  await page.route("**/formspree.io/**", (route) => {
-    posts += 1;
-    return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
-  });
-  await page.route("**/api/apply", (route) => {
-    posts += 1;
-    return route.fulfill({ status: 200, contentType: "application/json", body: "{\"ok\":true}" });
+test("health consent is required only when a drinking detail is given", async ({ page }) => {
+  const forwarded = [];
+  await page.route("**/formspree.io/**", (route) => route.abort());
+  await page.route("**/api/apply**", async (route) => {
+    if (!route.request().url().includes("apply-forward")) {
+      await route.fulfill({ status: 200, contentType: "application/json", body: "{\"ok\":true}" });
+      return;
+    }
+    forwarded.push(route.request().postDataJSON());
+    await route.fulfill({ status: 200, contentType: "application/json", body: "{\"ok\":true}" });
   });
   await page.goto("/apply");
-  const box = page.locator("#f-health-consent");
-  await expect(box).not.toBeChecked();
-  await expect(page.getByText("I agree to Callum using the health, lifestyle and drinking details I give here to assess my application.")).toBeVisible();
+  await expect(page.locator("#healthConsentLabel")).toBeHidden();
   await expect(page.locator("#f-marketing")).not.toBeChecked();
-  await expect(page.getByText("Email me Callum's coaching tips. Unsubscribe any time.")).toBeVisible();
   await page.fill("#f-name", "Dave");
   await page.fill("#f-contact", "dave@example.com");
   await page.getByText("Get my health back", { exact: true }).click();
   await page.getByRole("button", { name: /send my application/i }).click();
-  await expect(page.locator("#applyForm")).toBeVisible();
-  await expect(page.locator("#applyDone")).toBeHidden();
-  await expect(page.locator("#healthConsentErr")).toBeVisible();
-  await expect(page.locator("#healthConsentErr")).toHaveText("Please tick this box so I can read your answers.");
-  await expect(box).toBeFocused();
-  expect(posts).toBe(0);
-  await box.check();
+  await expect(page.locator("#applyDone")).toBeVisible();
+  expect(forwarded.at(-1).healthConsent).toBeUndefined();
+  expect(forwarded.at(-1).drinking).toBeUndefined();
+
+  await page.goto("/apply");
+  await page.fill("#f-name", "Dave");
+  await page.fill("#f-contact", "dave@example.com");
+  await page.locator("#applyForm").getByText("The Full Rebuild", { exact: true }).click();
+  await page.locator("#applyForm").getByText("I've stopped", { exact: true }).click();
+  await expect(page.locator("#healthConsentLabel")).toBeHidden();
   await page.getByRole("button", { name: /send my application/i }).click();
   await expect(page.locator("#applyDone")).toBeVisible();
-  await expect.poll(() => posts).toBe(2);
+  expect(forwarded.at(-1).drinking).toBeUndefined();
+  expect(forwarded.at(-1).amount).toBeUndefined();
+
+  await page.goto("/apply");
+  await page.fill("#f-name", "Dave");
+  await page.fill("#f-contact", "dave@example.com");
+  await page.locator("#applyForm").getByText("The Full Rebuild", { exact: true }).click();
+  await page.locator("#applyForm").getByText("Every night", { exact: true }).click();
+  await expect(page.locator("#healthConsentLabel")).toBeVisible();
+  await expect(page.locator("#f-health-consent")).not.toBeChecked();
+  const before = forwarded.length;
+  await page.getByRole("button", { name: /send my application/i }).click();
+  await expect(page.locator("#applyForm")).toBeVisible();
+  await expect(page.locator("#healthConsentErr")).toBeVisible();
+  await expect(page.locator("#healthConsentErr")).toHaveText("Please tick this box so I can read your answers.");
+  expect(forwarded.length).toBe(before);
+  await page.locator("#f-health-consent").check();
+  await page.getByRole("button", { name: /send my application/i }).click();
+  await expect(page.locator("#applyDone")).toBeVisible();
+  expect(forwarded.at(-1).drinking).toBe("Every night");
+  expect(forwarded.at(-1).healthConsent).toBe("yes");
+  expect(forwarded.at(-1).amount).toBeUndefined();
 });
 
 test("Full Rebuild screen carries drinking answers into the application", async ({ page }) => {
@@ -197,39 +224,59 @@ test("Full Rebuild screen carries drinking answers into the application", async 
 
 test("discovery call does not send drinking answers without consent", async ({ page }) => {
   const posts = [];
-  await page.route("**/formspree.io/**", async (route) => {
+  let direct = 0;
+  await page.route("**/formspree.io/**", (route) => {
+    direct += 1;
+    return route.abort();
+  });
+  await page.route("**/api/apply-forward", async (route) => {
     posts.push(route.request().postDataJSON());
-    await route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+    await route.fulfill({ status: 200, contentType: "application/json", body: "{\"ok\":true}" });
   });
   await page.goto("/rebuild");
   await page.locator("#screen").scrollIntoViewIfNeeded();
   const gate = page.locator("#rebuildGate");
   await expect(page.locator("#rebuildRecipient")).toContainText("I use it only to get ready for your call and reply.");
   await expect(page.locator("#rebuildRecipient a")).toHaveAttribute("href", "/privacy");
-  await expect(gate.getByText("I agree to Callum using the health and drinking details I give here to get ready for my discovery call.")).toBeVisible();
-  await expect(page.locator("#rb-health-consent")).not.toBeChecked();
+  await expect(page.locator("#rbHealthLabel")).toBeHidden();
+  await page.getByRole("button", { name: /book the discovery call/i }).click();
+  await page.waitForURL(/\/book/);
+  expect(posts.at(-1).drinking).toBeUndefined();
+  expect(posts.at(-1).healthConsent).toBeUndefined();
+
+  await page.goto("/rebuild");
+  await page.locator("#screen").scrollIntoViewIfNeeded();
+  await gate.getByText("I've stopped", { exact: true }).click();
+  await expect(page.locator("#rbHealthLabel")).toBeHidden();
+  await page.getByRole("button", { name: /continue to the form/i }).click();
+  await page.waitForURL(/\/apply/);
+  await page.goto("/rebuild");
+  await page.locator("#screen").scrollIntoViewIfNeeded();
   await gate.getByText("Every night", { exact: true }).click();
   await page.locator("#rb-amount").fill("A bottle of wine");
   await gate.getByText(/I've read that/).click();
+  await expect(page.locator("#rbHealthLabel")).toBeVisible();
+  await expect(gate.getByText("to get ready for my discovery call")).toBeVisible();
+  await expect(page.locator("#rb-health-consent")).not.toBeChecked();
+  const before = posts.length;
   await page.getByRole("button", { name: /book the discovery call/i }).click();
   await expect(page).toHaveURL(/\/rebuild/);
   await expect(page.locator("#rbHealthConsentErr")).toBeVisible();
   await expect(page.locator("#rbHealthConsentErr")).toHaveText("Please tick this box so I can read your answers.");
-  expect(posts).toHaveLength(0);
+  expect(posts.length).toBe(before);
   await page.locator("#rb-health-consent").check();
-  const sent = page.waitForRequest("**/formspree.io/**");
   await page.getByRole("button", { name: /book the discovery call/i }).click();
-  const req = await sent;
-  expect(req.postDataJSON()).toMatchObject({
+  await page.waitForURL(/\/book/);
+  expect(posts.at(-1)).toMatchObject({
+    source: "rebuild",
     _subject: "Full Rebuild: drinking screen, booking the call",
     plan: "The Full Rebuild",
     drinking: "Every night",
     amount: "A bottle of wine",
-    gp: "Read the GP note",
+    gp: "yes",
     healthConsent: "yes",
   });
-  await page.waitForURL(/\/book/);
-  expect(posts).toHaveLength(1);
+  expect(direct).toBe(0);
 });
 
 test("home: client app tabs switch screens", async ({ page }) => {

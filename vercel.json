@@ -52,6 +52,9 @@
     "api/apply.js": {
       "maxDuration": 15
     },
+    "api/apply-forward.js": {
+      "maxDuration": 15
+    },
     "api/season-html.js": {
       "maxDuration": 10,
       "includeFiles": "{*.html,*/index.html,free/framework.html}"

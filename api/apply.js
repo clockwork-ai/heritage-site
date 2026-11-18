@@ -376,13 +376,6 @@ function applicationSummary(input) {
   ].filter(Boolean);
   return bits.join(". ").slice(0, 500);
 }
-function ageText(value) {
-  const text = cleanText(value, 3);
-  if (!/^\d{1,3}$/.test(text)) return "";
-  const age = Number(text);
-  if (age < 18 || age > 90) return "";
-  return String(age);
-}
 async function POST(request) {
   if (!sameOrigin(request, business.origins)) return json(request, { ok: false }, 403);
   const limit = takeRateLimit(`apply:${clientKey(request)}`, Date.now(), 10 * 60 * 1e3, 8);
@@ -405,10 +398,6 @@ async function POST(request) {
   }
   if (typeof data.website === "string" && data.website !== "") {
     return json(request, { ok: true, skipped: "honeypot" });
-  }
-  if (cleanText(data.healthConsent, 8) !== "yes") {
-    console.info("apply mailerlite skipped: no health consent");
-    return json(request, { ok: true, skipped: "consent" });
   }
   const marketing = data.marketingConsent;
   const marketingYes = marketing === true || cleanText(marketing, 8) === "yes" || cleanText(marketing, 8) === "true";
@@ -433,26 +422,11 @@ async function POST(request) {
     return json(request, { ok: true, skipped: "key" });
   }
   const name = cleanText(data.name, 80);
-  const phone = contact.phone;
-  const note = applicationSummary({
-    age: ageText(data.age),
-    goals: cleanText(data.goals, 200),
-    tried: cleanText(data.tried, 240),
-    week: cleanText(data.week, 240),
-    plan: cleanText(data.plan, 80),
-    reply: cleanText(data.reply, 40),
-    phone,
-    drinking: cleanText(data.drinking, 80),
-    amount: cleanText(data.amount, 160),
-    gp: cleanText(data.gp, 8)
-  });
   const result = await subscribe(key, {
     email,
     name,
-    phone,
-    source: "apply",
-    group,
-    note
+    source: "",
+    group
   });
   if (!result.ok) {
     console.error("apply mailerlite failed", result.status);

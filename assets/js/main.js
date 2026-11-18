@@ -96,42 +96,8 @@
   });
 })();
 
-/* ---------- cookie consent + Meta Pixel (+ GA4 slot) ---------- */
-(function(){
-  var KEY='cb-consent';
-  var PIXEL_ID='1778009826073109';
-  var GA_ID='G-092ML2YGQ2'; /* paste GA4 Measurement ID here (G-XXXXXXX) to enable Google Analytics */
-
-  function loadPixel(){
-    if(!PIXEL_ID||window.__cbPixel)return; window.__cbPixel=1;
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init',PIXEL_ID); fbq('track','PageView');
-  }
-  function loadGA(){
-    if(!GA_ID||window.__cbGA)return; window.__cbGA=1;
-    var s=document.createElement('script'); s.async=!0; s.src='https://www.googletagmanager.com/gtag/js?id='+GA_ID; document.head.appendChild(s);
-    window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments);}; gtag('js',new Date()); gtag('config',GA_ID);
-  }
-  function enable(){ loadPixel(); loadGA(); }
-
-  function banner(){
-    var bar=document.createElement('div');
-    bar.setAttribute('role','dialog'); bar.setAttribute('aria-label','Cookie consent');
-    bar.style.cssText='position:fixed;left:16px;right:16px;bottom:16px;z-index:99999;max-width:680px;margin:0 auto;background:#0C1C14;color:#CFC8B6;border:1px solid rgba(201,169,110,.45);border-radius:0;padding:15px 18px;font-family:Inter,system-ui,sans-serif;font-size:13.5px;line-height:1.5;box-shadow:0 22px 55px -22px rgba(0,0,0,.7);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;';
-    var txt=document.createElement('span'); txt.style.cssText='flex:1;min-width:230px;';
-    txt.innerHTML='We use cookies for analytics and ads to improve your experience. See our <a href="/privacy.html" style="color:#C9A96E;text-decoration:underline;">Privacy Policy</a>.';
-    var wrap=document.createElement('div'); wrap.style.cssText='display:flex;gap:8px;flex:none;';
-    function mk(t,bg,fg,bd){var b=document.createElement('button');b.textContent=t;b.style.cssText='font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:500;font-size:12px;letter-spacing:.08em;text-transform:uppercase;border-radius:0;padding:9px 17px;cursor:pointer;border:1px solid '+bd+';background:'+bg+';color:'+fg+';';return b;}
-    var dec=mk('Decline','transparent','#CFC8B6','rgba(201,169,110,.45)'), acc=mk('Accept','#C9A96E','#09150F','#C9A96E');
-    dec.onclick=function(){try{localStorage.setItem(KEY,'denied');}catch(e){} bar.remove();};
-    acc.onclick=function(){try{localStorage.setItem(KEY,'granted');}catch(e){} bar.remove(); enable();};
-    wrap.appendChild(dec); wrap.appendChild(acc); bar.appendChild(txt); bar.appendChild(wrap);
-    document.body.appendChild(bar);
-  }
-
-  var c=null; try{c=localStorage.getItem(KEY);}catch(e){}
-  if(c==='granted'){ enable(); } else if(c==='denied'){ /* respect decline */ } else { banner(); }
-})();
+/* Cookie consent, Google Analytics and the Meta Pixel live in
+   /assets/js/consent.js so the same banner runs on every page. */
 
 /* ---------- MailerLite capture ----------
    Dual-submit: after a successful Formspree post, the same lead is added to

@@ -410,6 +410,12 @@ async function POST(request) {
     console.info("apply mailerlite skipped: no health consent");
     return json(request, { ok: true, skipped: "consent" });
   }
+  const marketing = data.marketingConsent;
+  const marketingYes = marketing === true || cleanText(marketing, 8) === "yes" || cleanText(marketing, 8) === "true";
+  if (!marketingYes) {
+    console.info("apply mailerlite skipped: no marketing consent");
+    return json(request, { ok: true, skipped: "marketing" });
+  }
   const group = optionalGroup("MAILERLITE_GROUP_APPLICATIONS");
   if (!group) {
     console.info("apply mailerlite skipped: MAILERLITE_GROUP_APPLICATIONS unset");

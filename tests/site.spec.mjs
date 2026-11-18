@@ -118,6 +118,7 @@ test("apply form builds the WhatsApp message", async ({ page }) => {
     tried: "Fall off by week three.",
     plan: "12 months, Structured Development",
     healthConsent: "yes",
+    marketingConsent: "",
   });
   expect(copies[0].website).toBe("");
 });
@@ -135,7 +136,9 @@ test("apply form does not send without the health consent tick", async ({ page }
   await page.goto("/apply");
   const box = page.locator("#f-health-consent");
   await expect(box).not.toBeChecked();
-  await expect(page.getByText("I agree to Callum using the health and lifestyle details I give here to assess my application.")).toBeVisible();
+  await expect(page.getByText("I agree to Callum using the health, lifestyle and drinking details I give here to assess my application.")).toBeVisible();
+  await expect(page.locator("#f-marketing")).not.toBeChecked();
+  await expect(page.getByText("Email me Callum's coaching tips. Unsubscribe any time.")).toBeVisible();
   await page.fill("#f-name", "Dave");
   await page.fill("#f-contact", "dave@example.com");
   await page.getByText("Get my health back", { exact: true }).click();

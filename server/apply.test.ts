@@ -85,7 +85,7 @@ test("an unset applications group skips without calling MailerLite", async () =>
       return new Response("{}", { status: 200 });
     }) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat", healthConsent: "yes" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat", healthConsent: "yes", marketingConsent: "yes" }));
       assert.equal(res.status, 200);
       const body = await res.json();
       assert.equal(body.skipped, "group");
@@ -105,7 +105,7 @@ test("a phone-only application is skipped because MailerLite needs an email", as
       return new Response("{}", { status: 200 });
     }) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "07359 838866", healthConsent: "yes" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "07359 838866", healthConsent: "yes", marketingConsent: "yes" }));
       const body = await res.json();
       assert.equal(body.skipped, "email");
       assert.equal(called, false);
@@ -135,6 +135,7 @@ test("an email application is copied with signup_source apply", async () => {
           reply: "Email",
           website: "",
           healthConsent: "yes",
+          marketingConsent: "yes",
         }),
       );
       assert.equal(res.status, 200);
@@ -169,7 +170,7 @@ test("a rejected note field is retried without it and still counts as mailed", a
       return new Response(JSON.stringify({ data: { id: "99" } }), { status: 200 });
     }) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat", healthConsent: "yes" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat", healthConsent: "yes", marketingConsent: "yes" }));
       assert.equal((await res.json()).mailed, true);
       assert.equal(sent.length, 2);
       assert.equal("note" in (sent[1].fields as object), false);
@@ -185,7 +186,7 @@ test("a MailerLite failure still answers 200", async () => {
     const real = globalThis.fetch;
     globalThis.fetch = (async () => new Response("nope", { status: 500 })) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", healthConsent: "yes" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", healthConsent: "yes", marketingConsent: "yes" }));
       assert.equal(res.status, 200);
       assert.equal((await res.json()).mailed, false);
     } finally {
@@ -243,6 +244,52 @@ test("drinking and health details are not copied without an explicit yes", async
   });
 });
 
+test("MailerLite is skipped unless the marketing box is yes or true", async () => {
+  await withEnv({ MAILERLITE_API_KEY: "test", MAILERLITE_GROUP_APPLICATIONS: "444" }, async () => {
+    const real = globalThis.fetch;
+    for (const marketingConsent of [undefined, "", "no", "on", "YES", false]) {
+      let called = false;
+      globalThis.fetch = (async () => {
+        called = true;
+        return new Response("{}", { status: 200 });
+      }) as typeof fetch;
+      resetRateLimits();
+      try {
+        const res = await POST(siteRequest({
+          name: "Dave",
+          contact: "dave@example.com",
+          healthConsent: "yes",
+          marketingConsent,
+        }));
+        assert.equal((await res.json()).skipped, "marketing");
+        assert.equal(called, false, String(marketingConsent));
+      } finally {
+        globalThis.fetch = real;
+      }
+    }
+    for (const marketingConsent of ["yes", "true", true]) {
+      let called = false;
+      globalThis.fetch = (async () => {
+        called = true;
+        return new Response(JSON.stringify({ data: { id: "99" } }), { status: 201 });
+      }) as typeof fetch;
+      resetRateLimits();
+      try {
+        const res = await POST(siteRequest({
+          name: "Dave",
+          contact: "dave@example.com",
+          healthConsent: "yes",
+          marketingConsent,
+        }));
+        assert.equal((await res.json()).mailed, true);
+        assert.equal(called, true, String(marketingConsent));
+      } finally {
+        globalThis.fetch = real;
+      }
+    }
+  });
+});
+
 test("a consented application can include the drinking answers", async () => {
   await withEnv({ MAILERLITE_API_KEY: "test", MAILERLITE_GROUP_APPLICATIONS: "444" }, async () => {
     const sent: Array<Record<string, unknown>> = [];
@@ -260,6 +307,7 @@ test("a consented application can include the drinking answers", async () => {
         amount: "A bottle of wine",
         gp: "yes",
         healthConsent: "yes",
+        marketingConsent: "yes",
       }));
       assert.equal((await res.json()).mailed, true);
       const fields = (sent[0].fields as { note: string });

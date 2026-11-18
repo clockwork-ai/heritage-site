@@ -87,7 +87,7 @@
         <div class="field"><label for="f-age">Age</label><input type="number" id="f-age" name="age" min="18" max="90" inputmode="numeric"></div>
       </div>
       <div class="field"><label for="f-contact">Your WhatsApp number or email</label><p class="hint">So I can reply. It's only used for this.</p><input type="text" id="f-contact" name="contact" autocomplete="email" required></div>
-      <label class="field" style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" id="f-health-consent" name="healthConsent" value="yes" required autocomplete="off" aria-describedby="healthConsentErr" style="margin-top:4px"><span>I agree to Callum using the health and lifestyle details I give here to assess my application.<span class="hint" id="healthConsentErr" role="alert" hidden style="display:block;margin-top:8px">Please tick this box so I can read your answers.</span></span></label>
+      <label class="field" style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" id="f-health-consent" name="healthConsent" value="yes" required autocomplete="off" aria-describedby="healthConsentErr" style="margin-top:4px"><span>I agree to Callum using the health, lifestyle and drinking details I give here to assess my application.<span class="hint" id="healthConsentErr" role="alert" hidden style="display:block;margin-top:8px">Please tick this box so I can read your answers.</span></span></label>
       <fieldset class="field"><legend>What do you want most?</legend>
         <div class="chips">
           <label><input type="checkbox" name="goal" value="Lose fat"><span>Lose fat</span></label>
@@ -129,6 +129,7 @@
           <label><input type="radio" name="reply" value="A quick call"><span>A quick call</span></label>
           <label><input type="radio" name="reply" value="Email"><span>Email</span></label>
         </div></fieldset>
+      <label class="field" style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" id="f-marketing" name="marketing" value="yes" autocomplete="off" style="margin-top:4px"><span>Email me Callum's coaching tips. Unsubscribe any time.</span></label>
       <div class="actions" style="margin-top:0"><button class="btn" type="submit" id="applyBtn">Send my application <span class="arr">→</span></button><span class="label" id="applyNote">It comes straight to me, privately. <a class="tlink" href="/privacy">Privacy</a></span></div>
     </form>
     <div class="applydone" id="applyDone" hidden>
@@ -213,10 +214,11 @@
     send.href = "https://wa.me/447359838866?text=" + encodeURIComponent(msg);
     // save it first, so it reaches me even if WhatsApp never gets opened
     const btn = document.getElementById("applyBtn"); btn.disabled = true;
+    const tips = d.get("marketing") === "yes" ? "yes" : "";
     let saved = false;
     try {
       const r = await fetch("https://formspree.io/f/mvzjlroq", { method: "POST", headers: { "Accept": "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ _subject: (plan === "The Full Rebuild" ? "Full Rebuild application: " : "1:1 application: ") + v("name"), name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), drinking: v("often"), amount: v("amount"), gp: d.get("gp") === "yes" ? "yes" : "", healthConsent: "yes", application: msg }) });
+        body: JSON.stringify({ _subject: (plan === "The Full Rebuild" ? "Full Rebuild application: " : "1:1 application: ") + v("name"), name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), drinking: v("often"), amount: v("amount"), gp: d.get("gp") === "yes" ? "yes" : "", healthConsent: "yes", marketingConsent: tips, application: msg }) });
       saved = r.ok;
     } catch (err) {}
     // MailerLite copy. Formspree alone decides the message on screen.
@@ -224,7 +226,7 @@
       const site = document.getElementById("f-website");
       const onRebuild = plan === "The Full Rebuild";
       fetch(copyUrl, { method: "POST", keepalive: true, headers: { "Accept": "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), drinking: onRebuild ? v("often") : "", amount: onRebuild ? v("amount") : "", gp: onRebuild && d.get("gp") === "yes" ? "yes" : "", healthConsent: "yes", website: site ? site.value : "" }) }).catch(function () {});
+        body: JSON.stringify({ name: v("name"), contact: v("contact"), age: v("age"), goals, tried: v("tried"), week: v("week"), plan, reply: v("reply"), drinking: onRebuild ? v("often") : "", amount: onRebuild ? v("amount") : "", gp: onRebuild && d.get("gp") === "yes" ? "yes" : "", healthConsent: "yes", marketingConsent: tips, website: site ? site.value : "" }) }).catch(function () {});
     }
     btn.disabled = false;
     track(saved ? "Application sent" : "Application save failed", { reply: v("reply") });

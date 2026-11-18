@@ -115,6 +115,15 @@ export async function POST(request: Request): Promise<Response> {
     return json(request, { ok: true, skipped: "consent" });
   }
 
+  // Marketing is separate. MailerLite only when the box is yes or true.
+  // The Formspree email still goes out either way.
+  const marketing = data.marketingConsent;
+  const marketingYes = marketing === true || cleanText(marketing, 8) === "yes" || cleanText(marketing, 8) === "true";
+  if (!marketingYes) {
+    console.info("apply mailerlite skipped: no marketing consent");
+    return json(request, { ok: true, skipped: "marketing" });
+  }
+
   const group = optionalGroup("MAILERLITE_GROUP_APPLICATIONS");
   if (!group) {
     console.info("apply mailerlite skipped: MAILERLITE_GROUP_APPLICATIONS unset");

@@ -83,7 +83,7 @@ PAGES = [
                 p("Men with jobs, kids and busy weeks. You've done the plans. You've restarted more than once, and you got to the end of week two again. You don't need more motivation. You need someone reading your numbers every week and telling you what to change."),
                 p("It isn't for you if you want a six-week shred and then back to chaos, or if you won't track what you eat. I'd rather tell you that now."),
             ]),
-            ("Proof", "Results, not promises", [
+            ("Proof", "What happened for them", [
                 PROOF,
                 p('Every one of them was coached online. Photos, numbers and their own words are on the <a href="/results">results page</a>. Individual results: yours depend on where you start and how consistently you follow the plan.'),
             ]),

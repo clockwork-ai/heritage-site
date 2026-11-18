@@ -897,6 +897,9 @@ test("body-fat photo waits for the OpenAI box", async ({ page }) => {
   });
   await expect(page.locator("#bf-file-name")).toBeVisible();
   await expect(page.locator("#bf-photo-consent")).not.toBeChecked();
+  await expect(page.locator("label.consent", { has: page.locator("#bf-photo-consent") })).toContainText(
+    "I agree to my photo being sent to OpenAI to estimate my body fat. I do not keep it.",
+  );
   await page.getByRole("button", { name: /Reveal my body-fat/ }).click();
   await expect(page.locator("#bf-photo-err")).toHaveText("Please tick this box so I can send your photo.");
   await expect(page.locator("#bf-gate")).toBeHidden();

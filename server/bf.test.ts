@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { deurenberg } from "../lib/bf-estimate.ts";
 import { resetRateLimits } from "../lib/guard.ts";
-import { POST, type PhotoRead } from "./bf.ts";
+import { PHOTO_CONSENT_LINE, POST, type PhotoRead } from "./bf.ts";
 
 const PIXEL =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
@@ -118,6 +118,13 @@ test("a failed photo read without stats tells the visitor to use the tape", asyn
   assert.equal(res.status, 502);
   const body = await res.json();
   assert.match(body.error.message, /tape measure/);
+});
+
+test("the photo consent line is the agreed wording", () => {
+  assert.equal(
+    PHOTO_CONSENT_LINE,
+    "I agree to my photo being sent to OpenAI to estimate my body fat. I do not keep it.",
+  );
 });
 
 test("a photo is refused unless consent is yes or true", async () => {

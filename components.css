@@ -966,8 +966,11 @@ fieldset.field{border:0;margin:0;padding:0;}
 .leadf button[disabled]{opacity:.6;cursor:wait;}
 .leadf__msg{margin-top:var(--s2);text-transform:none;letter-spacing:.04em;color:var(--muted);}
 .leadf__msg.bad{color:var(--warn);}
+.consent,
 .leadf .consent{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:13.5px;line-height:1.45;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400;}
+.consent input,
 .leadf .consent input{width:16px;height:16px;flex:none;margin:3px 0 0;padding:0;accent-color:var(--gold);}
+.consent a,
 .leadf .consent a{color:var(--gold);text-decoration:underline;text-underline-offset:2px;}
 .leadok{margin-top:var(--s4);padding:var(--s4);border:1px solid var(--gold);background:rgba(17,36,24,.6);}
 .leadmag__fig{margin:0;justify-self:center;width:min(78%,300px);transform:rotate(-2.5deg);box-shadow:0 0 0 1px rgba(201,169,110,.45),0 30px 60px -20px rgba(0,0,0,.7),0 12px 24px -12px rgba(124,96,32,.45);transition:transform .8s var(--spring);}

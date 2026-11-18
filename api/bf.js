@@ -332,6 +332,7 @@ var photoSchema = z.object({
   note: z.string()
 });
 var DEFAULT_NOTE = "Rough visual estimate from the photo, not a measurement. The tape method on this page is the more repeatable check.";
+var PHOTO_CONSENT_LINE = "I agree to my photo being sent to OpenAI to estimate my body fat. I do not keep it.";
 function json(request, body, status = 200) {
   return Response.json(body, {
     status,
@@ -470,7 +471,7 @@ async function POST(request, estimate) {
   const formula = stats ? deurenberg(stats) : null;
   const photoConsent = data["photo-consent"] === true || data["photo-consent"] === "yes" || data.photoConsent === true || data.photoConsent === "yes";
   if (image && !photoConsent) {
-    console.info("bf estimate refused: no photo consent");
+    console.info("bf estimate refused: no photo consent", PHOTO_CONSENT_LINE);
     return fail(request, "Please tick this box so I can send your photo.", 422);
   }
   if (image) {
@@ -536,6 +537,7 @@ async function POST(request, estimate) {
 }
 export {
   OPTIONS,
+  PHOTO_CONSENT_LINE,
   POST,
   estimatePhoto,
   maxDuration

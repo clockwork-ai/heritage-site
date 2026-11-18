@@ -36,6 +36,9 @@ type Estimate = (input: {
 const DEFAULT_NOTE =
   "Rough visual estimate from the photo, not a measurement. The tape method on this page is the more repeatable check.";
 
+export const PHOTO_CONSENT_LINE =
+  "I agree to my photo being sent to OpenAI to estimate my body fat. I do not keep it.";
+
 function json(request: Request, body: unknown, status = 200): Response {
   return Response.json(body, {
     status,
@@ -201,7 +204,7 @@ export async function POST(request: Request, estimate?: Estimate): Promise<Respo
   const photoConsent = data["photo-consent"] === true || data["photo-consent"] === "yes"
     || data.photoConsent === true || data.photoConsent === "yes";
   if (image && !photoConsent) {
-    console.info("bf estimate refused: no photo consent");
+    console.info("bf estimate refused: no photo consent", PHOTO_CONSENT_LINE);
     return fail(request, "Please tick this box so I can send your photo.", 422);
   }
 

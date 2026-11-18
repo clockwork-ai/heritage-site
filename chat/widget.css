@@ -260,7 +260,7 @@
   flex: none;
   accent-color: var(--cw-accent);
 }
-.cw-consent a { color: var(--cw-accent); text-decoration: underline; text-underline-offset: 2px; }
+.cw-consent a { color: var(--cw-accent); text-decoration: underline; text-underline-offset: 2px; font-size: inherit; letter-spacing: 0; text-transform: none; padding: 0; }
 .cw-send:disabled, .cw-form button:disabled { opacity: 0.55; cursor: default; }
 .cw-foot {
   flex: 0 0 auto;

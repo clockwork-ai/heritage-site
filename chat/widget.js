@@ -62,7 +62,7 @@
         <input class="cw-field" name="goal" maxlength="400" required placeholder="Your goal, in a line">
         <label class="cw-consent">
           <input name="marketing-consent" type="checkbox" value="yes">
-          <span>Email me Callum's coaching tips. Unsubscribe any time. <a href="/privacy">Privacy</a></span>
+          <span>Email me Callum's coaching tips. Unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></span>
         </label>
         <button class="cw-send" type="submit">Send to Callum</button>
       </form>

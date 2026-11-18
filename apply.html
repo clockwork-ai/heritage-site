@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=GFS+Didot&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="heritage.css?v=f3a91c2e">
-<link rel="stylesheet" href="components.css?v=b03473c0">
+<link rel="stylesheet" href="components.css?v=e7c41a92">
 <!-- Privacy-friendly analytics by Plausible -->
 <script async src="https://plausible.io/js/pa-YpqMGTgErTGeztJgwL1aw.js"></script>
 <script>
@@ -129,7 +129,10 @@
           <label><input type="radio" name="reply" value="A quick call"><span>A quick call</span></label>
           <label><input type="radio" name="reply" value="Email"><span>Email</span></label>
         </div></fieldset>
-      <label class="field" style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" id="f-marketing" name="marketing" value="yes" autocomplete="off" style="margin-top:4px"><span>Email me Callum's coaching tips. Unsubscribe any time.</span></label>
+      <label class="consent">
+        <input type="checkbox" id="f-marketing" name="marketing" value="yes" autocomplete="off">
+        <span>Email me Callum's coaching tips. Unsubscribe any time. <a href="/privacy">Privacy</a></span>
+      </label>
       <div class="actions" style="margin-top:0"><button class="btn" type="submit" id="applyBtn">Send my application <span class="arr">→</span></button><span class="label" id="applyNote">It comes straight to me, privately. <a class="tlink" href="/privacy">Privacy</a></span></div>
     </form>
     <div class="applydone" id="applyDone" hidden>

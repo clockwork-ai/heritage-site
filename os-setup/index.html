@@ -308,6 +308,7 @@ ${pick('rung')}
       _subject:'🟢 NEW PHYSIQUE OS MEMBER: '+name+', set up now',
       setup_sheet:sheet})})
   .then(r=>{ if(!r.ok) throw 0;
+    // Paying members only. This one form sends the onboarding email. It is not a marketing list.
     try{fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194856127205214074/subscribe',{method:'POST',
       body:new URLSearchParams([['fields[email]',$('email').value.trim()],['fields[name]',$('first').value.trim()],['ml-submit','1'],['anticsrf','true']])});}catch(_){}
     $('form-side').style.display='none';$('done').style.display='block';window.scrollTo(0,0);

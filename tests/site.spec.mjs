@@ -1099,3 +1099,45 @@ test("chat lead form sends the opt-in and still posts the note", async ({ page }
   await expect.poll(() => posted.length).toBe(2);
   expect(posted[1].lead["marketing-consent"]).toBe("yes");
 });
+
+test("offset calculator subscribes only when the box is ticked", async ({ page }) => {
+  const hits = await countMailerlite(page);
+  await page.goto("/offset-calculator");
+  await page.locator("#breakfast").fill("5");
+  await expect(page.locator("#mailCard")).toBeVisible();
+  await expect(page.locator("#os-consent")).not.toBeChecked();
+  await page.locator("#osEmail").fill("sam@example.com");
+  await page.getByRole("button", { name: "Send my numbers" }).click();
+  await expect(page.locator("#osNote")).toContainText("stay on this page");
+  await expect(page.locator("#annualCost")).toBeVisible();
+  expect(hits).toEqual([]);
+
+  await page.reload();
+  await page.locator("#breakfast").fill("5");
+  await page.locator("#osEmail").fill("sam@example.com");
+  await page.locator("#os-consent").check();
+  await page.getByRole("button", { name: "Send my numbers" }).click();
+  await expect(page.locator("#osNote")).toContainText("Check your inbox");
+  expect(hits.some((url) => url.includes("194528841373321023"))).toBe(true);
+});
+
+test("framework download subscribes only when the box is ticked", async ({ page }) => {
+  const hits = await countMailerlite(page);
+  await page.goto("/free/framework");
+  await expect(page.locator("#fw-consent")).not.toBeChecked();
+  await page.locator('#gate-form input[name="name"]').fill("Sam");
+  await page.locator('#gate-form input[name="email"]').fill("sam@example.com");
+  await page.getByRole("button", { name: /Send it to me/ }).click();
+  await expect(page.locator('a[href="/assets/downloads/CallumB-Framework-Guide.pdf"]')).toBeVisible();
+  await expect(page.locator("#success [data-inbox-copy]")).toBeHidden();
+  expect(hits).toEqual([]);
+
+  await page.reload();
+  await page.locator('#gate-form input[name="name"]').fill("Sam");
+  await page.locator('#gate-form input[name="email"]').fill("sam@example.com");
+  await page.locator("#fw-consent").check();
+  await page.getByRole("button", { name: /Send it to me/ }).click();
+  await expect(page.locator('a[href="/assets/downloads/CallumB-Framework-Guide.pdf"]')).toBeVisible();
+  await expect(page.locator("#success [data-inbox-copy]")).toBeVisible();
+  expect(hits.some((url) => url.includes("194528842662021026"))).toBe(true);
+});

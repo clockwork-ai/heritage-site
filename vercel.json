@@ -28,6 +28,8 @@
     { "source": "/rebuild/", "destination": "/rebuild", "permanent": true },
     { "source": "/results/", "destination": "/results", "permanent": true },
     { "source": "/start/", "destination": "/start", "permanent": true },
+    { "source": "/physique-os", "destination": "/start", "permanent": true },
+    { "source": "/physique-os/", "destination": "/start", "permanent": true },
     { "source": "/tdee-calculator/", "destination": "/tdee-calculator", "permanent": true },
     { "source": "/terms/", "destination": "/terms", "permanent": true },
     { "source": "/terms-coaching/", "destination": "/terms-coaching", "permanent": true },

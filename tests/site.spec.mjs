@@ -447,6 +447,47 @@ test("Physique OS trial buttons go to the Everfit checkout", async ({ page }) =>
   await expect(page.locator("#ptPrice")).toHaveText("£249");
   await expect(page.locator('nav a[href="/the-ninety/"]')).toHaveCount(1);
   await expect(page.locator('a[href="/coaching"]')).toHaveCount(1);
+  const programmes = [
+    "Home or Minimal Equipment 3-Day",
+    "Beginner 3-Day Full Body",
+    "Intermediate 4-Day Upper/Lower",
+    "Advanced 5-Day Split",
+    "Fat Loss 3-Day Strength + Conditioning",
+  ];
+  for (const name of programmes) await expect(page.locator("main")).toContainText(name);
+  await expect(page.locator("main")).toContainText("7 days free");
+  await expect(page.locator("main")).toContainText("SAVE £99");
+  await expect(page.locator("main")).not.toContainText("I'll activate the next rung");
+  const quotes = await page.locator("main").innerText();
+  expect(quotes).toContain("Waist went 119cm to 101cm");
+  expect(quotes).toContain("Fed up of feeling heavy on site");
+  expect(quotes).toContain("Never trained properly before");
+  expect(quotes).not.toContain("\u2014");
+  expect(quotes).not.toContain("\u2013");
+});
+
+test("physique-os redirects to the start page", async ({ request }) => {
+  for (const path of ["/physique-os", "/physique-os/"]) {
+    const res = await request.get(path, { maxRedirects: 0 });
+    expect(res.status(), path).toBe(301);
+    expect(res.headers().location).toBe("/start");
+  }
+});
+
+test("os-setup is self-led and does not offer to load the plan", async ({ page }) => {
+  await page.goto("/os-setup");
+  await expect(page.locator("h1")).toContainText("in");
+  const text = await page.locator("body").innerText();
+  await expect(page.locator("body")).toContainText("Set your numbers");
+  await expect(page.locator("body")).toContainText("Where are you starting?");
+  await expect(page.locator("body")).toContainText("Home or Minimal Equipment 3-Day");
+  await expect(page.locator("body")).toContainText("Fat Loss 3-Day Strength + Conditioning");
+  expect(text).not.toContain("I'll have your macros");
+  expect(text).not.toContain("I'm loading your macros");
+  expect(text).not.toContain("Build my setup");
+  expect(text).not.toContain("\u2014");
+  expect(text).not.toContain("\u2013");
+  await expect(page.locator("#setup")).toHaveCount(0);
 });
 
 function noDashes(text) {

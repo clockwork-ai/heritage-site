@@ -93,6 +93,8 @@ document.querySelectorAll(".leadf").forEach(f => {
   f.addEventListener("submit", async e => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(f)); d.src = f.dataset.src || "site";
+    const consent = f.querySelector("[name=marketing-consent]");
+    d["marketing-consent"] = consent && consent.checked ? "yes" : "no";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((d.email || "").trim())) { msg.textContent = "That email doesn't look right. Check it and try again."; msg.classList.add("bad"); f.querySelector("[name=email]").focus(); return; }
     btn.disabled = true; msg.classList.remove("bad"); msg.textContent = "Sending...";
     try {

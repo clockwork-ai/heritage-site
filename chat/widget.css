@@ -245,6 +245,22 @@
   cursor: pointer;
 }
 .cw-form .cw-send { min-height: 36px; justify-self: start; }
+.cw-consent {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: var(--cw-soft);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+.cw-consent input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  flex: none;
+  accent-color: var(--cw-accent);
+}
+.cw-consent a { color: var(--cw-accent); text-decoration: underline; text-underline-offset: 2px; }
 .cw-send:disabled, .cw-form button:disabled { opacity: 0.55; cursor: default; }
 .cw-foot {
   flex: 0 0 auto;

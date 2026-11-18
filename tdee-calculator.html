@@ -185,7 +185,11 @@
                   <input id="tdee-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="Your email" required>
                   <input class="hp" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
                 </div>
-                <p class="label leadf__msg" role="status" aria-live="polite">Free. The breakdown stays on this device. You'll hear from me by email now and then, and you can unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></p>
+                <label class="consent">
+                  <input type="checkbox" name="marketing-consent" value="yes">
+                  <span>Email me Callum's coaching tips. Unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></span>
+                </label>
+                <p class="label leadf__msg" role="status" aria-live="polite">Free. The breakdown stays on this device.</p>
                 <div class="calc-gate__actions">
                   <button class="btn" type="submit">Show my breakdown</button>
                   <button class="calc-gate__close" type="button" data-calc-close>Not now</button>
@@ -305,7 +309,7 @@
               </div>
               <label class="consent" style="margin-bottom:12px;">
                 <input type="checkbox" id="bf-consent" />
-                <span>Email me occasional no-nonsense coaching tips too. I can unsubscribe anytime. (Optional)</span>
+                <span>Email me Callum's coaching tips. Unsubscribe any time. <a href="/privacy">Privacy</a></span>
               </label>
               <button class="btn btn-pri" id="bf-unlock" type="button" style="width:100%;justify-content:center;">Unlock my result</button>
             </div>
@@ -642,7 +646,7 @@
         fd.append('marketing-consent', ($('bf-consent')&&$('bf-consent').checked)?'yes':'no');
         fetch('https://formspree.io/f/mgojkeny',{method:'POST',headers:{Accept:'application/json'},body:fd})
           .then(function(r){ if(!r.ok) throw 0;
-            try{fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194528840040580437/subscribe',{method:'POST',body:new URLSearchParams([['fields[email]',em],['ml-submit','1'],['anticsrf','true']])});}catch(_){}
+            if($('bf-consent')&&$('bf-consent').checked){try{fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194528840040580437/subscribe',{method:'POST',body:new URLSearchParams([['fields[email]',em],['ml-submit','1'],['anticsrf','true']])});}catch(_){}}
             try{ localStorage.setItem(KEY,'1'); localStorage.setItem(KEY+'-em',em); }catch(e){}
             $('bf-gate').hidden=true; btn.disabled=false; btn.textContent='Unlock my result';
             proceed(em);
@@ -651,7 +655,7 @@
       });
     })();
   </script>
-<script src="/assets/js/calc-gate.js?v=1"></script>
+<script src="/assets/js/calc-gate.js?v=2"></script>
 <script src="/heritage.js?v=cf7edf40"></script>
 <script>
 addEventListener("load",function(){var n=0;function l(){if(n)return;n=1;var c=document.createElement("link");c.rel="stylesheet";c.href="/chat/widget.css";document.head.appendChild(c);var s=document.createElement("script");s.src="/chat/widget.js";document.body.appendChild(s);}(window.requestIdleCallback?requestIdleCallback(l,{timeout:2200}):setTimeout(l,1400));});

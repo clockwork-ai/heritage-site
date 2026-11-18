@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=GFS+Didot&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="heritage.css?v=f3a91c2e">
-<link rel="stylesheet" href="components.css?v=b03473c0">
+<link rel="stylesheet" href="components.css?v=c4d92a18">
 <!-- Privacy-friendly analytics by Plausible -->
 <script async src="https://plausible.io/js/pa-YpqMGTgErTGeztJgwL1aw.js"></script>
 <script>
@@ -214,7 +214,11 @@
             <input class="hp" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
             <button class="btn" type="submit">Send me the guide <span class="arr">→</span></button>
           </div>
-          <p class="label leadf__msg" role="status" aria-live="polite">Free. Instant download. You'll hear from me by email now and then, and you can unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></p>
+          <label class="consent">
+            <input type="checkbox" name="marketing-consent" value="yes">
+            <span>Email me Callum's coaching tips. Unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></span>
+          </label>
+          <p class="label leadf__msg" role="status" aria-live="polite">Free. Instant download.</p>
         </form>
         <div class="leadok" hidden>
           <p class="eyebrow">It's yours</p>
@@ -255,7 +259,7 @@
   </div>
 </footer>
 <script src="heritage.js?v=cf7edf40"></script>
-<script src="components.js?v=c7d5289b"></script>
+<script src="components.js?v=e7b31c40"></script>
 <script>
 addEventListener("load",function(){var n=0;function l(){if(n)return;n=1;var c=document.createElement("link");c.rel="stylesheet";c.href="/chat/widget.css";document.head.appendChild(c);var s=document.createElement("script");s.src="/chat/widget.js";document.body.appendChild(s);}(window.requestIdleCallback?requestIdleCallback(l,{timeout:2200}):setTimeout(l,1400));});
 </script>

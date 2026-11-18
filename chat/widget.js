@@ -60,6 +60,10 @@
         <input class="cw-field" name="name" autocomplete="name" maxlength="80" required placeholder="Name">
         <input class="cw-field" name="email" type="email" autocomplete="email" maxlength="120" required placeholder="Email">
         <input class="cw-field" name="goal" maxlength="400" required placeholder="Your goal, in a line">
+        <label class="cw-consent">
+          <input name="marketing-consent" type="checkbox" value="yes">
+          <span>Email me Callum's coaching tips. Unsubscribe any time. <a href="/privacy">Privacy</a></span>
+        </label>
         <button class="cw-send" type="submit">Send to Callum</button>
       </form>
       <form class="cw-composer">
@@ -492,6 +496,8 @@
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(form));
+    const consent = form.querySelector("[name=marketing-consent]");
+    data["marketing-consent"] = consent && consent.checked ? "yes" : "no";
     const button = form.querySelector("button");
     button.disabled = true;
     try {

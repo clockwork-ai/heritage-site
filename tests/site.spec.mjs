@@ -143,6 +143,7 @@ test("apply form does not send without the health consent tick", async ({ page }
   await expect(page.locator("#applyForm")).toBeVisible();
   await expect(page.locator("#applyDone")).toBeHidden();
   await expect(page.locator("#healthConsentErr")).toBeVisible();
+  await expect(page.locator("#healthConsentErr")).toHaveText("Please tick this box so I can read your answers.");
   await expect(box).toBeFocused();
   expect(posts).toBe(0);
   await box.check();
@@ -182,6 +183,7 @@ test("Full Rebuild screen carries drinking answers into the application", async 
   await page.getByRole("button", { name: /send my application/i }).click();
   await expect(page.locator("#applyDone")).toBeHidden();
   await expect(page.locator("#healthConsentErr")).toBeVisible();
+  await expect(page.locator("#healthConsentErr")).toHaveText("Please tick this box so I can read your answers.");
   await page.locator("#f-health-consent").check();
   await page.getByRole("button", { name: /send my application/i }).click();
   await expect(page.locator("#applyText")).toContainText("Plan: The Full Rebuild");
@@ -199,8 +201,9 @@ test("discovery call does not send drinking answers without consent", async ({ p
   await page.goto("/rebuild");
   await page.locator("#screen").scrollIntoViewIfNeeded();
   const gate = page.locator("#rebuildGate");
-  await expect(page.locator("#rebuildRecipient")).toContainText("Formspree");
+  await expect(page.locator("#rebuildRecipient")).toContainText("I use it only to get ready for your call and reply.");
   await expect(page.locator("#rebuildRecipient a")).toHaveAttribute("href", "/privacy");
+  await expect(gate.getByText("I agree to Callum using the health and drinking details I give here to get ready for my discovery call.")).toBeVisible();
   await expect(page.locator("#rb-health-consent")).not.toBeChecked();
   await gate.getByText("Every night", { exact: true }).click();
   await page.locator("#rb-amount").fill("A bottle of wine");
@@ -208,6 +211,7 @@ test("discovery call does not send drinking answers without consent", async ({ p
   await page.getByRole("button", { name: /book the discovery call/i }).click();
   await expect(page).toHaveURL(/\/rebuild/);
   await expect(page.locator("#rbHealthConsentErr")).toBeVisible();
+  await expect(page.locator("#rbHealthConsentErr")).toHaveText("Please tick this box so I can read your answers.");
   expect(posts).toHaveLength(0);
   await page.locator("#rb-health-consent").check();
   const sent = page.waitForRequest("**/formspree.io/**");

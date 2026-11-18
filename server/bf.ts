@@ -1,8 +1,9 @@
 // Photo body-fat estimate for the TDEE page. The page posts { email, image }
 // and reads { data: { valid, body_fat_percent, range_low, range_high, note, confidence } }.
 // The model is the same AI Gateway model as the coaching chat. The photo is
-// not stored. If the photo cannot be read, and age, height, weight and sex
-// are present, the response uses the Deurenberg 1991 formula instead.
+// sent to OpenAI for the estimate and the site does not keep it. If the photo
+// cannot be read, and age, height, weight and sex are present, the response
+// uses the Deurenberg 1991 formula instead.
 
 import { generateObject } from "ai";
 import { z } from "zod";

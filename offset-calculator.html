@@ -15,9 +15,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=GFS+Didot&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/heritage.css?v=f3a91c2e">
-<link rel="stylesheet" href="/components.css?v=a9aa471a">
+<link rel="stylesheet" href="/components.css?v=c4d92a18">
 <meta name="theme-color" content="#09150F">
-<link rel="stylesheet" href="/assets/css/tools.css?v=1">
+<link rel="stylesheet" href="/assets/css/tools.css?v=3">
 
   <link rel="canonical" href="https://callumbcoaching.co.uk/offset-calculator" />
   <meta property="og:title" content="The Transformation Offset Tool | CALLUM.B" />
@@ -156,6 +156,10 @@
             <input class="input" id="osEmail" type="email" placeholder="you@email.com" style="flex:1;min-width:200px;" />
             <button class="btn btn-pri" id="osSend" type="button">Send my numbers</button>
           </div>
+          <label class="consent" style="margin-top:12px;">
+            <input type="checkbox" id="os-consent" name="marketing-consent" value="yes">
+            <span>Email me Callum's coaching tips. Unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></span>
+          </label>
           <p class="note" id="osNote" hidden style="margin-top:10px;"></p>
         </div>
 
@@ -245,8 +249,13 @@
         fd.append('monthly-lifestyle-cost',fmt(last.monthly));
         fd.append('coaching-fee','£3,744 / 12-month programme');
         fd.append('net-yearly-offset',(last.net>=0?'+':'-')+fmt(Math.abs(last.net)));
+        var opted=$('os-consent')&&$('os-consent').checked;
+        fd.append('marketing-consent', opted?'yes':'no');
         fetch('https://formspree.io/f/mgojkeny',{method:'POST',headers:{Accept:'application/json'},body:fd})
-          .then(function(r){ if(!r.ok) throw 0; try{fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194528841373321023/subscribe',{method:'POST',body:new URLSearchParams([['fields[email]',em],['ml-submit','1'],['anticsrf','true']])});}catch(_){} show('Sent. Check your inbox soon. \ud83e\udd81',true); btn.textContent='Sent \u2713'; })
+          .then(function(r){ if(!r.ok) throw 0;
+            if(opted){try{fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194528841373321023/subscribe',{method:'POST',body:new URLSearchParams([['fields[email]',em],['ml-submit','1'],['anticsrf','true']])});}catch(_){}}
+            show(opted?'Sent. Check your inbox soon. \ud83e\udd81':'The numbers stay on this page.',true);
+            btn.textContent='Sent \u2713'; })
           .catch(function(){ btn.disabled=false; btn.textContent='Send my numbers'; show('Couldn\u2019t send. Try again.',false); });
       });
     })();

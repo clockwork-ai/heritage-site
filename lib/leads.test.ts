@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { BusinessConfig } from "./business.ts";
-import { saveLead, type LeadInput } from "./leads.ts";
+import { saveLead, validateLead, type LeadInput } from "./leads.ts";
 import { resetNoteField } from "./mailerlite.ts";
 
 const config = {
@@ -15,6 +15,7 @@ const lead: LeadInput = {
   goal: "Lose fat and keep the muscle",
   page: "/coaching",
   source: "chat-form",
+  marketingConsent: true,
 };
 
 const envKeys = [
@@ -89,6 +90,46 @@ test("a stored chatbot lead is copied to MailerLite and Formspree", async () => 
         source: "chatbot",
         _subject: "Chatbot lead: Dave",
       });
+    },
+  );
+});
+
+test("only an explicit yes counts as marketing consent", () => {
+  const yes = validateLead(
+    { name: "Dave", email: "a@b.co", goal: "Lose fat", "marketing-consent": "yes" },
+    "chat-form",
+  );
+  assert.equal(yes.ok && yes.lead.marketingConsent, true);
+  const flag = validateLead(
+    { name: "Dave", email: "a@b.co", goal: "Lose fat", marketingConsent: true },
+    "chat-tool",
+  );
+  assert.equal(flag.ok && flag.lead.marketingConsent, true);
+  for (const value of ["no", "true", "on", "YES", "", false]) {
+    const parsed = validateLead(
+      { name: "Dave", email: "a@b.co", goal: "Lose fat", "marketing-consent": value },
+      "chat-form",
+    );
+    assert.equal(parsed.ok && parsed.lead.marketingConsent, false, String(value));
+  }
+  const missing = validateLead({ name: "Dave", email: "a@b.co", goal: "Lose fat" }, "chat-tool");
+  assert.equal(missing.ok && missing.lead.marketingConsent, false);
+});
+
+test("a chatbot lead without marketing consent is stored and not subscribed", async () => {
+  await withEnv(
+    {
+      BLOB_READ_WRITE_TOKEN: "test",
+      MAILERLITE_API_KEY: "test",
+      MAILERLITE_GROUP_CHATBOT: "555",
+      CHATBOT_ALERT_FORMSPREE_ID: "mgojkeny",
+    },
+    async (sent) => {
+      const result = await saveLead(config, { ...lead, marketingConsent: false }, async () => {});
+      assert.equal(result.ok, true);
+      assert.equal(result.notified, true);
+      assert.equal(sent.some((item) => item.url.includes("mailerlite")), false);
+      assert.ok(sent.find((item) => item.url.includes("formspree.io/f/mgojkeny")));
     },
   );
 });

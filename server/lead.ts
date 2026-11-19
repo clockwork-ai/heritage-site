@@ -5,6 +5,7 @@
 
 import { business } from "../lib/business.ts";
 import { corsHeaders, sameOrigin } from "../lib/guard.ts";
+import { marketingOptIn } from "../lib/mailerlite.ts";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAILERLITE_URL = "https://connect.mailerlite.com/api/subscribers";
@@ -133,15 +134,23 @@ export async function POST(request: Request): Promise<Response> {
   const email = validEmail(data.email);
   if (!email) return json(request, { ok: false, error: "email" }, 422);
 
+  const name = cleanName(data.name);
+  const source = leadSource(data);
+  if (Object.keys(source).length) console.log("lead source", JSON.stringify(source));
+
+  // The guide or breakdown is on the page. The list is separate, and only a ticked box joins it.
+  const optedIn = marketingOptIn(data["marketing-consent"] !== undefined ? data["marketing-consent"] : data.marketingConsent);
+  if (!optedIn) {
+    console.info("lead subscribe skipped: no marketing consent", source.src || "none");
+    return json(request, { ok: true, download: GUIDE_DOWNLOAD }, 200);
+  }
+
   const key = (process.env.MAILERLITE_API_KEY || "").trim();
   if (!key) {
     console.error("MAILERLITE_API_KEY is not set; refusing to call MailerLite");
     return json(request, { ok: false, error: "mailerlite_not_configured" }, 500);
   }
 
-  const name = cleanName(data.name);
-  const source = leadSource(data);
-  if (Object.keys(source).length) console.log("lead source", JSON.stringify(source));
   const group = groupForSource(source.src);
   const payload = subscriberPayload(email, name, group, source.src);
 

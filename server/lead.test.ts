@@ -143,7 +143,8 @@ async function postWithEnv(body: Record<string, unknown>, env: Record<string, st
         body: JSON.stringify(body),
       }),
     );
-    return { status: res.status, sent };
+    const responseBody = await res.json();
+    return { status: res.status, sent, body: responseBody };
   } finally {
     globalThis.fetch = realFetch;
     for (const k of keys) {
@@ -155,7 +156,7 @@ async function postWithEnv(body: Record<string, unknown>, env: Record<string, st
 
 test("a TDEE calculator signup is sent to the TDEE group with signup_source", async () => {
   const { status, sent } = await postWithEnv(
-    { email: "a@b.co", name: "Dave", src: "tdee-calculator" },
+    { email: "a@b.co", name: "Dave", src: "tdee-calculator", "marketing-consent": "yes" },
     { MAILERLITE_API_KEY: "test", ...GROUPS },
   );
   assert.equal(status, 200);
@@ -164,7 +165,7 @@ test("a TDEE calculator signup is sent to the TDEE group with signup_source", as
 
 test("a protein signup with no protein variable keeps the old group", async () => {
   const { status, sent } = await postWithEnv(
-    { email: "a@b.co", src: "protein-calculator" },
+    { email: "a@b.co", src: "protein-calculator", "marketing-consent": "yes" },
     { MAILERLITE_API_KEY: "test", MAILERLITE_GROUP_ID: "111" },
   );
   assert.equal(status, 200);
@@ -172,6 +173,36 @@ test("a protein signup with no protein variable keeps the old group", async () =
 });
 
 test("a guide signup goes to MAILERLITE_GROUP_ID", async () => {
-  const { sent } = await postWithEnv({ email: "a@b.co", src: "home" }, { MAILERLITE_API_KEY: "test", ...GROUPS });
+  const { sent } = await postWithEnv(
+    { email: "a@b.co", src: "home", "marketing-consent": "yes" },
+    { MAILERLITE_API_KEY: "test", ...GROUPS },
+  );
   assert.deepEqual(sent[0].groups, ["111"]);
+});
+
+test("a missing or false marketing opt-in returns the guide and does not call MailerLite", async () => {
+  for (const consent of [undefined, "no", false, "true", "on", "YES", ""]) {
+    const body: Record<string, unknown> = { email: "a@b.co", name: "Dave", src: "tdee-calculator" };
+    if (consent !== undefined) body["marketing-consent"] = consent;
+    const { status, sent, body: responseBody } = await postWithEnv(body, { MAILERLITE_API_KEY: "test", ...GROUPS });
+    assert.equal(status, 200, String(consent));
+    assert.deepEqual(sent, [], String(consent));
+    assert.deepEqual(responseBody, { ok: true, download: GUIDE_DOWNLOAD });
+  }
+});
+
+test("marketing consent true still subscribes, and a blank key does not", async () => {
+  const yes = await postWithEnv(
+    { email: "a@b.co", src: "home", marketingConsent: true },
+    { MAILERLITE_API_KEY: "test", ...GROUPS },
+  );
+  assert.equal(yes.status, 200);
+  assert.equal(yes.sent.length, 1);
+
+  const missingKey = await postWithEnv(
+    { email: "a@b.co", src: "home", "marketing-consent": "yes" },
+    {},
+  );
+  assert.equal(missingKey.status, 500);
+  assert.deepEqual(missingKey.sent, []);
 });

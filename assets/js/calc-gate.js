@@ -102,11 +102,13 @@
       var websiteInput = form.querySelector("[name=website]");
       var name = nameInput ? nameInput.value.trim() : "";
       var email = emailInput ? emailInput.value.trim() : "";
+      var consent = form.querySelector("[name=marketing-consent]");
       var payload = {
         name: name,
         email: email,
         website: websiteInput ? websiteInput.value : "",
         src: src,
+        "marketing-consent": consent && consent.checked ? "yes" : "no",
       };
       var campaign = campaignProps();
       utmKeys.forEach(function (key) {

@@ -5,6 +5,11 @@
 const SUBSCRIBERS = "https://connect.mailerlite.com/api/subscribers";
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Marketing email needs a separate yes. Missing, "no", and anything else stay off the list.
+export function marketingOptIn(value: unknown): boolean {
+  return value === true || value === "yes";
+}
+
 let noteFieldRejected = false;
 
 export function validEmail(value: unknown): string {

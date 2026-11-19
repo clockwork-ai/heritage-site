@@ -3,7 +3,7 @@ import { put } from "@vercel/blob";
 import { formspreeId, postChatbotAlert } from "./alerts.ts";
 import type { BusinessConfig } from "./business.ts";
 import { cleanLine, isValidEmail } from "./guard.ts";
-import { optionalGroup, subscribe } from "./mailerlite.ts";
+import { marketingOptIn, optionalGroup, subscribe } from "./mailerlite.ts";
 
 export type LeadInput = {
   name: string;
@@ -11,6 +11,7 @@ export type LeadInput = {
   goal: string;
   page?: string;
   source: "chat-tool" | "chat-form";
+  marketingConsent: boolean;
 };
 
 export type LeadResult =
@@ -23,6 +24,8 @@ export function validateLead(
     email?: unknown;
     goal?: unknown;
     page?: unknown;
+    marketingConsent?: unknown;
+    "marketing-consent"?: unknown;
   },
   source: LeadInput["source"],
   knownPage?: string,
@@ -33,9 +36,12 @@ export function validateLead(
   if (name.length < 2) return { ok: false, error: "I need a name." };
   if (!isValidEmail(email)) return { ok: false, error: "I need an email address." };
   if (goal.length < 2) return { ok: false, error: "I need a line about what they want." };
+  const marketingConsent = marketingOptIn(
+    input.marketingConsent !== undefined ? input.marketingConsent : input["marketing-consent"],
+  );
   return {
     ok: true,
-    lead: { name, email, goal, page: knownPage, source },
+    lead: { name, email, goal, page: knownPage, source, marketingConsent },
   };
 }
 
@@ -86,6 +92,10 @@ async function notify(config: BusinessConfig, lead: LeadInput): Promise<boolean>
 }
 
 async function subscribeChatbot(lead: LeadInput): Promise<"added" | "skipped" | "failed"> {
+  if (!lead.marketingConsent) {
+    console.info("chatbot mailerlite skipped: no marketing consent");
+    return "skipped";
+  }
   const group = optionalGroup("MAILERLITE_GROUP_CHATBOT");
   if (!group) {
     console.info("chatbot mailerlite skipped: MAILERLITE_GROUP_CHATBOT unset");

@@ -85,7 +85,7 @@ test("an unset applications group skips without calling MailerLite", async () =>
       return new Response("{}", { status: 200 });
     }) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat", healthConsent: "yes", marketingConsent: "yes" }));
       assert.equal(res.status, 200);
       const body = await res.json();
       assert.equal(body.skipped, "group");
@@ -105,7 +105,7 @@ test("a phone-only application is skipped because MailerLite needs an email", as
       return new Response("{}", { status: 200 });
     }) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "07359 838866" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "07359 838866", healthConsent: "yes", marketingConsent: "yes" }));
       const body = await res.json();
       assert.equal(body.skipped, "email");
       assert.equal(called, false);
@@ -134,6 +134,8 @@ test("an email application is copied with signup_source apply", async () => {
           plan: "12 weeks, Foundation",
           reply: "Email",
           website: "",
+          healthConsent: "yes",
+          marketingConsent: "yes",
         }),
       );
       assert.equal(res.status, 200);
@@ -141,38 +143,33 @@ test("an email application is copied with signup_source apply", async () => {
       assert.equal(sent.length, 1);
       assert.deepEqual(sent[0], {
         email: "dave@example.com",
-        fields: {
-          name: "Dave",
-          signup_source: "apply",
-          note: "Wants: Lose fat. Plan: 12 weeks, Foundation. Reply: Email. Age: 42. Tried before: Fell off.",
-        },
+        fields: { name: "Dave" },
         groups: ["444"],
       });
+      const packed = JSON.stringify(sent[0]);
+      assert.equal(packed.includes("note"), false);
+      assert.equal(packed.includes("Drinking"), false);
+      assert.equal(packed.includes("Lose fat"), false);
+      assert.equal(packed.includes("phone"), false);
     } finally {
       globalThis.fetch = real;
     }
   });
 });
 
-test("a rejected note field is retried without it and still counts as mailed", async () => {
+test("the tips copy does not send a note", async () => {
   await withEnv({ MAILERLITE_API_KEY: "test", MAILERLITE_GROUP_APPLICATIONS: "444" }, async () => {
     const sent: Array<Record<string, unknown>> = [];
     const real = globalThis.fetch;
     globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
-      const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
-      sent.push(body);
-      const fields = body.fields as Record<string, string>;
-      if (fields.note) {
-        return new Response(JSON.stringify({ errors: { "fields.note": ["unknown"] } }), { status: 422 });
-      }
+      sent.push(JSON.parse(String(init?.body)) as Record<string, unknown>);
       return new Response(JSON.stringify({ data: { id: "99" } }), { status: 200 });
     }) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", goals: "Lose fat", healthConsent: "yes", marketingConsent: "yes" }));
       assert.equal((await res.json()).mailed, true);
-      assert.equal(sent.length, 2);
-      assert.equal("note" in (sent[1].fields as object), false);
-      assert.equal((sent[1].fields as { signup_source: string }).signup_source, "apply");
+      assert.equal(sent.length, 1);
+      assert.equal("note" in (sent[0].fields as object), false);
     } finally {
       globalThis.fetch = real;
     }
@@ -184,7 +181,7 @@ test("a MailerLite failure still answers 200", async () => {
     const real = globalThis.fetch;
     globalThis.fetch = (async () => new Response("nope", { status: 500 })) as typeof fetch;
     try {
-      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com" }));
+      const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", healthConsent: "yes", marketingConsent: "yes" }));
       assert.equal(res.status, 200);
       assert.equal((await res.json()).mailed, false);
     } finally {
@@ -204,6 +201,109 @@ test("a filled honeypot does not subscribe", async () => {
     try {
       const res = await POST(siteRequest({ name: "Dave", contact: "dave@example.com", website: "http://spam.test" }));
       assert.equal((await res.json()).skipped, "honeypot");
+      assert.equal(called, false);
+    } finally {
+      globalThis.fetch = real;
+    }
+  });
+});
+
+test("drinking answers are not copied even when the tips box is ticked", async () => {
+  await withEnv({ MAILERLITE_API_KEY: "test", MAILERLITE_GROUP_APPLICATIONS: "444" }, async () => {
+    const sent: unknown[] = [];
+    const real = globalThis.fetch;
+    globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
+      sent.push(JSON.parse(String(init?.body)));
+      return new Response(JSON.stringify({ data: { id: "99" } }), { status: 201 });
+    }) as typeof fetch;
+    try {
+      const res = await POST(siteRequest({
+        name: "Dave",
+        contact: "dave@example.com",
+        goals: "Get my health back",
+        tried: "Fell off.",
+        week: "Nights.",
+        plan: "The Full Rebuild",
+        drinking: "Every night",
+        amount: "A bottle of wine",
+        gp: "yes",
+        healthConsent: "yes",
+        marketingConsent: "yes",
+      }));
+      assert.equal((await res.json()).mailed, true);
+      assert.deepEqual(sent[0], {
+        email: "dave@example.com",
+        fields: { name: "Dave" },
+        groups: ["444"],
+      });
+    } finally {
+      globalThis.fetch = real;
+    }
+  });
+});
+
+test("MailerLite is skipped unless the marketing box is yes or true", async () => {
+  await withEnv({ MAILERLITE_API_KEY: "test", MAILERLITE_GROUP_APPLICATIONS: "444" }, async () => {
+    const real = globalThis.fetch;
+    for (const marketingConsent of [undefined, "", "no", "on", "YES", false]) {
+      let called = false;
+      globalThis.fetch = (async () => {
+        called = true;
+        return new Response("{}", { status: 200 });
+      }) as typeof fetch;
+      resetRateLimits();
+      try {
+        const res = await POST(siteRequest({
+          name: "Dave",
+          contact: "dave@example.com",
+          healthConsent: "yes",
+          marketingConsent,
+        }));
+        assert.equal((await res.json()).skipped, "marketing");
+        assert.equal(called, false, String(marketingConsent));
+      } finally {
+        globalThis.fetch = real;
+      }
+    }
+    for (const marketingConsent of ["yes", "true", true]) {
+      let called = false;
+      globalThis.fetch = (async () => {
+        called = true;
+        return new Response(JSON.stringify({ data: { id: "99" } }), { status: 201 });
+      }) as typeof fetch;
+      resetRateLimits();
+      try {
+        const res = await POST(siteRequest({
+          name: "Dave",
+          contact: "dave@example.com",
+          healthConsent: "yes",
+          marketingConsent,
+        }));
+        assert.equal((await res.json()).mailed, true);
+        assert.equal(called, true, String(marketingConsent));
+      } finally {
+        globalThis.fetch = real;
+      }
+    }
+  });
+});
+
+test("a missing marketing flag does not subscribe", async () => {
+  await withEnv({ MAILERLITE_API_KEY: "test", MAILERLITE_GROUP_APPLICATIONS: "444" }, async () => {
+    let called = false;
+    const real = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      called = true;
+      return new Response("{}", { status: 200 });
+    }) as typeof fetch;
+    try {
+      const res = await POST(siteRequest({
+        name: "Dave",
+        contact: "dave@example.com",
+        drinking: "Every night",
+        healthConsent: "yes",
+      }));
+      assert.equal((await res.json()).skipped, "marketing");
       assert.equal(called, false);
     } finally {
       globalThis.fetch = real;

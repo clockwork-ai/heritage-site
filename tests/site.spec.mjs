@@ -79,16 +79,28 @@ for (const p of pages) {
 
 test("apply form builds the WhatsApp message", async ({ page }) => {
   const copies = [];
-  await page.route("**/formspree.io/**", (route) => route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: "{}",
-  }));
-  await page.route("**/api/apply", async (route) => {
+  const forwarded = [];
+  let direct = 0;
+  await page.route("**/formspree.io/**", (route) => {
+    direct += 1;
+    return route.abort();
+  });
+  await page.route("**/api/apply**", async (route) => {
+    const url = route.request().url();
+    if (url.includes("apply-forward")) {
+      forwarded.push(route.request().postDataJSON());
+      await route.fulfill({ status: 200, contentType: "application/json", body: "{\"ok\":true}" });
+      return;
+    }
     copies.push(route.request().postDataJSON());
     await route.fulfill({ status: 500, contentType: "application/json", body: "{\"ok\":false}" });
   });
   await page.goto("/apply");
+  await expect(page.locator("#applyRecipient")).toBeVisible();
+  await expect(page.locator("#applyRecipient")).toContainText("Callum Broadfoot (CALLUM.B)");
+  await expect(page.locator("#applyRecipient")).toContainText("Formspree");
+  await expect(page.locator("#applyRecipient a")).toHaveAttribute("href", "/privacy");
+  await expect(page.locator("#healthConsentLabel")).toBeHidden();
   await page.fill("#f-name", "Dave");
   await page.fill("#f-age", "42");
   await page.fill("#f-contact", "dave@example.com");
@@ -104,15 +116,70 @@ test("apply form builds the WhatsApp message", async ({ page }) => {
   expect(href).toMatch(/^https:\/\/wa\.me\/447359838866\?text=/);
   expect(decodeURIComponent(href)).toContain("Fall off by week three.");
   await expect.poll(() => copies.length).toBe(1);
-  expect(copies[0]).toMatchObject({
+  expect(copies[0]).toEqual({
     name: "Dave",
     contact: "dave@example.com",
-    age: "42",
-    goals: "Lose fat",
-    tried: "Fall off by week three.",
-    plan: "12 months, Structured Development",
+    marketingConsent: "",
+    website: "",
   });
-  expect(copies[0].website).toBe("");
+  expect(forwarded[0].plan).toBe("12 months, Structured Development");
+  expect(forwarded[0].drinking).toBeUndefined();
+  expect(forwarded[0].healthConsent).toBeUndefined();
+  expect(direct).toBe(0);
+});
+
+test("health consent is required only when a drinking detail is given", async ({ page }) => {
+  const forwarded = [];
+  await page.route("**/formspree.io/**", (route) => route.abort());
+  await page.route("**/api/apply**", async (route) => {
+    if (!route.request().url().includes("apply-forward")) {
+      await route.fulfill({ status: 200, contentType: "application/json", body: "{\"ok\":true}" });
+      return;
+    }
+    forwarded.push(route.request().postDataJSON());
+    await route.fulfill({ status: 200, contentType: "application/json", body: "{\"ok\":true}" });
+  });
+  await page.goto("/apply");
+  await expect(page.locator("#healthConsentLabel")).toBeHidden();
+  await expect(page.locator("#f-marketing")).not.toBeChecked();
+  await page.fill("#f-name", "Dave");
+  await page.fill("#f-contact", "dave@example.com");
+  await page.getByText("Get my health back", { exact: true }).click();
+  await page.getByRole("button", { name: /send my application/i }).click();
+  await expect(page.locator("#applyDone")).toBeVisible();
+  expect(forwarded.at(-1).healthConsent).toBeUndefined();
+  expect(forwarded.at(-1).drinking).toBeUndefined();
+
+  await page.goto("/apply");
+  await page.fill("#f-name", "Dave");
+  await page.fill("#f-contact", "dave@example.com");
+  await page.locator("#applyForm").getByText("The Full Rebuild", { exact: true }).click();
+  await page.locator("#applyForm").getByText("I've stopped", { exact: true }).click();
+  await expect(page.locator("#healthConsentLabel")).toBeHidden();
+  await page.getByRole("button", { name: /send my application/i }).click();
+  await expect(page.locator("#applyDone")).toBeVisible();
+  expect(forwarded.at(-1).drinking).toBeUndefined();
+  expect(forwarded.at(-1).amount).toBeUndefined();
+
+  await page.goto("/apply");
+  await page.fill("#f-name", "Dave");
+  await page.fill("#f-contact", "dave@example.com");
+  await page.locator("#applyForm").getByText("The Full Rebuild", { exact: true }).click();
+  await page.locator("#applyForm").getByText("Every night", { exact: true }).click();
+  await expect(page.locator("#healthConsentLabel")).toBeVisible();
+  await expect(page.locator("#f-health-consent")).not.toBeChecked();
+  const before = forwarded.length;
+  await page.getByRole("button", { name: /send my application/i }).click();
+  await expect(page.locator("#applyForm")).toBeVisible();
+  await expect(page.locator("#healthConsentErr")).toBeVisible();
+  await expect(page.locator("#healthConsentErr")).toHaveText("Please tick this box so I can read your answers.");
+  expect(forwarded.length).toBe(before);
+  await page.locator("#f-health-consent").check();
+  await page.getByRole("button", { name: /send my application/i }).click();
+  await expect(page.locator("#applyDone")).toBeVisible();
+  expect(forwarded.at(-1).drinking).toBe("Every night");
+  expect(forwarded.at(-1).healthConsent).toBe("yes");
+  expect(forwarded.at(-1).amount).toBeUndefined();
 });
 
 test("Full Rebuild screen carries drinking answers into the application", async ({ page }) => {
@@ -127,6 +194,12 @@ test("Full Rebuild screen carries drinking answers into the application", async 
   await gate.getByText("Every night", { exact: true }).click();
   await page.locator("#rb-amount").fill("A bottle of wine");
   await gate.getByText(/I've read that/).click();
+  await expect(page.locator("#rebuildRecipient")).toBeVisible();
+  await expect(page.locator("#rb-health-consent")).not.toBeChecked();
+  await page.getByRole("button", { name: /continue to the form/i }).click();
+  await expect(page).toHaveURL(/\/rebuild/);
+  await expect(page.locator("#rbHealthConsentErr")).toBeVisible();
+  await page.locator("#rb-health-consent").check();
   await page.getByRole("button", { name: /continue to the form/i }).click();
   await page.waitForURL(/\/apply\?plan=The(?:\+|%20)Full(?:\+|%20)Rebuild/);
   await expect(page.locator('input[name="plan"][value="The Full Rebuild"]')).toBeChecked();
@@ -134,13 +207,98 @@ test("Full Rebuild screen carries drinking answers into the application", async 
   await expect(page.locator('#applyForm input[value="Every night"]')).toBeChecked();
   await expect(page.locator("#f-amount")).toHaveValue("A bottle of wine");
   await expect(page.locator('#applyForm input[name="gp"]')).toBeChecked();
+  await expect(page.locator("#f-health-consent")).not.toBeChecked();
   await page.fill("#f-name", "Dave");
   await page.fill("#f-contact", "dave@example.com");
+  await page.getByRole("button", { name: /send my application/i }).click();
+  await expect(page.locator("#applyDone")).toBeHidden();
+  await expect(page.locator("#healthConsentErr")).toBeVisible();
+  await expect(page.locator("#healthConsentErr")).toHaveText("Please tick this box so I can read your answers.");
+  await page.locator("#f-health-consent").check();
   await page.getByRole("button", { name: /send my application/i }).click();
   await expect(page.locator("#applyText")).toContainText("Plan: The Full Rebuild");
   await expect(page.locator("#applyText")).toContainText("Drinking: Every night");
   await expect(page.locator("#applyText")).toContainText("A bottle of wine");
   await expect(page.locator("#applyText")).toContainText("GP note");
+});
+
+test("discovery call does not send drinking answers without consent", async ({ page }) => {
+  const posts = [];
+  let direct = 0;
+  await page.route("**/formspree.io/**", (route) => {
+    direct += 1;
+    return route.abort();
+  });
+  await page.route("**/api/apply-forward", async (route) => {
+    posts.push(route.request().postDataJSON());
+    await route.fulfill({ status: 200, contentType: "application/json", body: "{\"ok\":true}" });
+  });
+  await page.goto("/rebuild");
+  await page.locator("#screen").scrollIntoViewIfNeeded();
+  const gate = page.locator("#rebuildGate");
+  await expect(page.locator("#rebuildRecipient")).toContainText("I use it only to get ready for your call and reply.");
+  await expect(page.locator("#rebuildRecipient a")).toHaveAttribute("href", "/privacy");
+  await expect(page.locator("#rbHealthLabel")).toBeHidden();
+  await page.getByRole("button", { name: /book the discovery call/i }).click();
+  await page.waitForURL(/\/book/);
+  expect(posts.at(-1).drinking).toBeUndefined();
+  expect(posts.at(-1).healthConsent).toBeUndefined();
+
+  await page.goto("/rebuild");
+  await page.locator("#screen").scrollIntoViewIfNeeded();
+  await gate.getByText("I've stopped", { exact: true }).click();
+  await expect(page.locator("#rbHealthLabel")).toBeHidden();
+  await page.getByRole("button", { name: /continue to the form/i }).click();
+  await page.waitForURL(/\/apply/);
+  await page.goto("/rebuild");
+  await page.locator("#screen").scrollIntoViewIfNeeded();
+  await gate.getByText("Every night", { exact: true }).click();
+  await page.locator("#rb-amount").fill("A bottle of wine");
+  await gate.getByText(/I've read that/).click();
+  await expect(page.locator("#rbHealthLabel")).toBeVisible();
+  await expect(gate.getByText("to get ready for my discovery call")).toBeVisible();
+  await expect(page.locator("#rb-health-consent")).not.toBeChecked();
+  const before = posts.length;
+  await page.getByRole("button", { name: /book the discovery call/i }).click();
+  await expect(page).toHaveURL(/\/rebuild/);
+  await expect(page.locator("#rbHealthConsentErr")).toBeVisible();
+  await expect(page.locator("#rbHealthConsentErr")).toHaveText("Please tick this box so I can read your answers.");
+  expect(posts.length).toBe(before);
+  await page.locator("#rb-health-consent").check();
+  await page.getByRole("button", { name: /book the discovery call/i }).click();
+  await page.waitForURL(/\/book/);
+  expect(posts.at(-1)).toMatchObject({
+    source: "rebuild",
+    _subject: "Full Rebuild: drinking screen, booking the call",
+    plan: "The Full Rebuild",
+    drinking: "Every night",
+    amount: "A bottle of wine",
+    gp: "yes",
+    healthConsent: "yes",
+  });
+  expect(direct).toBe(0);
+});
+
+test("rebuild shows the consent error when the server refuses", async ({ page }) => {
+  await page.route("**/formspree.io/**", (route) => route.abort());
+  await page.route("**/api/apply-forward", (route) => route.fulfill({
+    status: 422,
+    contentType: "application/json",
+    body: "{\"ok\":false,\"error\":\"consent\"}",
+  }));
+  await page.goto("/rebuild");
+  await page.locator("#screen").scrollIntoViewIfNeeded();
+  const gate = page.locator("#rebuildGate");
+  await expect(gate.getByText("I ask the drinking questions so I can judge whether The Full Rebuild is right for you. If you'd rather tell me on the call, pick that option.")).toBeVisible();
+  await gate.getByText("Every night", { exact: true }).click();
+  await page.locator("#rb-amount").fill("A bottle of wine");
+  await page.locator("#rb-health-consent").check();
+  const book = page.getByRole("button", { name: /book the discovery call/i });
+  await book.click();
+  await expect(page).toHaveURL(/\/rebuild/);
+  await expect(page.locator("#rbHealthConsentErr")).toBeVisible();
+  await expect(page.locator("#rbHealthConsentErr")).toHaveText("Please tick this box so I can read your answers.");
+  await expect(book).toBeEnabled();
 });
 
 test("home: client app tabs switch screens", async ({ page }) => {
@@ -228,8 +386,10 @@ test("cPanel hostname calls the vercel chat and lead paths", async ({ request })
 
 test("guide form posts to lead.php on this origin", async ({ page }) => {
   let posted = "";
+  let body = null;
   await page.route("**/api/lead.php", async (route) => {
     posted = route.request().url();
+    body = route.request().postDataJSON();
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -237,6 +397,8 @@ test("guide form posts to lead.php on this origin", async ({ page }) => {
     });
   });
   await page.goto("/#guide");
+  const box = page.locator('#guide input[name="marketing-consent"]');
+  await expect(box).not.toBeChecked();
   await page.locator("#guide input[name=name]").fill("Test");
   await page.locator("#guide input[name=email]").fill("test@example.com");
   await page.locator("#guide button[type=submit]").click();
@@ -247,6 +409,7 @@ test("guide form posts to lead.php on this origin", async ({ page }) => {
   );
   expect(posted).toMatch(/\/api\/lead\.php$/);
   expect(posted).not.toContain("vercel.app");
+  expect(body["marketing-consent"]).toBe("no");
 });
 
 test("links page keeps the content loop and the campaign", async ({ page }) => {
@@ -305,11 +468,12 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
   expect(linksHtml).toContain("Late joiners finish with the group");
   const linksLive = linksHtml.replace(/<!--[\s\S]*?-->/g, "");
   expect(linksLive).not.toContain("GK689386");
-  expect(linksLive).not.toContain("coach.everfit.io/package");
+  expect(linksLive).toContain("https://coach.everfit.io/package/NW877413");
   await expect(page.locator('a[data-ev="Physique OS click"]')).toHaveAttribute(
     "href",
-    "/start/?utm_source=instagram&utm_medium=bio",
+    /https:\/\/coach\.everfit\.io\/package\/NW877413\?.*utm_source=instagram/,
   );
+  await expect(page.locator('a[data-ev="Physique OS click"]')).toHaveAttribute("rel", "noopener");
   await expect(page.locator('a[data-ev="Physique OS click"]')).toContainText("£29 a month");
   await expect(page.locator('a[data-ev="The 90 click"]')).toHaveAttribute(
     "href",
@@ -366,6 +530,7 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
     src: "links",
     utm_source: "instagram",
     utm_medium: "bio",
+    "marketing-consent": "no",
   });
   expect(text).not.toContain("\u2014");
   expect(text).not.toContain("\u2013");
@@ -417,6 +582,7 @@ test("pricing Head Start uses the live cohort dates", async ({ page }) => {
   const os = page.locator("article.plan", { has: page.getByRole("heading", { name: "Physique OS" }) });
   await expect(os).toContainText("£29");
   await expect(os).toContainText("Run the system yourself.");
+  await expect(os.locator("a.btn")).toHaveAttribute("href", "https://coach.everfit.io/package/NW877413");
   const ninety = page.locator("article.plan", { has: page.getByRole("heading", { name: "The Ninety" }) });
   await expect(ninety).toContainText("£297");
   await expect(ninety).toContainText("90 days with a monthly call and review.");
@@ -427,6 +593,67 @@ test("pricing Head Start uses the live cohort dates", async ({ page }) => {
   expect(text).not.toContain("\u2014");
   expect(text).not.toContain("\u2013");
   expect(text).not.toMatch(/8[- ]weeks?/i);
+});
+
+test("Physique OS trial buttons go to the Everfit checkout", async ({ page }) => {
+  const checkout = "https://coach.everfit.io/package/NW877413";
+  await page.goto("/start");
+  await expect(page.locator("h1")).toContainText(/yourself/i);
+  await expect(page.locator("main")).toContainText("the 4-weekly self-review that keeps progress moving");
+  const trials = page.locator("a.btn-solid", { hasText: /start/i });
+  expect(await trials.count()).toBeGreaterThan(0);
+  const n = await trials.count();
+  for (let i = 0; i < n; i++) await expect(trials.nth(i)).toHaveAttribute("href", checkout);
+  await page.locator("#ptMonthly").click();
+  await expect(page.locator("#ptCta")).toHaveAttribute("href", checkout);
+  await expect(page.locator("#ptPrice")).toHaveText("£29");
+  await page.locator("#ptAnnual").click();
+  await expect(page.locator("#ptCta")).toHaveAttribute("href", checkout);
+  await expect(page.locator("#ptPrice")).toHaveText("£249");
+  await expect(page.locator('nav a[href="/the-ninety/"]')).toHaveCount(1);
+  await expect(page.locator('a[href="/coaching"]')).toHaveCount(1);
+  const programmes = [
+    "Home or Minimal Equipment 3-Day",
+    "Beginner 3-Day Full Body",
+    "Intermediate 4-Day Upper/Lower",
+    "Advanced 5-Day Split",
+    "Fat Loss 3-Day Strength + Conditioning",
+  ];
+  for (const name of programmes) await expect(page.locator("main")).toContainText(name);
+  await expect(page.locator("main")).toContainText("7 days free");
+  await expect(page.locator("main")).toContainText("SAVE £99");
+  await expect(page.locator("main")).not.toContainText("I'll activate the next rung");
+  const quotes = await page.locator("main").innerText();
+  expect(quotes).toContain("Waist went 119cm to 101cm");
+  expect(quotes).toContain("Fed up of feeling heavy on site");
+  expect(quotes).toContain("Never trained properly before");
+  expect(quotes).not.toContain("\u2014");
+  expect(quotes).not.toContain("\u2013");
+});
+
+test("physique-os redirects to the start page", async ({ request }) => {
+  for (const path of ["/physique-os", "/physique-os/"]) {
+    const res = await request.get(path, { maxRedirects: 0 });
+    expect(res.status(), path).toBe(301);
+    expect(res.headers().location).toBe("/start");
+  }
+});
+
+test("os-setup is self-led and does not offer to load the plan", async ({ page }) => {
+  await page.goto("/os-setup");
+  await expect(page.locator("h1")).toContainText("in");
+  const text = await page.locator("body").innerText();
+  await expect(page.locator("body")).toContainText("Set your numbers");
+  await expect(page.locator("body")).toContainText("Where are you starting?");
+  await expect(page.locator("body")).toContainText("Nobody builds a plan from it.");
+  await expect(page.locator("body")).toContainText("Home or Minimal Equipment 3-Day");
+  await expect(page.locator("body")).toContainText("Fat Loss 3-Day Strength + Conditioning");
+  expect(text).not.toContain("I'll have your macros");
+  expect(text).not.toContain("I'm loading your macros");
+  expect(text).not.toContain("Build my setup");
+  expect(text).not.toContain("\u2014");
+  expect(text).not.toContain("\u2013");
+  await expect(page.locator("#setup")).toHaveCount(0);
 });
 
 function noDashes(text) {
@@ -455,7 +682,7 @@ async function watchLead(page) {
 }
 
 test("calculator gate uses the guide lead endpoint", async ({ request }) => {
-  const js = await (await request.get("/assets/js/calc-gate.js?v=1")).text();
+  const js = await (await request.get("/assets/js/calc-gate.js?v=2")).text();
   const rule = "/(^|\\.)callumbcoaching\\.co\\.uk$/";
   expect(js).toContain(rule);
   expect(js).toContain("https://callumb-coaching.vercel.app/api/lead.php");
@@ -542,6 +769,7 @@ test("TDEE keeps the calorie result and gates the breakdown", async ({ page }) =
     src: "tdee-calculator",
     utm_source: "instagram",
     utm_medium: "bio",
+    "marketing-consent": "no",
   });
 
   await page.locator("#goal").selectOption("0.1");
@@ -685,6 +913,7 @@ test("protein keeps the daily target and gates the breakdown", async ({ page }) 
     src: "protein-calculator",
     utm_source: "instagram",
     utm_medium: "bio",
+    "marketing-consent": "no",
   });
   const events = await page.evaluate(() => window.__events);
   expect(events.map((event) => event.name).filter((name) => name.startsWith("Protein"))).toEqual([
@@ -824,7 +1053,11 @@ test("body-fat photo step shows the estimate the endpoint returns", async ({ pag
     contentType: "application/json",
     body: "{}",
   }));
-  await page.route("**/assets.mailerlite.com/**", (route) => route.fulfill({ status: 200, body: "" }));
+  const mailerlite = [];
+  await page.route("**/assets.mailerlite.com/**", (route) => {
+    mailerlite.push(route.request().url());
+    return route.fulfill({ status: 200, body: "" });
+  });
   await page.route("**/api/bf", async (route) => {
     posted.push(route.request().postDataJSON());
     await route.fulfill({
@@ -850,6 +1083,8 @@ test("body-fat photo step shows the estimate the endpoint returns", async ({ pag
     buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64"),
   });
   await expect(page.locator("#bf-file-name")).toBeVisible();
+  await expect(page.locator("#bf-photo-consent")).not.toBeChecked();
+  await page.locator("#bf-photo-consent").check();
   await page.getByRole("button", { name: /Reveal my body-fat/ }).click();
   await expect(page.locator("#bf-gate")).toBeVisible();
   await page.locator("#bf-email").fill("test+preview@callumbcoaching.co.uk");
@@ -864,11 +1099,42 @@ test("body-fat photo step shows the estimate the endpoint returns", async ({ pag
   expect(posted[0].age).toBe(30);
   expect(posted[0].height_cm).toBe(178);
   expect(posted[0].weight_kg).toBe(85);
+  expect(posted[0]["photo-consent"]).toBe("yes");
+  expect(mailerlite).toEqual([]);
   expect(String(posted[0].image)).toMatch(/^data:image\/jpeg;base64,/);
   const text = await page.locator("#bodyfat").innerText();
   expect(text).not.toContain("\u2014");
   expect(text).not.toContain("\u2013");
   expect(text).not.toContain("3 to 4%");
+});
+
+test("body-fat photo waits for the OpenAI box", async ({ page }) => {
+  let calls = 0;
+  await page.route("**/api/bf", async (route) => {
+    calls += 1;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        data: { valid: true, body_fat_percent: 20, range_low: 16, range_high: 24, note: "Rough visual estimate.", method: "photo" },
+      }),
+    });
+  });
+  await page.goto("/tdee-calculator#bodyfat");
+  await page.locator("#bf-file").setInputFiles({
+    name: "progress.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64"),
+  });
+  await expect(page.locator("#bf-file-name")).toBeVisible();
+  await expect(page.locator("#bf-photo-consent")).not.toBeChecked();
+  await expect(page.locator("label.consent", { has: page.locator("#bf-photo-consent") })).toContainText(
+    "I agree to my photo being sent to OpenAI to estimate my body fat. I do not keep it.",
+  );
+  await page.getByRole("button", { name: /Reveal my body-fat/ }).click();
+  await expect(page.locator("#bf-photo-err")).toHaveText("Please tick this box so I can send your photo.");
+  await expect(page.locator("#bf-gate")).toBeHidden();
+  expect(calls).toBe(0);
 });
 
 test("book page has no Stripe checkout", async ({ page, request }) => {
@@ -934,4 +1200,211 @@ test("seasonal motion stops when reduced motion is on", async ({ browser }) => {
   await page.waitForTimeout(400);
   await expect(page.locator(".season-snow")).toHaveCount(0);
   await context.close();
+});
+
+test("a ticked TDEE opt-in is sent and the breakdown still opens", async ({ page }) => {
+  const posted = await watchLead(page);
+  await page.goto("/tdee-calculator");
+  await page.locator("#user-bf").fill("25");
+  await page.getByRole("button", { name: "See the full breakdown" }).click();
+  await page.locator("#tdee-name").fill("Sam");
+  await page.locator("#tdee-email").fill("sam@example.com");
+  await page.locator('#tdee-gate-form input[name="marketing-consent"]').check();
+  await page.getByRole("button", { name: "Show my breakdown" }).click();
+  await expect(page.locator(".calc-gate .calc-detail")).toBeVisible();
+  expect(posted).toHaveLength(1);
+  expect(posted[0].body["marketing-consent"]).toBe("yes");
+});
+
+test("a ticked home guide opt-in is sent and the download still opens", async ({ page }) => {
+  let body = null;
+  await page.route("**/api/lead.php", async (route) => {
+    body = route.request().postDataJSON();
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, download: "/guides/the-five-foundations.pdf" }),
+    });
+  });
+  await page.goto("/#guide");
+  await page.locator("#guide input[name=name]").fill("Test");
+  await page.locator("#guide input[name=email]").fill("test@example.com");
+  await page.locator('#guide input[name="marketing-consent"]').check();
+  await page.locator("#guide button[type=submit]").click();
+  await expect(page.locator("#guide .leadok")).toBeVisible();
+  expect(body["marketing-consent"]).toBe("yes");
+});
+
+async function countMailerlite(page) {
+  const hits = [];
+  await page.route("**/formspree.io/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: "{}",
+  }));
+  await page.route("**/assets.mailerlite.com/**", (route) => {
+    hits.push(route.request().url());
+    return route.fulfill({ status: 200, body: "" });
+  });
+  return hits;
+}
+
+test("body-fat subscribes only when the box is ticked", async ({ page }) => {
+  const hits = await countMailerlite(page);
+  await page.goto("/tdee-calculator#bodyfat");
+  await page.locator('#bf-mode button[data-mode="tape"]').click();
+  await page.locator("#bf-neck").fill("38");
+  await page.locator("#bf-waist").fill("92");
+  await page.getByRole("button", { name: /Reveal my body-fat/ }).click();
+  await page.locator("#bf-email").fill("sam@example.com");
+  await page.locator("#bf-consent").check();
+  await page.getByRole("button", { name: "Unlock my result" }).click();
+  await expect(page.locator("#bf-pct")).not.toHaveText("…");
+  expect(hits.some((url) => url.includes("194528840040580437"))).toBe(true);
+});
+
+test("TRT downloads stay available and MailerLite waits for the box", async ({ page }) => {
+  const hits = await countMailerlite(page);
+  await page.goto("/trt-starter/");
+  await page.locator("#t-name").fill("Sam");
+  await page.locator("#t-email").fill("sam@example.com");
+  await page.getByRole("button", { name: /Send me the framework/ }).click();
+  await expect(page.locator('a[href="/assets/downloads/trt-what-it-involves.pdf"]')).toBeVisible();
+  await expect(page.locator("[data-inbox-copy]")).toBeHidden();
+  expect(hits).toEqual([]);
+
+  await page.reload();
+  await page.locator("#t-name").fill("Sam");
+  await page.locator("#t-email").fill("sam@example.com");
+  await page.locator('form.form input[name="marketing-consent"]').check();
+  await page.getByRole("button", { name: /Send me the framework/ }).click();
+  await expect(page.locator('a[href="/assets/downloads/trt-monitoring-framework.pdf"]')).toBeVisible();
+  await expect(page.locator("[data-inbox-copy]")).toBeVisible();
+  expect(hits.some((url) => url.includes("194528838488687781"))).toBe(true);
+});
+
+test("the GLP-1 guide page downloads without subscribing until the box is ticked", async ({ page }) => {
+  const hits = await countMailerlite(page);
+  await page.goto("/guide/");
+  await page.locator("#name").fill("Sam");
+  await page.locator("#email").fill("sam@example.com");
+  await page.getByRole("button", { name: /Send Me The Guide/ }).click();
+  await expect(page.locator('a[href="5-signs-guide.pdf"]')).toBeVisible();
+  await expect(page.locator("[data-inbox-copy]")).toBeHidden();
+  expect(hits).toEqual([]);
+
+  await page.reload();
+  await page.locator("#name").fill("Sam");
+  await page.locator("#email").fill("sam@example.com");
+  await page.locator('#guide-form input[name="marketing-consent"]').check();
+  await page.getByRole("button", { name: /Send Me The Guide/ }).click();
+  await expect(page.locator('a[href="5-signs-guide.pdf"]')).toBeVisible();
+  await expect(page.locator("[data-inbox-copy]")).toBeVisible();
+  expect(hits.some((url) => url.includes("194528835534849468"))).toBe(true);
+});
+
+test("the GLP-1 nutrition form subscribes only when the box is ticked", async ({ page }) => {
+  const hits = await countMailerlite(page);
+  await page.goto("/glp1-nutrition");
+  await page.locator("#g1-name").fill("Sam");
+  await page.locator("#g1-email").fill("sam@example.com");
+  await page.getByRole("button", { name: /Send Me the Guide/ }).click();
+  await expect(page.locator('a[href="assets/downloads/CallumB-GLP1-5-Signs.pdf"]')).toBeVisible();
+  await expect(page.locator("[data-inbox-copy]")).toBeHidden();
+  expect(hits).toEqual([]);
+
+  await page.reload();
+  await page.locator("#g1-name").fill("Sam");
+  await page.locator("#g1-email").fill("sam@example.com");
+  await page.locator('form.form input[name="marketing-consent"]').check();
+  await page.getByRole("button", { name: /Send Me the Guide/ }).click();
+  await expect(page.locator('a[href="assets/downloads/CallumB-GLP1-5-Signs.pdf"]')).toBeVisible();
+  await expect(page.locator("[data-inbox-copy]")).toBeVisible();
+  expect(hits.length).toBe(1);
+});
+
+test("chat lead form sends the opt-in and still posts the note", async ({ page }) => {
+  const posted = [];
+  await page.route("**/api/chat", async (route) => {
+    if (route.request().method() === "POST") posted.push(route.request().postDataJSON());
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, message: "That's with Callum." }),
+    });
+  });
+  await page.goto("/");
+  const banner = page.getByRole("dialog", { name: "Cookie consent" });
+  if (await banner.isVisible()) {
+    await banner.getByRole("button", { name: "Decline", exact: true }).click();
+  }
+  await page.waitForSelector(".cw-launch", { state: "visible" });
+  await page.locator(".cw-launch").click();
+  await page.locator(".cw-form").evaluate((form) => {
+    form.hidden = false;
+    form.classList.add("is-open");
+  });
+  const box = page.locator('.cw-form input[name="marketing-consent"]');
+  await expect(box).not.toBeChecked();
+  await page.locator('.cw-form input[name="name"]').fill("Sam");
+  await page.locator('.cw-form input[name="email"]').fill("sam@example.com");
+  await page.locator('.cw-form input[name="goal"]').fill("Lose fat");
+  await page.locator(".cw-form button[type=submit]").click();
+  await expect.poll(() => posted.length).toBe(1);
+  expect(posted[0].lead["marketing-consent"]).toBe("no");
+
+  await page.locator(".cw-form").evaluate((form) => {
+    form.hidden = false;
+    form.classList.add("is-open");
+    const consent = form.querySelector("[name=marketing-consent]");
+    consent.checked = true;
+    form.querySelector("[name=name]").value = "Sam";
+    form.querySelector("[name=email]").value = "sam@example.com";
+    form.querySelector("[name=goal]").value = "Lose fat";
+    form.requestSubmit();
+  });
+  await expect.poll(() => posted.length).toBe(2);
+  expect(posted[1].lead["marketing-consent"]).toBe("yes");
+});
+
+test("offset calculator subscribes only when the box is ticked", async ({ page }) => {
+  const hits = await countMailerlite(page);
+  await page.goto("/offset-calculator");
+  await page.locator("#breakfast").fill("5");
+  await expect(page.locator("#mailCard")).toBeVisible();
+  await expect(page.locator("#os-consent")).not.toBeChecked();
+  await page.locator("#osEmail").fill("sam@example.com");
+  await page.getByRole("button", { name: "Send my numbers" }).click();
+  await expect(page.locator("#osNote")).toContainText("stay on this page");
+  await expect(page.locator("#annualCost")).toBeVisible();
+  expect(hits).toEqual([]);
+
+  await page.reload();
+  await page.locator("#breakfast").fill("5");
+  await page.locator("#osEmail").fill("sam@example.com");
+  await page.locator("#os-consent").check();
+  await page.getByRole("button", { name: "Send my numbers" }).click();
+  await expect(page.locator("#osNote")).toContainText("Check your inbox");
+  expect(hits.some((url) => url.includes("194528841373321023"))).toBe(true);
+});
+
+test("framework download subscribes only when the box is ticked", async ({ page }) => {
+  const hits = await countMailerlite(page);
+  await page.goto("/free/framework");
+  await expect(page.locator("#fw-consent")).not.toBeChecked();
+  await page.locator('#gate-form input[name="name"]').fill("Sam");
+  await page.locator('#gate-form input[name="email"]').fill("sam@example.com");
+  await page.getByRole("button", { name: /Send it to me/ }).click();
+  await expect(page.locator('a[href="/assets/downloads/CallumB-Framework-Guide.pdf"]')).toBeVisible();
+  await expect(page.locator("#success [data-inbox-copy]")).toBeHidden();
+  expect(hits).toEqual([]);
+
+  await page.reload();
+  await page.locator('#gate-form input[name="name"]').fill("Sam");
+  await page.locator('#gate-form input[name="email"]').fill("sam@example.com");
+  await page.locator("#fw-consent").check();
+  await page.getByRole("button", { name: /Send it to me/ }).click();
+  await expect(page.locator('a[href="/assets/downloads/CallumB-Framework-Guide.pdf"]')).toBeVisible();
+  await expect(page.locator("#success [data-inbox-copy]")).toBeVisible();
+  expect(hits.some((url) => url.includes("194528842662021026"))).toBe(true);
 });

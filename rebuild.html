@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=GFS+Didot&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="heritage.css?v=f3a91c2e">
-<link rel="stylesheet" href="components.css?v=b03473c0">
+<link rel="stylesheet" href="components.css?v=c8e4b917">
 <style>
   #words .reviews{grid-template-columns:1fr;}
   @media (min-width:800px){
@@ -241,7 +241,9 @@
       <p class="body">If you are drinking heavily, or your blood pressure is high, speak to your GP before you change your drinking, your food or your training. I'm a coach, not a doctor. This is online coaching. It is not medical treatment, and it is not a reason to start, stop or change any medication.</p>
     </div>
     <form class="applyf" id="rebuildGate" novalidate>
+      <p class="body" id="rebuildRecipient" style="margin:0">Sent to me, Callum Broadfoot (CALLUM.B), using Formspree and my website host. I use it only to get ready for your call and reply. <a class="tlink" href="/privacy">Privacy</a>.</p>
       <fieldset class="field"><legend>How often are you drinking right now?</legend>
+        <p class="hint">I ask the drinking questions so I can judge whether The Full Rebuild is right for you. If you'd rather tell me on the call, pick that option.</p>
         <div class="chips">
           <label><input type="radio" name="often" value="Every night"><span>Every night</span></label>
           <label><input type="radio" name="often" value="Most nights"><span>Most nights</span></label>
@@ -252,6 +254,7 @@
       </fieldset>
       <div class="field"><label for="rb-amount">On a drinking day, roughly how much?</label><p class="hint">Honest is better than tidy. Skip it if you've stopped, or if you'd rather say it on the call.</p><textarea id="rb-amount" name="amount" style="min-height:80px"></textarea></div>
       <label class="field" style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" name="gp" value="yes" style="margin-top:4px"><span>I've read that. If I'm drinking heavily, or my blood pressure is high, I'll speak to my GP. I understand this is coaching, not medical care.</span></label>
+      <label class="field" id="rbHealthLabel" hidden style="grid-template-columns:22px 1fr;align-items:start;gap:12px;color:var(--body);font-size:16px;line-height:1.5"><input type="checkbox" id="rb-health-consent" name="healthConsent" value="yes" autocomplete="off" aria-describedby="rbHealthConsentErr" style="margin-top:4px"><span>I agree to Callum Broadfoot (CALLUM.B) using the drinking and health details I give here to get ready for my discovery call. They are sent to him using Formspree and the website host, Vercel. I can withdraw this by emailing the address on the <a class="tlink" href="/privacy">Privacy</a> page.<span class="hint" id="rbHealthConsentErr" role="alert" hidden style="display:block;margin-top:8px">Please tick this box so I can read your answers.</span></span></label>
       <p class="label" id="gateErr" role="status" hidden></p>
       <div class="actions" style="margin-top:0">
         <button class="btn" type="submit" data-go="apply">Continue to the form <span class="arr">→</span></button>
@@ -283,7 +286,7 @@
         <p class="body" style="max-width:34ch">Structured physique development for men who are done guessing.</p>
         <p class="label">J3 University Level 1 Certified Coach</p>
       </div>
-      <div><h4>Coaching</h4><ul><li><a href="/pricing">The four ways in</a></li><li><a href="/rebuild">The Full Rebuild</a></li><li><a href="/coaching">Premium 1:1</a></li><li><a href="/apply">Apply</a></li><li><a href="/the-ninety/">The Ninety</a></li><li><a href="/start/">Physique OS</a></li></ul></div>
+      <div><h4>Coaching</h4><ul><li><a href="/pricing">The four ways in</a></li><li><a href="/rebuild">The Full Rebuild</a></li><li><a href="/coaching">Premium 1:1</a></li><li><a href="/apply">Apply</a></li><li><a href="/the-ninety/">The Ninety</a></li><li><a href="https://coach.everfit.io/package/NW877413">Physique OS</a></li></ul></div>
       <div><h4>Explore</h4><ul><li><a href="/results">Results</a></li><li><a href="/about">About</a></li><li><a href="/tdee-calculator">TDEE calculator</a></li><li><a href="/trt-starter/">TRT framework</a></li><li><a href="/online-personal-trainer-cost">What online PT costs</a></li><li><a href="/online-personal-trainer-stockport">Based in Stockport</a></li></ul></div>
       <div><h4>Connect</h4><ul><li><a href="https://instagram.com/callum.transformation.coach" target="_blank" rel="noopener">Instagram</a></li><li><a href="/links/">All links</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/terms-coaching">Coaching terms</a></li><li><a href="/terms">Site terms</a></li></ul></div>
     </div>
@@ -302,35 +305,80 @@
     err.textContent = msg;
     if (el && el.focus) el.focus();
   };
+  const SOFT = ["I've stopped", "I'd rather say it on the call"];
+  const healthLabel = document.getElementById("rbHealthLabel");
+  const detailFrom = (d) => {
+    const often = (d.get("often") || "").toString();
+    const amount = (d.get("amount") || "").toString().trim();
+    const softBlank = SOFT.indexOf(often) !== -1 && !amount;
+    const drinking = softBlank ? "" : often;
+    const keptAmount = softBlank ? "" : amount;
+    const gp = d.get("gp") === "yes" ? "yes" : "";
+    return { drinking, amount: keptAmount, gp, needs: Boolean(drinking || keptAmount || gp) };
+  };
+  const syncHealth = () => {
+    const needs = detailFrom(new FormData(form)).needs;
+    if (healthLabel) healthLabel.hidden = !needs;
+    const box = form.querySelector("#rb-health-consent");
+    if (!needs && box) {
+      box.checked = false;
+      const consentErr = document.getElementById("rbHealthConsentErr");
+      if (consentErr) consentErr.hidden = true;
+    }
+  };
+  form.addEventListener("change", syncHealth);
+  form.addEventListener("input", syncHealth);
+  form.addEventListener("change", (e) => {
+    if (e.target && e.target.name === "healthConsent" && e.target.checked) {
+      const consentErr = document.getElementById("rbHealthConsentErr");
+      if (consentErr) consentErr.hidden = true;
+    }
+  });
+  const sendUrl = /(^|\.)callumbcoaching\.co\.uk$/.test(location.hostname)
+    ? "https://callumb-coaching.vercel.app/api/apply-forward"
+    : "/api/apply-forward";
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     err.hidden = true;
     const d = new FormData(form);
-    const often = (d.get("often") || "").toString();
-    const amount = (d.get("amount") || "").toString().trim();
-    const gp = d.get("gp") === "yes";
+    const detail = detailFrom(d);
     const go = (e.submitter && e.submitter.dataset.go) || "apply";
-    if (!often) return showErr("Tell me how often you're drinking. Pick one.", form.querySelector('input[name="often"]'));
-    const skipAmount = often === "I've stopped" || often === "I'd rather say it on the call";
-    if (!skipAmount && !amount) return showErr("Tell me roughly how much on a drinking day, or pick that you'd rather say it on the call.", form.querySelector("#rb-amount"));
-    if (!gp) return showErr("Read the note about your GP, then tick the box. I need to know you've seen it.", form.querySelector('input[name="gp"]'));
-    const screen = { often, amount, gp: true, go };
+    const consentErr = document.getElementById("rbHealthConsentErr");
+    const box = form.querySelector("#rb-health-consent");
+    if (detail.needs && d.get("healthConsent") !== "yes") {
+      if (consentErr) consentErr.hidden = false;
+      if (box) box.focus();
+      return;
+    }
+    if (consentErr) consentErr.hidden = true;
+    const screen = { often: detail.drinking, amount: detail.amount, gp: detail.gp === "yes", go };
     try { sessionStorage.setItem(KEY, JSON.stringify(screen)); } catch (errStore) {}
     if (go === "book") {
+      const posted = {
+        source: "rebuild",
+        _subject: "Full Rebuild: drinking screen, booking the call",
+        plan: "The Full Rebuild"
+      };
+      if (detail.drinking) posted.drinking = detail.drinking;
+      if (detail.amount) posted.amount = detail.amount;
+      if (detail.gp) posted.gp = detail.gp;
+      if (detail.needs) posted.healthConsent = "yes";
+      const submitter = e.submitter;
+      if (submitter) submitter.disabled = true;
       try {
-        fetch("https://formspree.io/f/mvzjlroq", {
+        const r = await fetch(sendUrl, {
           method: "POST",
           headers: { "Accept": "application/json", "Content-Type": "application/json" },
-          body: JSON.stringify({
-            _subject: "Full Rebuild: drinking screen, booking the call",
-            plan: "The Full Rebuild",
-            drinking: often,
-            amount: amount || "-",
-            gp: "Read the GP note"
-          }),
-          keepalive: true
-        }).catch(() => {});
+          body: JSON.stringify(posted)
+        });
+        if (r.status === 422) {
+          if (submitter) submitter.disabled = false;
+          if (consentErr) consentErr.hidden = false;
+          if (box) box.focus();
+          return;
+        }
       } catch (errPost) {}
+      if (submitter) submitter.disabled = false;
       location.href = "/book";
       return;
     }

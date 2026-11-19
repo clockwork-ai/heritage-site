@@ -9,6 +9,11 @@ http.createServer((req,res)=>{
     res.end();
     return;
   }
+  if (u === "/physique-os" || u === "/physique-os/") {
+    res.writeHead(301, { Location: "/start" });
+    res.end();
+    return;
+  }
   if (u === "/api/chat" && req.method === "GET") {
     res.writeHead(200, {"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"});
     res.end("{}");

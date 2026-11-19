@@ -1,8 +1,9 @@
 // Photo body-fat estimate for the TDEE page. The page posts { email, image }
 // and reads { data: { valid, body_fat_percent, range_low, range_high, note, confidence } }.
 // The model is the same AI Gateway model as the coaching chat. The photo is
-// not stored. If the photo cannot be read, and age, height, weight and sex
-// are present, the response uses the Deurenberg 1991 formula instead.
+// sent to OpenAI for the estimate and the site does not keep it. If the photo
+// cannot be read, and age, height, weight and sex are present, the response
+// uses the Deurenberg 1991 formula instead.
 
 import { generateObject } from "ai";
 import { z } from "zod";
@@ -35,6 +36,9 @@ type Estimate = (input: {
 
 const DEFAULT_NOTE =
   "Rough visual estimate from the photo, not a measurement. The tape method on this page is the more repeatable check.";
+
+export const PHOTO_CONSENT_LINE =
+  "I agree to my photo being sent to OpenAI to estimate my body fat. I do not keep it.";
 
 function json(request: Request, body: unknown, status = 200): Response {
   return Response.json(body, {
@@ -195,6 +199,15 @@ export async function POST(request: Request, estimate?: Estimate): Promise<Respo
   });
   const image = imageFromDataUrl(data.image);
   const formula = stats ? deurenberg(stats) : null;
+
+  // A photo is only passed on when the visitor ticked the separate photo box.
+  // Marketing consent is a different field and does not count here.
+  const photoConsent = data["photo-consent"] === true || data["photo-consent"] === "yes"
+    || data.photoConsent === true || data.photoConsent === "yes";
+  if (image && !photoConsent) {
+    console.info("bf estimate refused: no photo consent", PHOTO_CONSENT_LINE);
+    return fail(request, "Please tick this box so I can send your photo.", 422);
+  }
 
   if (image) {
     const size = imageSize(image.bytes);

@@ -134,8 +134,9 @@ body.legacy .select{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C9A96E' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;
 }
-body.legacy .consent{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--sage);line-height:1.5;}
-body.legacy .consent input{margin-top:3px;accent-color:var(--gold);width:16px;height:16px;flex:none;}
+body.legacy .consent{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:13.5px;line-height:1.45;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400;}
+body.legacy .consent input{width:16px;height:16px;flex:none;margin:3px 0 0;padding:0;accent-color:var(--gold);}
+body.legacy .consent a{color:var(--gold);text-decoration:underline;text-underline-offset:2px;}
 body.legacy .hp{position:absolute;left:-9999px;}
 body.legacy .btn-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px;}
 

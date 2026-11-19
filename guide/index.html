@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=GFS+Didot&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/heritage.css?v=f3a91c2e">
-<link rel="stylesheet" href="/components.css?v=a9aa471a">
+<link rel="stylesheet" href="/components.css?v=c8e4b917">
 <meta name="theme-color" content="#09150F">
 <style>
   :root{
@@ -62,6 +62,9 @@
   button.cta:hover{filter:brightness(1.08)}
   button.cta:disabled{opacity:.6;cursor:wait}
   .tiny{font-size:12px;color:var(--faint);margin-top:12px;text-align:center}
+  label.consent{display:flex;gap:10px;align-items:flex-start;margin:4px 0 12px;font-size:13.5px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted);line-height:1.45;text-align:left}
+  label.consent input{width:16px;height:16px;flex:none;margin-top:3px;padding:0;accent-color:var(--green)}
+  label.consent a{color:var(--green);text-decoration:underline}
   .success{display:none;text-align:center;padding:26px 10px}
   .success h2{color:var(--green);font-size:22px;margin-bottom:10px}
   .success p{color:var(--muted);font-size:15px;max-width:460px;margin:0 auto}
@@ -152,16 +155,16 @@ form *{min-width:0;} select{min-width:0;}
           <option>Just coming off one</option>
           <option>Not on one, here for the nutrition</option>
         </select></div>
+      <label class="consent"><input type="checkbox" name="marketing-consent" value="yes"><span>Email me Callum's coaching tips. Unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></span></label>
       <button class="cta" id="submit-btn" type="submit">Send Me The Guide →</button>
       <div class="error-msg" id="err">That didn't go through. Try once more, or email <b><!--email_off--><a href="mailto:callum@callumbcoaching.co.uk">callum@callumbcoaching.co.uk</a><!--/email_off--></b> with the word GUIDE and I'll send it myself.</div>
-      <div class="tiny">Unsubscribe any time. Your email goes to me, not a marketing machine.</div>
     </form>
   </div>
   <div class="success" id="success-side">
     <h2>Done. Grab your guide ✓</h2>
     <p style="margin-bottom:18px">Your download's unlocked below. Read the protein section first. It's the one costing most people results.</p>
     <a href="5-signs-guide.pdf" download="CALLUM.B-5-Signs-GLP1-Guide.pdf" style="display:inline-block;background:var(--green);color:#09150F;border-radius:12px;padding:15px 32px;font-family:'Cinzel',Georgia,serif;font-weight:800;font-size:16px;text-decoration:none">Download The Guide (PDF) →</a>
-    <p style="margin-top:16px;font-size:12.5px;color:var(--faint)">A copy will land in your inbox too, so it's always to hand.</p>
+    <p data-inbox-copy hidden style="margin-top:16px;font-size:12.5px;color:var(--faint)">A copy will land in your inbox too, so it's always to hand.</p>
   </div>
 </div>
 
@@ -232,7 +235,11 @@ document.getElementById('guide-form').addEventListener('submit', function(e){
     body: JSON.stringify(payload)
   }).then(function(r){
     if(r.ok){
-      try{fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194528835534849468/subscribe',{method:'POST',body:new URLSearchParams([['fields[email]',payload.email],['fields[name]',payload.name],['ml-submit','1'],['anticsrf','true']])});}catch(_){}
+      var consent = f.querySelector('input[name="marketing-consent"]');
+      var opted = !!(consent && consent.checked);
+      if(opted){try{fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194528835534849468/subscribe',{method:'POST',body:new URLSearchParams([['fields[email]',payload.email],['fields[name]',payload.name],['ml-submit','1'],['anticsrf','true']])});}catch(_){}}
+      var inbox = document.querySelector('#success-side [data-inbox-copy]');
+      if(inbox) inbox.hidden = !opted;
       document.getElementById('form-side').style.display = 'none';
       document.getElementById('success-side').style.display = 'block';
     } else { throw new Error('bad status'); }

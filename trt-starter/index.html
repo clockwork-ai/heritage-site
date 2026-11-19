@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=GFS+Didot&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/heritage.css?v=f3a91c2e">
-<link rel="stylesheet" href="/components.css?v=a9aa471a">
+<link rel="stylesheet" href="/components.css?v=c8e4b917">
 <meta name="theme-color" content="#09150F">
 <style>
     :root{
@@ -85,8 +85,9 @@
     .field .req{color:var(--green);}
     .input{width:100%;background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:14px 16px;color:var(--white);font-family:var(--font-b);font-size:15px;outline:none;transition:border-color .25s;}
     .input:focus{border-color:var(--green);}
-    .consent{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--muted);cursor:pointer;line-height:1.5;}
-    .consent input{width:auto;margin-top:3px;}
+    .consent{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--muted);cursor:pointer;line-height:1.45;text-transform:none;letter-spacing:0;font-weight:400;}
+    .consent input{width:16px;height:16px;flex:none;margin:3px 0 0;padding:0;accent-color:var(--green);}
+    .consent a{color:var(--green);text-decoration:underline;text-underline-offset:2px;}
 
     /* carousel */
     .bts-wrap{position:relative;}
@@ -170,13 +171,14 @@
               <input type="hidden" name="lead-source" value="TRT · Monitoring Framework" />
               <div class="field"><label for="t-name">First name <span class="req">*</span></label><input class="input" id="t-name" name="name" type="text" required placeholder="Your first name" /></div>
               <div class="field"><label for="t-email">Email <span class="req">*</span></label><input class="input" id="t-email" name="email" type="email" required placeholder="you@email.com" /></div>
-              <label class="consent"><input type="checkbox" name="marketing-consent" value="yes" /><span>Email me the framework and occasional coaching tips. I can unsubscribe anytime.</span></label>
+              <label class="consent"><input type="checkbox" name="marketing-consent" value="yes" /><span>Email me Callum's coaching tips. Unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></span></label>
               <button class="btn btn-solid" type="submit" style="width:100%;">Send me the framework <span class="arr">→</span></button>
               <p class="note form-error" hidden style="color:var(--red);">Something went wrong. Please try again.</p>
             </form>
             <div id="trt-success" hidden style="text-align:center;padding:12px 0 4px;">
               <h3 style="margin-bottom:8px;">You're in.</h3>
-              <p class="note" style="margin-bottom:18px;">Both guides are ready, and copies are on their way to your inbox.</p>
+              <p class="note" style="margin-bottom:18px;">Both guides are ready below.</p>
+              <p class="note" data-inbox-copy hidden style="margin-bottom:18px;">Copies are on their way to your inbox.</p>
               <div style="display:grid;gap:10px;">
                 <a class="btn btn-solid" href="/assets/downloads/trt-what-it-involves.pdf" download>What TRT Actually Involves ↓</a>
                 <a class="btn btn-line" href="/assets/downloads/trt-monitoring-framework.pdf" download>Monitoring &amp; Optimisation Framework ↓</a>
@@ -268,8 +270,11 @@
         if(btn){btn.disabled=true;btn.textContent='Sending…';}
         fetch('https://formspree.io/f/'+form.getAttribute('data-formspree'),{method:'POST',headers:{Accept:'application/json'},body:new FormData(form)})
           .then(function(r){if(!r.ok)throw 0;
-            try{var em=(form.querySelector('input[type=email]')||{}).value||'';if(em){fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194528838488687781/subscribe',{method:'POST',body:new URLSearchParams([['fields[email]',em],['ml-submit','1'],['anticsrf','true']])});}}catch(_){}
+            var consent=form.querySelector('input[name="marketing-consent"]');
+            var opted=!!(consent&&consent.checked);
+            if(opted){try{var em=(form.querySelector('input[type=email]')||{}).value||'';if(em){fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194528838488687781/subscribe',{method:'POST',body:new URLSearchParams([['fields[email]',em],['ml-submit','1'],['anticsrf','true']])});}}catch(_){}}
             var ok=document.querySelector(form.getAttribute('data-success'));
+            if(ok){var inbox=ok.querySelector('[data-inbox-copy]');if(inbox)inbox.hidden=!opted;}
             form.hidden=true; if(ok)ok.hidden=false;
           })
           .catch(function(){if(btn){btn.disabled=false;btn.innerHTML=orig;}if(err)err.hidden=false;});

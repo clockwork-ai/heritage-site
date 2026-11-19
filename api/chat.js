@@ -472,6 +472,9 @@ async function postChatbotAlert(input, fetchImpl = fetch) {
 
 // lib/mailerlite.ts
 var SUBSCRIBERS = "https://connect.mailerlite.com/api/subscribers";
+function marketingOptIn(value) {
+  return value === true || value === "yes";
+}
 var noteFieldRejected = false;
 function optionalGroup(name, env = process.env) {
   const value = (env[name] || "").trim();
@@ -547,9 +550,12 @@ function validateLead(input, source, knownPage2) {
   if (name.length < 2) return { ok: false, error: "I need a name." };
   if (!isValidEmail(email)) return { ok: false, error: "I need an email address." };
   if (goal.length < 2) return { ok: false, error: "I need a line about what they want." };
+  const marketingConsent = marketingOptIn(
+    input.marketingConsent !== void 0 ? input.marketingConsent : input["marketing-consent"]
+  );
   return {
     ok: true,
-    lead: { name, email, goal, page: knownPage2, source }
+    lead: { name, email, goal, page: knownPage2, source, marketingConsent }
   };
 }
 function pathname(prefix, lead) {
@@ -595,6 +601,10 @@ async function notify(config, lead) {
   }
 }
 async function subscribeChatbot(lead) {
+  if (!lead.marketingConsent) {
+    console.info("chatbot mailerlite skipped: no marketing consent");
+    return "skipped";
+  }
   const group = optionalGroup("MAILERLITE_GROUP_CHATBOT");
   if (!group) {
     console.info("chatbot mailerlite skipped: MAILERLITE_GROUP_CHATBOT unset");

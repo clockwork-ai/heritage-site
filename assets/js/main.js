@@ -84,10 +84,17 @@
         method: 'POST', headers: { Accept: 'application/json' }, body: new FormData(form)
       }).then(function (r) {
         if (!r.ok) throw new Error('bad');
+        var consentBox = form.querySelector('input[name="marketing-consent"]');
+        var optedIn = !!(consentBox && consentBox.checked);
         var s = document.querySelector(form.getAttribute('data-success'));
         form.hidden = true;
-        if (s) { s.hidden = false; s.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-        try { if (window.mlCapture) window.mlCapture(form); } catch (_) {}
+        if (s) {
+          var inbox = s.querySelector('[data-inbox-copy]');
+          if (inbox) inbox.hidden = !optedIn;
+          s.hidden = false;
+          s.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        try { if (optedIn && window.mlCapture) window.mlCapture(form); } catch (_) {}
       }).catch(function () {
         if (btn) { btn.disabled = false; btn.textContent = origText || 'Try again'; }
         if (err) err.hidden = false;
@@ -131,6 +138,8 @@
   }
   window.mlCapture = function (form) {
     try {
+      var consentBox = form.querySelector('input[name="marketing-consent"]');
+      if (!consentBox || !consentBox.checked) return;
       var emailInput = form.querySelector('input[type=email], input[name=email]');
       var email = emailInput && emailInput.value;
       if (!email) return;

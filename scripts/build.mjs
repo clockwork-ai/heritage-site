@@ -50,6 +50,13 @@ await build({
 
 await build({
   ...bundle,
+  entryPoints: ["server/apply-forward.ts"],
+  outfile: "api/apply-forward.js",
+  banner: { js: "// Built from server/apply-forward.ts. Edit that, then npm run build:chat." },
+});
+
+await build({
+  ...bundle,
   entryPoints: ["server/bf.ts"],
   outfile: "api/bf.js",
   banner: { js: "// Built from server/bf.ts. Edit that, then npm run build:chat." },

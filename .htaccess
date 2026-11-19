@@ -4,6 +4,9 @@ DirectoryIndex index.html
 Options -Indexes +FollowSymLinks
 RewriteEngine On
 
+# Emails can use /physique-os. The page is /start.
+RewriteRule ^physique-os/?$ /start [R=301,L]
+
 # Emails already sent still use this path. Send them to the new guide.
 # The file at the old path is the same PDF, if this rewrite is not applied.
 RewriteRule ^guides/five-numbers\.pdf$ /guides/the-five-foundations.pdf [R=301,L]

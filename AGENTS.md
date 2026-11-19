@@ -55,7 +55,7 @@ The group id is a number. The group name is not in this repo. Do not change the 
 
 The TDEE, protein, offset, and Physique OS calculators must keep returning the same numbers. A wording or layout change is not a reason to change the maths.
 
-The photo body-fat step on `/tdee-calculator` posts to `/api/bf`. `/bf-api.php` rewrites to that function. It uses the same AI Gateway model as the chat (`AI_GATEWAY_MODEL`, or `openai/gpt-4.1-mini`). The photo is not stored. If the photo cannot be read, and age, height, weight and sex are present, the response uses the Deurenberg 1991 formula and says so. That fallback is not the TDEE maths.
+The photo body-fat step on `/tdee-calculator` posts to `/api/bf`. `/bf-api.php` rewrites to that function. It uses the same AI Gateway model as the chat (`AI_GATEWAY_MODEL`, or `openai/gpt-4.1-mini`). The photo is sent to OpenAI for the estimate and the site does not keep it. If the photo cannot be read, and age, height, weight and sex are present, the response uses the Deurenberg 1991 formula and says so. That fallback is not the TDEE maths.
 
 ## Chatbot
 

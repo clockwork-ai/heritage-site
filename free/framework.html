@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=GFS+Didot&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/heritage.css?v=f3a91c2e">
-<link rel="stylesheet" href="/components.css?v=a9aa471a">
+<link rel="stylesheet" href="/components.css?v=c8e4b917">
 <meta name="theme-color" content="#09150F">
 <style>
 :root{--bg:#09150F;--panel:#0C1C14;--panel2:#112418;--line:rgba(201,169,110,.22);--line2:rgba(201,169,110,.42);--ink:#F3EAD6;--body:#CFC8B6;--muted:#7E9184;--green:#C9A96E}
@@ -43,6 +43,9 @@ input{width:100%;background:var(--panel2);border:1px solid var(--line2);border-r
 input:focus{border-color:var(--green)}
 button{width:100%;font-family:"Cinzel";font-weight:700;font-size:15px;border:0;border-radius:11px;padding:15px;cursor:pointer;background:var(--green);color:#09150F}
 .small{font-size:11.5px;color:var(--muted);margin-top:10px;text-align:center}
+label.consent{display:flex;gap:10px;align-items:flex-start;margin:0 0 14px;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--body);line-height:1.45;text-align:left}
+label.consent input{width:16px;height:16px;flex:none;margin:3px 0 0;padding:0;accent-color:var(--green)}
+label.consent a{color:var(--green);text-decoration:underline}
 #success{display:none;text-align:center}
 #success h2{font-family:"Cinzel";font-weight:800;color:#F3EAD6;font-size:22px;margin-bottom:8px}
 .dl{display:inline-block;font-family:"Cinzel";font-weight:700;font-size:15px;background:var(--green);color:#09150F;border-radius:11px;padding:15px 26px;text-decoration:none;margin-top:14px}
@@ -72,14 +75,15 @@ footer a{color:var(--muted)}
   <form id="gate-form">
     <label>First name</label><input name="name" required autocomplete="given-name">
     <label>Email</label><input name="email" type="email" required autocomplete="email">
+    <label class="consent"><input type="checkbox" id="fw-consent" name="marketing-consent" value="yes"><span>Email me Callum's coaching tips. Unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></span></label>
     <button type="submit" id="submit-btn">Send it to me →</button>
     <div id="err">Something went wrong. Try again.</div>
-    <div class="small">No spam. A short email series on training properly comes with it. Unsubscribe any time.</div>
   </form>
 </div>
 <div class="card" id="success">
   <h2>It&rsquo;s yours 🦁</h2>
-  <p>A copy&rsquo;s on its way to your inbox, or grab it right now:</p>
+  <p>Grab it right now:</p>
+  <p data-inbox-copy hidden>A copy&rsquo;s on its way to your inbox too.</p>
   <a class="dl" href="/assets/downloads/CallumB-Framework-Guide.pdf" target="_blank">Download the PDF →</a>
 </div>
 <footer>CALLUM.B &middot; Online Transformation Coach &middot; <a href="https://callumbcoaching.co.uk">callumbcoaching.co.uk</a> &middot; <a href="/pricing">The four ways in</a></footer>
@@ -90,9 +94,12 @@ document.getElementById('gate-form').addEventListener('submit',function(e){
  var btn=document.getElementById('submit-btn'),err=document.getElementById('err');
  btn.disabled=true;btn.textContent='Sending…';err.style.display='none';
  var f=e.target,name=f.name.value,email=f.email.value;
- fetch('https://formspree.io/f/mbdvgwle',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name:name,email:email,_subject:'FREE DOWNLOAD: The CALLUM.B Framework, '+name})})
+ var opted=!!(document.getElementById('fw-consent')&&document.getElementById('fw-consent').checked);
+ fetch('https://formspree.io/f/mbdvgwle',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name:name,email:email,'marketing-consent':opted?'yes':'no',_subject:'FREE DOWNLOAD: The CALLUM.B Framework, '+name})})
  .then(function(r){
-   try{fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194528842662021026/subscribe',{method:'POST',body:new URLSearchParams([['fields[email]',email],['fields[name]',name],['ml-submit','1'],['anticsrf','true']])});}catch(_){}
+   if(opted){try{fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194528842662021026/subscribe',{method:'POST',body:new URLSearchParams([['fields[email]',email],['fields[name]',name],['ml-submit','1'],['anticsrf','true']])});}catch(_){}}
+   var inbox=document.querySelector('#success [data-inbox-copy]');
+   if(inbox) inbox.hidden=!opted;
    document.getElementById('form-side').style.display='none';
    document.getElementById('success').style.display='block';
  }).catch(function(){btn.disabled=false;btn.textContent='Send it to me →';err.style.display='block';});

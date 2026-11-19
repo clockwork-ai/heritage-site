@@ -310,11 +310,12 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
   expect(linksHtml).toContain("Late joiners finish with the group");
   const linksLive = linksHtml.replace(/<!--[\s\S]*?-->/g, "");
   expect(linksLive).not.toContain("GK689386");
-  expect(linksLive).not.toContain("coach.everfit.io/package");
+  expect(linksLive).toContain("https://coach.everfit.io/package/NW877413");
   await expect(page.locator('a[data-ev="Physique OS click"]')).toHaveAttribute(
     "href",
-    "/start/?utm_source=instagram&utm_medium=bio",
+    /https:\/\/coach\.everfit\.io\/package\/NW877413\?.*utm_source=instagram/,
   );
+  await expect(page.locator('a[data-ev="Physique OS click"]')).toHaveAttribute("rel", "noopener");
   await expect(page.locator('a[data-ev="Physique OS click"]')).toContainText("£29 a month");
   await expect(page.locator('a[data-ev="The 90 click"]')).toHaveAttribute(
     "href",
@@ -423,6 +424,7 @@ test("pricing Head Start uses the live cohort dates", async ({ page }) => {
   const os = page.locator("article.plan", { has: page.getByRole("heading", { name: "Physique OS" }) });
   await expect(os).toContainText("£29");
   await expect(os).toContainText("Run the system yourself.");
+  await expect(os.locator("a.btn")).toHaveAttribute("href", "https://coach.everfit.io/package/NW877413");
   const ninety = page.locator("article.plan", { has: page.getByRole("heading", { name: "The Ninety" }) });
   await expect(ninety).toContainText("£297");
   await expect(ninety).toContainText("90 days with a monthly call and review.");
@@ -433,6 +435,67 @@ test("pricing Head Start uses the live cohort dates", async ({ page }) => {
   expect(text).not.toContain("\u2014");
   expect(text).not.toContain("\u2013");
   expect(text).not.toMatch(/8[- ]weeks?/i);
+});
+
+test("Physique OS trial buttons go to the Everfit checkout", async ({ page }) => {
+  const checkout = "https://coach.everfit.io/package/NW877413";
+  await page.goto("/start");
+  await expect(page.locator("h1")).toContainText(/yourself/i);
+  await expect(page.locator("main")).toContainText("the 4-weekly self-review that keeps progress moving");
+  const trials = page.locator("a.btn-solid", { hasText: /start/i });
+  expect(await trials.count()).toBeGreaterThan(0);
+  const n = await trials.count();
+  for (let i = 0; i < n; i++) await expect(trials.nth(i)).toHaveAttribute("href", checkout);
+  await page.locator("#ptMonthly").click();
+  await expect(page.locator("#ptCta")).toHaveAttribute("href", checkout);
+  await expect(page.locator("#ptPrice")).toHaveText("£29");
+  await page.locator("#ptAnnual").click();
+  await expect(page.locator("#ptCta")).toHaveAttribute("href", checkout);
+  await expect(page.locator("#ptPrice")).toHaveText("£249");
+  await expect(page.locator('nav a[href="/the-ninety/"]')).toHaveCount(1);
+  await expect(page.locator('a[href="/coaching"]')).toHaveCount(1);
+  const programmes = [
+    "Home or Minimal Equipment 3-Day",
+    "Beginner 3-Day Full Body",
+    "Intermediate 4-Day Upper/Lower",
+    "Advanced 5-Day Split",
+    "Fat Loss 3-Day Strength + Conditioning",
+  ];
+  for (const name of programmes) await expect(page.locator("main")).toContainText(name);
+  await expect(page.locator("main")).toContainText("7 days free");
+  await expect(page.locator("main")).toContainText("SAVE £99");
+  await expect(page.locator("main")).not.toContainText("I'll activate the next rung");
+  const quotes = await page.locator("main").innerText();
+  expect(quotes).toContain("Waist went 119cm to 101cm");
+  expect(quotes).toContain("Fed up of feeling heavy on site");
+  expect(quotes).toContain("Never trained properly before");
+  expect(quotes).not.toContain("\u2014");
+  expect(quotes).not.toContain("\u2013");
+});
+
+test("physique-os redirects to the start page", async ({ request }) => {
+  for (const path of ["/physique-os", "/physique-os/"]) {
+    const res = await request.get(path, { maxRedirects: 0 });
+    expect(res.status(), path).toBe(301);
+    expect(res.headers().location).toBe("/start");
+  }
+});
+
+test("os-setup is self-led and does not offer to load the plan", async ({ page }) => {
+  await page.goto("/os-setup");
+  await expect(page.locator("h1")).toContainText("in");
+  const text = await page.locator("body").innerText();
+  await expect(page.locator("body")).toContainText("Set your numbers");
+  await expect(page.locator("body")).toContainText("Where are you starting?");
+  await expect(page.locator("body")).toContainText("Nobody builds a plan from it.");
+  await expect(page.locator("body")).toContainText("Home or Minimal Equipment 3-Day");
+  await expect(page.locator("body")).toContainText("Fat Loss 3-Day Strength + Conditioning");
+  expect(text).not.toContain("I'll have your macros");
+  expect(text).not.toContain("I'm loading your macros");
+  expect(text).not.toContain("Build my setup");
+  expect(text).not.toContain("\u2014");
+  expect(text).not.toContain("\u2013");
+  await expect(page.locator("#setup")).toHaveCount(0);
 });
 
 function noDashes(text) {

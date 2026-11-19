@@ -6,7 +6,39 @@
   ],
   "redirects": [
     { "source": "/guides/five-numbers.pdf", "destination": "/guides/the-five-foundations.pdf", "permanent": true },
-
+    { "source": "/about/", "destination": "/about", "permanent": true },
+    { "source": "/apply/", "destination": "/apply", "permanent": true },
+    { "source": "/book/", "destination": "/book", "permanent": true },
+    { "source": "/coaching/", "destination": "/coaching", "permanent": true },
+    { "source": "/free/framework/", "destination": "/free/framework", "permanent": true },
+    { "source": "/glp1-blueprint/", "destination": "/glp1-blueprint", "permanent": true },
+    { "source": "/glp1-nutrition/", "destination": "/glp1-nutrition", "permanent": true },
+    { "source": "/guide/", "destination": "/guide", "permanent": true },
+    { "source": "/is-online-personal-training-worth-it/", "destination": "/is-online-personal-training-worth-it", "permanent": true },
+    { "source": "/muscle/", "destination": "/muscle", "permanent": true },
+    { "source": "/nutrition/", "destination": "/nutrition", "permanent": true },
+    { "source": "/offset-calculator/", "destination": "/offset-calculator", "permanent": true },
+    { "source": "/online-personal-trainer-cost/", "destination": "/online-personal-trainer-cost", "permanent": true },
+    { "source": "/online-personal-trainer-stockport/", "destination": "/online-personal-trainer-stockport", "permanent": true },
+    { "source": "/online-vs-in-person-personal-trainer/", "destination": "/online-vs-in-person-personal-trainer", "permanent": true },
+    { "source": "/os-setup/", "destination": "/os-setup", "permanent": true },
+    { "source": "/pricing/", "destination": "/pricing", "permanent": true },
+    { "source": "/privacy/", "destination": "/privacy", "permanent": true },
+    { "source": "/protein-calculator/", "destination": "/protein-calculator", "permanent": true },
+    { "source": "/rebuild/", "destination": "/rebuild", "permanent": true },
+    { "source": "/results/", "destination": "/results", "permanent": true },
+    { "source": "/start/", "destination": "/start", "permanent": true },
+    { "source": "/physique-os", "destination": "/start", "permanent": true },
+    { "source": "/physique-os/", "destination": "/start", "permanent": true },
+    { "source": "/tdee-calculator/", "destination": "/tdee-calculator", "permanent": true },
+    { "source": "/terms/", "destination": "/terms", "permanent": true },
+    { "source": "/terms-coaching/", "destination": "/terms-coaching", "permanent": true },
+    { "source": "/the-ninety/", "destination": "/the-ninety", "permanent": true },
+    { "source": "/trt-starter/", "destination": "/trt-starter", "permanent": true },
+    { "source": "/links", "destination": "/links/", "permanent": true },
+    { "source": "/magnum-opus", "destination": "/magnum-opus/", "permanent": true },
+    { "source": "/supplements", "destination": "/supplements/", "permanent": true },
+    { "source": "/the-inches-you-keep", "destination": "/the-inches-you-keep/", "permanent": true },
     { "source": "/shop", "destination": "/links", "statusCode": 301 },
     { "source": "/shop/:path*", "destination": "/links", "statusCode": 301 },
     { "source": "/store", "destination": "/links", "statusCode": 301 },
@@ -22,7 +54,6 @@
     { "source": "/products/:path*", "destination": "/links", "statusCode": 301 },
     { "source": "/product-category/:path*", "destination": "/links", "statusCode": 301 },
     { "source": "/product-tag/:path*", "destination": "/links", "statusCode": 301 },
-
     { "source": "/account", "destination": "/links", "statusCode": 301 },
     { "source": "/login", "destination": "/links", "statusCode": 301 },
     { "source": "/register", "destination": "/links", "statusCode": 301 },
@@ -45,7 +76,6 @@
     { "source": "/thanks", "destination": "/links", "statusCode": 301 },
     { "source": "/success", "destination": "/links", "statusCode": 301 },
     { "source": "/order-received", "destination": "/links", "statusCode": 301 },
-
     { "source": "/head-start", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
     { "source": "/headstart", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
     { "source": "/head-start-challenge", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
@@ -54,17 +84,13 @@
     { "source": "/eight-week", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
     { "source": "/eight-week-challenge", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
     { "source": "/challenge", "destination": "https://coach.everfit.io/package/GK689386", "permanent": false },
-
     { "source": "/physique", "destination": "/start", "statusCode": 301 },
-    { "source": "/physique-os", "destination": "/start", "statusCode": 301 },
     { "source": "/physiqueos", "destination": "/start", "statusCode": 301 },
     { "source": "/subscription", "destination": "/start", "statusCode": 301 },
-
     { "source": "/the-90", "destination": "/the-ninety", "statusCode": 301 },
     { "source": "/the90", "destination": "/the-ninety", "statusCode": 301 },
     { "source": "/ninety", "destination": "/the-ninety", "statusCode": 301 },
     { "source": "/90-day", "destination": "/the-ninety", "statusCode": 301 },
-
     { "source": "/1-1", "destination": "/coaching", "statusCode": 301 },
     { "source": "/one-to-one", "destination": "/coaching", "statusCode": 301 },
     { "source": "/online-coaching", "destination": "/coaching", "statusCode": 301 },
@@ -74,32 +100,26 @@
     { "source": "/packages", "destination": "/coaching", "statusCode": 301 },
     { "source": "/services", "destination": "/coaching", "statusCode": 301 },
     { "source": "/service", "destination": "/coaching", "statusCode": 301 },
-
     { "source": "/book-now", "destination": "/apply", "statusCode": 301 },
     { "source": "/contact", "destination": "/apply", "statusCode": 301 },
     { "source": "/contact-us", "destination": "/apply", "statusCode": 301 },
-
     { "source": "/privacy-policy", "destination": "/privacy", "statusCode": 301 },
     { "source": "/terms-of-service", "destination": "/terms", "statusCode": 301 },
     { "source": "/refund", "destination": "/terms", "statusCode": 301 },
     { "source": "/refund-policy", "destination": "/terms", "statusCode": 301 },
-
     { "source": "/testimonials", "destination": "/results", "statusCode": 301 },
     { "source": "/testimonial", "destination": "/results", "statusCode": 301 },
-
     { "source": "/stockport", "destination": "/online-personal-trainer-stockport", "statusCode": 301 },
     { "source": "/manchester", "destination": "/online-personal-trainer-stockport", "statusCode": 301 },
     { "source": "/online-pt", "destination": "/online-personal-trainer-stockport", "statusCode": 301 },
     { "source": "/online-personal-trainer", "destination": "/online-personal-trainer-stockport", "statusCode": 301 },
     { "source": "/personal-trainer-stockport", "destination": "/online-personal-trainer-stockport", "statusCode": 301 },
     { "source": "/pt-stockport", "destination": "/online-personal-trainer-stockport", "statusCode": 301 },
-
     { "source": "/glp1", "destination": "/glp1-blueprint", "statusCode": 301 },
     { "source": "/glp-1", "destination": "/glp1-blueprint", "statusCode": 301 },
     { "source": "/trt", "destination": "/trt-starter", "statusCode": 301 },
     { "source": "/blueprint", "destination": "/nutrition", "statusCode": 301 },
     { "source": "/nutrition-blueprint", "destination": "/nutrition", "statusCode": 301 },
-
     { "source": "/free-guide", "destination": "/guides/the-five-foundations.pdf", "statusCode": 301 },
     { "source": "/free-guide/", "destination": "/guides/the-five-foundations.pdf", "statusCode": 301 },
     { "source": "/free", "destination": "/guides/the-five-foundations.pdf", "statusCode": 301 },
@@ -111,7 +131,6 @@
     { "source": "/guides/", "destination": "/guides/the-five-foundations.pdf", "statusCode": 301 },
     { "source": "/framework", "destination": "/free/framework", "statusCode": 301 },
     { "source": "/the-framework", "destination": "/free/framework", "statusCode": 301 },
-
     { "source": "/home", "destination": "/", "statusCode": 301 },
     { "source": "/home/", "destination": "/", "statusCode": 301 },
     { "source": "/transformation", "destination": "/", "statusCode": 301 },
@@ -134,6 +153,10 @@
     },
     "api/apply.js": {
       "maxDuration": 15
+    },
+    "api/season-html.js": {
+      "maxDuration": 10,
+      "includeFiles": "{*.html,*/index.html,free/framework.html}"
     }
   }
 }

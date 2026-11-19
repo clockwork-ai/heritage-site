@@ -50,6 +50,15 @@ def head(title, desc, path=""):
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=GFS+Didot&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="heritage.css">
 <link rel="stylesheet" href="components.css">
+<!-- Privacy-friendly analytics by Plausible -->
+<script async src="https://plausible.io/js/pa-YpqMGTgErTGeztJgwL1aw.js"></script>
+<script>
+  window.plausible=window.plausible||function(){{(plausible.q=plausible.q||[]).push(arguments)}},plausible.init=plausible.init||function(i){{plausible.o=i||{{}}}};
+  plausible.init()
+</script>
+<script src="/assets/js/consent.js?v=2" defer></script>
+<script src="/seasonal/config.js"></script>
+<script src="/seasonal/boot.js"></script>
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>

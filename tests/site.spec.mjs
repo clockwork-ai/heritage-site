@@ -969,6 +969,10 @@ test("protein target moves smoothly with body fat, no cliff", async ({ page }) =
 });
 
 test("book page offers the Cal.com call", async ({ page }) => {
+  const calRequests = [];
+  page.on("request", (req) => {
+    if (req.url().includes("cal.com")) calRequests.push(req.url());
+  });
   await page.goto("/book");
   await expect(page).toHaveTitle(/Book a free 20-minute call/);
   await expect(page.locator("h1.h2")).toHaveText(/Book a free 20-minute call/);
@@ -982,7 +986,13 @@ test("book page offers the Cal.com call", async ({ page }) => {
   await expect(fallback).toBeVisible();
   await expect(fallback).toHaveAttribute("href", "https://cal.com/callumbcoaching/discovery-call");
   await expect(page.locator("#cal-inline")).toBeAttached();
+  await page.waitForTimeout(400);
+  expect(calRequests.filter((url) => url.includes("embed.js"))).toEqual([]);
+  await page.getByRole("button", { name: "Decline", exact: true }).click();
+  await page.getByRole("button", { name: "Show the calendar" }).click();
   await expect(page.locator("#cal-inline iframe")).toBeAttached({ timeout: 15000 });
+  expect(calRequests.some((url) => url.includes("app.cal.com/embed/embed.js"))).toBe(true);
+  await expect(fallback).toBeVisible();
   const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   expect(over).toBeLessThanOrEqual(1);
 });
@@ -1324,6 +1334,10 @@ test("chat lead form sends the opt-in and still posts the note", async ({ page }
     });
   });
   await page.goto("/");
+  const banner = page.getByRole("dialog", { name: "Cookie consent" });
+  if (await banner.isVisible()) {
+    await banner.getByRole("button", { name: "Decline", exact: true }).click();
+  }
   await page.waitForSelector(".cw-launch", { state: "visible" });
   await page.locator(".cw-launch").click();
   await page.locator(".cw-form").evaluate((form) => {

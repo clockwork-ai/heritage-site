@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Set up your Physique OS | CALLUM.B</title>
-<meta name="description" content="Two minutes of detail and I'll have your macros, your training and your app loaded. For people who have just joined Physique OS.">
-<meta property="og:title" content="Set up your Physique OS | CALLUM.B">
-<meta property="og:description" content="Two minutes of detail and I'll have your macros, your training and your app loaded. For people who have just joined Physique OS.">
+<title>You're in | Physique OS | CALLUM.B</title>
+<meta name="description" content="Physique OS is self-led. Set your own numbers with the Set your numbers guide, and pick one of the five programmes after the Where are you starting form.">
+<meta property="og:title" content="You're in | Physique OS | CALLUM.B">
+<meta property="og:description" content="Physique OS is self-led. Set your own numbers with the Set your numbers guide, and pick one of the five programmes after the Where are you starting form.">
 <meta property="og:image" content="https://callumbcoaching.co.uk/og-image.jpg">
 <!-- Privacy-friendly analytics by Plausible -->
 <script async src="https://plausible.io/js/pa-YpqMGTgErTGeztJgwL1aw.js"></script>
@@ -96,226 +96,45 @@ footer{text-align:center;font-size:11.5px;color:var(--muted);margin-top:26px}
 </head>
 <body><div class="wrap">
 
-<div id="form-side">
-  <div class="eyebrow">Physique OS · Step 2 of 2</div>
-  <h1>You're in. Now let's<br>build <span class="g">your</span> setup.</h1>
-  <p class="lede">Two minutes of detail and I'll have your macros, your training and your app loaded before you've made a brew. Your numbers appear as you type.</p>
+  <div class="eyebrow">Physique OS</div>
+  <h1>You're <span class="g">in.</span></h1>
+  <p class="lede">This is Physique OS. It's self-led. The guides, the training ladder and the recipe books all live in the app.</p>
 
-  <div class="steps">
-    <div class="step done"><b>✓ Payment</b>7-day trial started</div>
-    <div class="step"><b>2 · This form</b>Your numbers &amp; training</div>
-    <div class="step"><b>3 · Me</b>Onboarding link by email</div>
+  <div class="card">
+    <h2>Start here</h2>
+    <p class="lede">Open On-demand, then open Physique OS. Start with Start Here.</p>
+    <p class="lede">If you want a quick look at how the app works, watch this 2-minute tour: <a href="https://www.youtube.com/watch?v=4m0XN5TPUTI" target="_blank" rel="noopener" style="color:var(--green);">how the app works</a>.</p>
   </div>
 
-  <form id="setup">
-    <div class="card">
-      <h2>You</h2>
-      <div class="sub">Use the same email you paid with so I can match you up.</div>
-      <div class="row">
-        <div><label>First name</label><input name="first" id="first" required autocomplete="given-name"></div>
-        <div><label>Last name</label><input name="last" id="last" required autocomplete="family-name"></div>
-      </div>
-      <div class="field"><label>Email</label><input name="email" id="email" type="email" required autocomplete="email"></div>
-      <div class="row">
-        <div><label>Age</label><input name="age" id="age" type="number" min="14" max="90" required inputmode="numeric"></div>
-        <div><label>Sex (for the maths)</label>
-          <div class="seg" id="sex"><button type="button" data-v="male" class="on">Male</button><button type="button" data-v="female">Female</button></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Your numbers</h2>
-      <div class="sub">Rough is fine. We recalibrate from real data in week two.</div>
-      <div class="field"><label>Height</label>
-        <div class="unit"><input id="height" type="number" step="any" min="100" max="230" inputmode="decimal" placeholder="cm" required>
-          <input id="hFt" type="number" step="any" min="3" max="8" inputmode="numeric" placeholder="ft" style="display:none">
-          <input id="hIn" type="number" step="any" min="0" inputmode="decimal" placeholder="in" style="display:none">
-          <div class="unitseg" id="hUnit" data-u="cm"><button type="button" class="on" data-u="cm">cm</button><button type="button" data-u="ft">ft / in</button></div></div>
-      </div>
-      <div class="field"><label>Weight</label>
-        <div class="unit"><input id="weight" type="number" step="any" min="1" inputmode="decimal" placeholder="kg" required>
-          <div class="unitseg" id="wUnit" data-u="kg"><button type="button" class="on" data-u="kg">kg</button><button type="button" data-u="lb">lb</button></div></div>
-      </div>
-      <div class="field"><label>Activity, outside of training too</label>
-        <select id="activity">
-          <option value="1.2">Sedentary: desk job, little exercise</option>
-          <option value="1.375">Light: train 1 to 3 days / week</option>
-          <option value="1.55" selected>Moderate: train 3 to 5 days / week</option>
-          <option value="1.725">Very active: train 6 to 7 days / week</option>
-          <option value="1.9">Athlete: physical job + daily training</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Your goal</h2>
-      <div class="sub">Pick the one that's true for the next 12 weeks.</div>
-      <div id="goal">
-        <label class="opt on" data-v="-0.2"><b>Lose fat</b><span>A controlled deficit: weight comes down, muscle stays.</span></label>
-        <label class="opt" data-v="0"><b>Maintain</b><span>Hold your weight, build the habits, get stronger.</span></label>
-        <label class="opt" data-v="0.1"><b>Build muscle</b><span>A modest surplus: grow without the sloppy gain.</span></label>
-      </div>
-    </div>
-
-    <div class="card" id="macros">
-      <h2>Your starting numbers</h2>
-      <div class="sub">Calculated live. These go straight into your app.</div>
-      <div class="nums">
-        <div class="num"><b id="mCal">…</b><span>kcal</span></div>
-        <div class="num"><b id="mPro">…</b><span>protein</span></div>
-        <div class="num"><b id="mCarb">…</b><span>carbs</span></div>
-        <div class="num"><b id="mFat">…</b><span>fat</span></div>
-      </div>
-      <div class="tdee">Maintenance sits around <b id="mTdee">…</b> kcal. <span id="mGoalTxt"></span></div>
-    </div>
-
-    <div class="card">
-      <h2>Your training</h2>
-      <div class="sub">Honest answer beats ambitious. You can move up any time by asking.</div>
-      <div id="rung">
-        <label class="opt on" data-v="Rung 1: Foundation (3-day full body)"><b>Foundation · 3 days</b><span>Where everyone starts. Full body ×3. It trains everything often, keeps fatigue low.</span></label>
-        <label class="opt" data-v="Rung 2: Upper/Lower (4-day)"><b>Rung 2 · 4 days</b><span>Upper/lower split. For those already training consistently.</span></label>
-        <label class="opt" data-v="Rung 3: 5-day split"><b>Rung 3 · 5 days</b><span>Five days, more volume per muscle. Only if five days is realistic every week.</span></label>
-      </div>
-    </div>
-
-    <label class="chk"><input type="checkbox" id="premium">
-      <span>Let me know when a 1:1 coaching space opens up. No pitch. I'll only mention it if one comes free.</span></label>
-
-    <button class="go" type="submit" id="submit">Build my setup →</button>
-    <div id="err">Something went wrong. Give it another go, or email <!--email_off--><a href="mailto:callum@callumbcoaching.co.uk">callum@callumbcoaching.co.uk</a><!--/email_off--></div>
-    <p class="note">Your details are used to build your plan and nothing else. Not medical advice.</p>
-  </form>
-</div>
-
-<div id="done">
-  <div class="tick">✓</div>
-  <h2>Setup underway 🦁</h2>
-  <p>I've got everything I need. I'm loading your macros and your training into the app now. <b style="color:#F3EAD6">Your onboarding link comes by email</b>, so keep an eye on your inbox. Check your junk folder too, just in case.</p>
-  <div class="card" style="text-align:left">
-    <h2>While you wait</h2>
-    <div class="sub" style="margin-bottom:0">Two things worth doing: get a set of starting photos and a morning weigh-in done, and read The Framework guide when it arrives. Everything else can wait until you're in.</div>
+  <div class="card">
+    <h2>Where are you starting?</h2>
+    <p class="lede">Fill in the short form when you can. A few details so you pick the right starting point. This is for your own record. Nobody builds a plan from it.</p>
+    <p class="lede" style="margin-bottom:0;">If you are unsure which programme to start, pick the easier one. You can move up after you finish the block.</p>
   </div>
-  <p style="font-size:13.5px;color:var(--muted)">Questions before then? Just reply to the email. It's actually me.</p>
-</div>
+
+  <div class="card">
+    <h2>Pick your rung</h2>
+    <p class="lede">Choose one 8-week programme and run it as written. Finish the block, including the lighter week 8, before you move.</p>
+    <p class="lede"><b style="color:var(--ink);">Home or Minimal Equipment 3-Day.</b> If you train at home, start here. Three days a week, with dumbbells, a kettlebell and bodyweight.</p>
+    <p class="lede">If you train in a gym:</p>
+    <p class="lede"><b style="color:var(--ink);">Beginner 3-Day Full Body.</b> New to structured training, or coming back after a long break.</p>
+    <p class="lede"><b style="color:var(--ink);">Intermediate 4-Day Upper/Lower.</b> You already have solid technique and you have been training consistently for at least 6 to 12 months.</p>
+    <p class="lede"><b style="color:var(--ink);">Advanced 5-Day Split.</b> You are experienced, you recover well from five sessions a week, and your barbell lifts are reliable.</p>
+    <p class="lede"><b style="color:var(--ink);">Fat Loss 3-Day Strength + Conditioning.</b> If fat loss is the main goal, and your gym has a sled or prowler and an air bike, use this instead of the level programme for this block. It is a goal choice, not a level above or below Intermediate.</p>
+    <p class="lede" style="margin-bottom:0;">How to progress: keep the load the same until you hit the top of the rep range on every work set with good form. Then add a little load and go back to the bottom of the range. Missed a session? Do the next one. Do not cram two hard days together.</p>
+  </div>
+
+  <div class="card">
+    <h2>Set your numbers</h2>
+    <p class="lede">You set your own numbers. Read Macros explained, then fill in the Set your numbers guide. About ten minutes with a pencil.</p>
+    <p class="lede" style="margin-bottom:0;">Write the result on the Your numbers form so you have a record. It is not reviewed. Keep a copy you can come back to.</p>
+  </div>
+
+  <p class="note">Structure over motivation.</p>
 
 <footer>CALLUM<span style="color:var(--green)">.</span>B · Physique OS · <a href="/pricing">The four ways in</a></footer>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-const $=id=>document.getElementById(id);
-let sex='male', hUnit='cm', wUnit='kg';
-
-$('sex').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-  $('sex').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');sex=b.dataset.v;calc();});
-
-function unitToggle(segId,onChange){
-  const seg=$(segId);
-  seg.addEventListener('click',e=>{
-    const b=e.target.closest('button'); if(!b) return;
-    const to=b.dataset.u, from=seg.dataset.u;
-    if(to===from) return;
-    seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
-    seg.dataset.u=to; onChange(from,to); calc();
-  });
-}
-unitToggle('hUnit',(from,to)=>{
-  const imp = to==='ft'; hUnit = imp ? 'ft' : 'cm';
-  if(imp){
-    const v=parseFloat($('height').value)||0;
-    if(v){const t=v/2.54; $('hFt').value=Math.floor(t/12); $('hIn').value=Math.round(t%12);}
-    $('height').style.display='none'; $('height').required=false;
-    $('hFt').style.display=''; $('hIn').style.display=''; $('hFt').required=true;
-  } else {
-    const t=(parseFloat($('hFt').value)||0)*12 + (parseFloat($('hIn').value)||0);
-    if(t) $('height').value=Math.round(t*2.54);
-    $('hFt').style.display='none'; $('hIn').style.display='none'; $('hFt').required=false;
-    $('height').style.display=''; $('height').required=true;
-  }
-});
-unitToggle('wUnit',(from,to)=>{
-  wUnit=to; const v=parseFloat($('weight').value)||0;
-  if(v) $('weight').value = to==='lb' ? Math.round(v*2.2046*10)/10 : Math.round(v/2.2046*10)/10;
-  $('weight').placeholder = to;
-});
-
-['goal','rung'].forEach(g=>$(g).addEventListener('click',e=>{
-  const o=e.target.closest('.opt');if(!o)return;
-  $(g).querySelectorAll('.opt').forEach(x=>x.classList.remove('on'));o.classList.add('on');calc();
-}));
-const pick=g=>$(g).querySelector('.opt.on')?.dataset.v;
-
-function kg(){const v=parseFloat($('weight').value)||0;return wUnit==='lb'?v/2.2046:v;}
-function cm(){
-  if(hUnit==='ft'){const t=(parseFloat($('hFt').value)||0)*12+(parseFloat($('hIn').value)||0);return t*2.54;}
-  return parseFloat($('height').value)||0;
-}
-
-let M={};
-function calc(){
-  const k=kg(), c=cm(), age=parseFloat($('age').value)||0;
-  if(k<=0||c<=0||age<=0){['mCal','mPro','mCarb','mFat','mTdee'].forEach(i=>$(i).textContent='…');return;}
-  const bmr = 10*k + 6.25*c - 5*age + (sex==='male'?5:-161);
-  const tdee = bmr*parseFloat($('activity').value);
-  const goal = parseFloat(pick('goal'));
-  const target = tdee*(1+goal);
-  const protein = 2.0*k, fat = 0.8*k;
-  const carbs = Math.max(0,(target - protein*4 - fat*9)/4);
-  M={bmr:Math.round(bmr),tdee:Math.round(tdee),target:Math.round(target),
-     protein:Math.round(protein),fat:Math.round(fat),carbs:Math.round(carbs),
-     kg:Math.round(k*10)/10,cm:Math.round(c),age:age,sex:sex,
-     activity:$('activity').options[$('activity').selectedIndex].text,
-     };
-  $('mCal').textContent=M.target;$('mPro').textContent=M.protein+'g';
-  $('mCarb').textContent=M.carbs+'g';$('mFat').textContent=M.fat+'g';
-  $('mTdee').textContent=M.tdee;
-  const g=parseFloat(pick('goal'));
-  $('mGoalTxt').textContent = g<0 ? 'Yours is set 20% below for a controlled deficit.'
-    : g>0 ? 'Yours is set 10% above for a lean surplus.' : 'Yours is set at maintenance.';
-}
-['age','height','hFt','hIn','weight','activity'].forEach(i=>$(i).addEventListener('input',calc));
-$('activity').addEventListener('change',calc);
-
-$('setup').addEventListener('submit',e=>{
-  e.preventDefault();calc();
-  const b=$('submit'), err=$('err');
-  b.disabled=true;b.textContent='Building…';err.style.display='none';
-  const name=$('first').value.trim()+' '+$('last').value.trim();
-  const sheet =
-`=== Everfit SETUP SHEET ===
-NAME:      ${name}
-EMAIL:     ${$('email').value.trim()}
-AGE/SEX:   ${M.age} / ${M.sex}
-HEIGHT:    ${M.cm} cm
-WEIGHT:    ${M.kg} kg
-ACTIVITY:  ${M.activity}
-GOAL:      ${pick('goal')==='-0.2'?'LOSE FAT (−20%)':pick('goal')==='0'?'MAINTAIN':'BUILD MUSCLE (+10%)'}
-
---- MACROS TO ENTER ---
-CALORIES:  ${M.target} kcal   (maintenance ${M.tdee}, BMR ${M.bmr})
-PROTEIN:   ${M.protein} g
-CARBS:     ${M.carbs} g
-FAT:       ${M.fat} g
-
---- TRAINING TO LOAD ---
-${pick('rung')}
-1:1 INTEREST: ${$('premium').checked?'YES: wants to hear when a space opens':'no'}
-========================`;
-  fetch('https://formspree.io/f/mbdvgwle',{method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify({name:name,email:$('email').value.trim(),
-      _subject:'🟢 NEW PHYSIQUE OS MEMBER: '+name+', set up now',
-      setup_sheet:sheet})})
-  .then(r=>{ if(!r.ok) throw 0;
-    try{fetch('https://assets.mailerlite.com/jsonp/2490221/forms/194856127205214074/subscribe',{method:'POST',
-      body:new URLSearchParams([['fields[email]',$('email').value.trim()],['fields[name]',$('first').value.trim()],['ml-submit','1'],['anticsrf','true']])});}catch(_){}
-    $('form-side').style.display='none';$('done').style.display='block';window.scrollTo(0,0);
-  })
-  .catch(()=>{b.disabled=false;b.textContent='Build my setup →';err.style.display='block';});
-});
-calc();
-</script>
 <script>
 addEventListener("load",function(){var n=0;function l(){if(n)return;n=1;var c=document.createElement("link");c.rel="stylesheet";c.href="/chat/widget.css";document.head.appendChild(c);var s=document.createElement("script");s.src="/chat/widget.js";document.body.appendChild(s);}(window.requestIdleCallback?requestIdleCallback(l,{timeout:2200}):setTimeout(l,1400));});
 </script>

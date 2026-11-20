@@ -467,7 +467,7 @@ def tsec(n, title, body, chap):
     return f'''<section class="tsec rv" id="t{n}" data-chap="{chap}"><span class="tsec__n">{n:02d}</span><div class="tsec__b"><h2 class="h-md">{title}</h2>{body}</div></section>
 '''
 
-tm = head("Coaching Terms | CALLUM.B", "The terms for CALLUM.B premium 1:1 coaching: what acceptance means, the standard, the guarantee, the money and your data.", "terms-coaching").replace('<meta name="theme-color"', '<meta name="robots" content="noindex,follow">\n<meta name="theme-color"') + nav("")
+tm = head("Coaching Terms | CALLUM.B", "The terms for CALLUM.B premium 1:1 coaching: what acceptance means, the standard, the guarantee, the money and your data.", "terms-coaching").replace('<meta name="theme-color"', '<meta name="robots" content="index, follow">\n<meta name="theme-color"') + nav("")
 tm += hero("The terms", "Premium 1:1 coaching · terms v3 · October 2026", "The terms,", "in plain English.",
   "This is what you're stepping into. Nothing here is buried, and every number stays visible to you the whole way through.", None, None, ctas=False)
 tm += '<div class="chap g1 terms-wrap"><div class="wrap"><div class="tbar rv"><span class="label">Applies to every 1:1 package</span><button class="tlink" type="button" onclick="window.print()" style="background:none;border:0;cursor:pointer">Print or save as PDF</button></div>'

@@ -141,7 +141,7 @@ def chap_attr(s, label):  # give a reused section a thread label
     return re.sub(r'(<section class="[^"]*")', rf'\1 data-chap="{label}"', s, count=1)
 
 # ------------------------------------------------------------------ ABOUT
-about = head("About Callum, Online Fitness Coach | CALLUM.B", "Callum's story: addiction, stage 2 hypertension, and the structure that rebuilt him. The same structure he now coaches.", "about") + nav("About")
+about = head("About Callum, Online Fitness Coach | CALLUM.B", "Callum's story: addiction and the structure that rebuilt him. The same structure he now coaches.", "about") + nav("About")
 about += hero("The man", "About Callum", "I've got an addictive personality.", "These days it works for me.",
   "For most of my life it worked against me. What changed wasn't willpower. I had plenty of that and it never once saved me. It was structure. That's the whole of what I coach, and I built it because I needed it.",
   "assets/photos/callum-about.webp", "Callum Broadfoot", ctas=False)
@@ -176,9 +176,9 @@ about += '''
       <div class="tl__item low rv"><span class="tl__dot"></span><span class="label">November 2018</span><h3 class="h-sm">Rock bottom</h3><p class="body">Unconscious on my own stairs just before midnight. Close to a litre of vodka most nights, twenty to thirty cigarettes a day.</p></div>
       <div class="tl__item rv"><span class="tl__dot"></span><span class="label">Then</span><h3 class="h-sm">Stopped drinking. A week later, stopped smoking.</h3><p class="body">The two things that were running my life, gone in a fortnight. The hard part was what came after.</p></div>
       <div class="tl__item rv"><span class="tl__dot"></span><span class="label">The plant-based years</span><h3 class="h-sm">Away from the old life, the wrong way</h3><p class="body">It got me out of the old habits, but pushed me towards processed food to hit protein. My health went backwards: weight on, insulin resistance.</p></div>
-      <div class="tl__item low rv"><span class="tl__dot"></span><span class="label">January 2023</span><h3 class="h-sm">Stage 2 hypertension</h3><div class="tl__read">151/105 <small>pulse 114</small></div></div>
-      <div class="tl__item rv"><span class="tl__dot"></span><span class="label">Rebuilt again</span><h3 class="h-sm">Keto, then carnivore, then structure</h3><p class="body">A ketogenic phase stabilised things. Over the following years I got my metabolic health back where it should be.</p></div>
-      <div class="tl__item rv"><span class="tl__dot"></span><span class="label">March 2024</span><h3 class="h-sm">Same monitor. Same arm. No medication.</h3><div class="tl__read">113/69 <small>pulse 75</small></div></div>
+      <div class="tl__item low rv"><span class="tl__dot"></span><span class="label">January 2023</span><h3 class="h-sm">Blood pressure</h3><div class="tl__read">151/105 <small>pulse 114</small></div></div>
+      <div class="tl__item rv"><span class="tl__dot"></span><span class="label">Rebuilt again</span><h3 class="h-sm">Keto, then carnivore, then structure</h3><p class="body">A ketogenic phase stabilised things. Over the following years my numbers improved.</p></div>
+      <div class="tl__item rv"><span class="tl__dot"></span><span class="label">March 2024</span><h3 class="h-sm">Blood pressure 151/105 to 113/69. My own readings, not a promise.</h3><div class="tl__read">113/69 <small>pulse 75</small></div></div>
       <div class="tl__item rv"><span class="tl__dot"></span><span class="label">Today</span><h3 class="h-sm">A balanced, structured diet</h3><p class="body">My body handles carbohydrate properly. And I coach the same structure that got me here.</p></div>
     </div>
   </div>
@@ -233,7 +233,6 @@ about += '''
           <div><span class="n" style="color:var(--cream)" data-count="-38">0</span><span class="label">Systolic</span></div>
           <div><span class="n" style="color:var(--cream)" data-count="-36">0</span><span class="label">Diastolic</span></div>
           <div><span class="n" style="color:var(--cream)" data-count="-39">0</span><span class="label">Resting pulse</span></div>
-          <div><span class="n" style="color:var(--cream)" data-count="0">0</span><span class="label">Medication</span></div>
         </div>
       </div>
       <div class="pair">
@@ -358,7 +357,7 @@ re_ += '''
     <div class="stack" style="max-width:760px">
       <p class="eyebrow rv">Proven on me first</p>
       <h2 class="h-md rv">Before I coached anyone, <span class="it gold-t">I did it myself.</span></h2>
-      <p class="body rv">Stage 2 hypertension to normal, with no medication, in fourteen months. <a class="tlink" href="/about">Read my story</a></p>
+      <p class="body rv">My blood pressure: 151/105 to 113/69 over fourteen months. My own readings, not a promise and not medical advice. If your blood pressure is high, see your GP first. <a class="tlink" href="/about">Read my story</a></p>
     </div>
     <div class="numbers">
       <div class="monitors">

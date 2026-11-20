@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free TDEE, Macro &amp; Body-Fat Calculator | CALLUM.B</title>
-  <meta name="description" content="Free TDEE calculator: add your weight and body fat % and see your daily calories straight away. The macro split, plus a fat-loss and a muscle-gain version, unlock with your name and email." />
+  <title>TDEE Calculator UK | Calories, Macros and Body Fat | CALLUM.B</title>
+  <meta name="description" content="Free TDEE calculator in kg or lb. Work out your maintenance calories, your fat loss and muscle gain targets, and a macro split set from your body fat %, in 30 seconds." />
   <meta name="robots" content="index,follow" />
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -40,8 +40,84 @@
 </script>
 <script src="/assets/js/consent.js?v=2" defer></script>
   <link rel="canonical" href="https://callumbcoaching.co.uk/tdee-calculator" />
-  <meta property="og:title" content="Free TDEE and Macro Calculator | CALLUM.B" />
+  <meta property="og:title" content="TDEE Calculator UK | CALLUM.B" />
   <meta property="og:description" content="See your daily calories straight away. The macro split unlocks with your name and email. Free." />
+  <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "WebApplication",
+ "name": "TDEE Calculator",
+ "url": "https://callumbcoaching.co.uk/tdee-calculator",
+ "applicationCategory": "HealthApplication",
+ "operatingSystem": "Any",
+ "offers": {
+  "@type": "Offer",
+  "price": "0",
+  "priceCurrency": "GBP"
+ },
+ "creator": {
+  "@type": "Person",
+  "name": "Callum Broadfoot",
+  "url": "https://callumbcoaching.co.uk/about"
+ }
+}
+  </script>
+  <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "What is TDEE?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Your total daily energy expenditure: the calories you burn in a day, including training, walking and everything else you do. Eat about that much and your weight holds roughly steady, which is why it is also called your maintenance calories."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How does the calculator work out my TDEE?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "It works out your resting burn (BMR) with the Mifflin-St Jeor formula, from your weight, height, age and sex. Then it multiplies that by your activity level, from 1.2 for a desk job with little exercise up to 1.9 for a physical job plus daily training."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How many calories should I eat to lose fat?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "The fat loss target is 20% under your TDEE. The muscle gain target is 10% over it. Both show in your results, so you can see the difference straight away."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How are my macros set?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Protein first, then fat, then carbs take the rest. Protein is 1.3 g per lb of your reference weight in a fat loss phase and 1.0 g per lb when maintaining or building. Fat starts at 0.4 g per lb. Carbs are held at 1 g per lb or more: if they would fall under that, fat drops first, but not below 0.3 g per lb."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Why does it ask for my body fat %?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Because the macros are set from a reference weight, not just the scale. At 15% body fat or under it uses your full body weight. From 25% up it uses your lean mass. In between, it blends from one to the other. If you do not know your body fat, the photo or tape estimate further down the page gives you a figure to use."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is the number exact?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "No calculator is. It is a good starting estimate. The real number shows in your weekly weigh-ins, and that is where coaching adjusts it from your actual data."
+   }
+  }
+ ]
+}
+  </script>
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://callumbcoaching.co.uk/tdee-calculator" />
   <meta property="og:image" content="https://callumbcoaching.co.uk/og-image.jpg" />
@@ -71,7 +147,7 @@
     <section class="hero" style="padding-bottom:40px;">
       <div class="wrap center">
         <p class="eyebrow" style="justify-content:center;">Free Tool</p>
-        <h1 style="max-width:18ch;margin-inline:auto;">Know your <span class="grad">numbers</span> in 30 seconds.</h1>
+        <h1 style="max-width:20ch;margin-inline:auto;">TDEE Calculator: know your <span class="grad">numbers</span> in 30 seconds.</h1>
         <p class="lead" style="margin:0 auto;">Add your body fat % and see your daily calories straight away. The macro split, a fat-loss and a muscle-gain version, and what to do next come with your name and email. Turning the number into real results is where the structure comes in.</p>
       </div>
     </section>
@@ -347,6 +423,18 @@
         <p class="note center" style="margin-top:28px;max-width:70ch;margin-inline:auto;">
           Estimates only. The tape method is the US Navy formula. A photo read is a rough visual guess, not a scan and not a measurement. If the photo cannot be read, the figure is the Deurenberg formula from 1991, from your age, height, weight and sex. Not a medical measurement or advice. I do not keep the photo. It is sent to OpenAI to make the estimate. See <a class="tlink" href="/privacy">Privacy</a> for how that is handled.
         </p>
+      </div>
+    </section>
+
+    <section class="section" id="how-tdee-works" style="padding-top:0;">
+      <div class="wrap" style="max-width:760px;">
+        <div class="sec-head center">
+          <p class="eyebrow" style="justify-content:center;">How it works</p>
+          <h2>How your TDEE and macros are worked out.</h2>
+          <p class="lead" style="margin:0 auto;">The same maths I use with clients, in plain English.</p>
+        </div>
+        <div class="faq"><details><summary>What is TDEE?<span class="pm"></span></summary><p class="ans">Your total daily energy expenditure: the calories you burn in a day, including training, walking and everything else you do. Eat about that much and your weight holds roughly steady, which is why it is also called your maintenance calories.</p></details><details><summary>How does the calculator work out my TDEE?<span class="pm"></span></summary><p class="ans">It works out your resting burn (BMR) with the Mifflin-St Jeor formula, from your weight, height, age and sex. Then it multiplies that by your activity level, from 1.2 for a desk job with little exercise up to 1.9 for a physical job plus daily training.</p></details><details><summary>How many calories should I eat to lose fat?<span class="pm"></span></summary><p class="ans">The fat loss target is 20% under your TDEE. The muscle gain target is 10% over it. Both show in your results, so you can see the difference straight away.</p></details><details><summary>How are my macros set?<span class="pm"></span></summary><p class="ans">Protein first, then fat, then carbs take the rest. Protein is 1.3 g per lb of your reference weight in a fat loss phase and 1.0 g per lb when maintaining or building. Fat starts at 0.4 g per lb. Carbs are held at 1 g per lb or more: if they would fall under that, fat drops first, but not below 0.3 g per lb.</p></details><details><summary>Why does it ask for my body fat %?<span class="pm"></span></summary><p class="ans">Because the macros are set from a reference weight, not just the scale. At 15% body fat or under it uses your full body weight. From 25% up it uses your lean mass. In between, it blends from one to the other. If you do not know your body fat, the photo or tape estimate further down the page gives you a figure to use.</p></details><details><summary>Is the number exact?<span class="pm"></span></summary><p class="ans">No calculator is. It is a good starting estimate. The real number shows in your weekly weigh-ins, and that is where coaching adjusts it from your actual data.</p></details></div>
+        <p class="note center" style="margin-top:22px;">Just want your protein number? Use the <a class="tlink" href="/protein-calculator">protein calculator</a>.</p>
       </div>
     </section>
 

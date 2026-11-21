@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Body Recomposition Calculator UK | Lose Fat, Build Muscle | CALLUM.B</title>
+  <meta name="description" content="Free body recomposition calculator in kg or lb. Get your maintenance calories, your recomp protein and a macro split set from your body fat %, plus how to run it." />
+  <meta name="robots" content="index,follow" />
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=GFS+Didot&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/heritage.css?v=f3a91c2e">
+<link rel="stylesheet" href="/components.css?v=c8e4b917">
+<meta name="theme-color" content="#09150F">
+<link rel="stylesheet" href="/assets/css/tools.css?v=3">
+<style>
+  .bf-must{background:rgba(201,169,110,.07);border:1px solid rgba(201,169,110,.45);border-radius:12px;padding:16px;}
+  .bf-req{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#09150F;background:var(--gold,#C9A96E);border-radius:6px;padding:2px 7px;vertical-align:middle;}
+  .bf-must .note b{color:var(--ink);}
+  .bf-err{color:var(--red,#e07a6a);margin-top:6px;}
+    #bf-msg{color:#E8806F !important;font-weight:600;margin-top:8px;}
+  .bf-help{margin-top:10px;font-size:13.5px;color:var(--body);}
+  .bf-help summary{cursor:pointer;color:var(--green);font-weight:600;}
+  .bf-help ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;}
+  .bf-help b{color:var(--ink);}
+  .calc-wait{border:1px dashed rgba(201,169,110,.45);border-radius:12px;padding:18px;color:var(--body);}
+  .calc-wait b{color:var(--ink);}
+</style>
+
+<!-- Privacy-friendly analytics by Plausible -->
+<script async src="https://plausible.io/js/pa-YpqMGTgErTGeztJgwL1aw.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
+<script src="/assets/js/consent.js?v=2" defer></script>
+  <link rel="canonical" href="https://callumbcoaching.co.uk/body-recomposition-calculator" />
+  <meta property="og:title" content="Body Recomposition Calculator UK | CALLUM.B" />
+  <meta property="og:description" content="Lose fat and build muscle at maintenance. Your calories and protein free, the full setup with your name and email." />
+  <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "WebApplication",
+ "name": "Body Recomposition Calculator",
+ "url": "https://callumbcoaching.co.uk/body-recomposition-calculator",
+ "applicationCategory": "HealthApplication",
+ "operatingSystem": "Any",
+ "offers": {
+  "@type": "Offer",
+  "price": "0",
+  "priceCurrency": "GBP"
+ },
+ "creator": {
+  "@type": "Person",
+  "name": "Callum Broadfoot",
+  "url": "https://callumbcoaching.co.uk/about"
+ }
+}
+  </script>
+  <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "What is body recomposition?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Losing fat and building muscle at the same time. Because one goes down while the other goes up, the scale barely moves. So you judge a recomp on your waist and your lifts, not your weight."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How many calories should I eat for a recomp?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Maintenance. Not a deficit, not a surplus. The training and the protein drive the change. The calculator gives you a starting estimate. Your true maintenance comes from 2 to 3 weeks of a stable weekly average weight. If your weight drifts more than about 0.5 kg either way, adjust your steps first and your food second."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How much protein do I need for a recomp?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "High: around 2 to 2.2 g per kg. The calculator works that out from a reference weight, the same way as my other calculators. At 15% body fat or under it uses your full weight. From 25% up it uses your lean mass. In between, it blends from one to the other. Keep most of your carbs around your training."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "What training do I need to do?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Double progression: work up the reps in a set range, then add weight and start again at the bottom of the range. If your lifts are not going up, it is not a recomp. It is just maintenance."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How do I know if my recomp is working?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Your weekly average weight stays within about 1 kg. Your waist comes down slowly or holds. Rep PRs keep coming. Take photos every 4 weeks. Keep your steps and cardio fixed at a set level, so they do not hide what is happening."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How long does a recomp take?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Judge it in blocks of 8 to 12 weeks, never week to week. A single week tells you almost nothing when the scale is meant to stay still."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Who is a recomp good for?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Beginners, people coming back after time off, men on TRT, and anyone carrying extra fat with a decent training base. It is slow for a trained lifter who is already lean. If that is you, a fat loss or muscle gain phase from the TDEE calculator will move faster."
+   }
+  }
+ ]
+}
+  </script>
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://callumbcoaching.co.uk/body-recomposition-calculator" />
+  <meta property="og:image" content="https://callumbcoaching.co.uk/og-image.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://callumbcoaching.co.uk/og-image.jpg" />
+<script src="/seasonal/config.js"></script>
+<script src="/seasonal/boot.js"></script>
+</head>
+<body class="legacy">
+<div class="grain" aria-hidden="true"></div>
+
+
+  <header class="nav">
+  <div class="nav__bar">
+    <a class="mark" href="/" aria-label="CALLUM.B home"><img src="/brand_assets/lion-420.webp" alt="">CALLUM<i>.</i>B</a>
+    <nav class="nav__links" aria-label="Main"><a href="/#method">Method</a><a href="/results">Results</a><a href="/about">About</a><a href="/rebuild">Rebuild</a><a href="/coaching">Coaching</a></nav>
+    <div class="nav__end"><a class="btn" href="/nutrition">Get a Plan</a><button class="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button></div>
+  </div>
+</header>
+<div class="mnav" id="mnav" hidden>
+  <div class="mnav__bg" aria-hidden="true"><img src="/brand_assets/lion-crest.png" alt=""></div>
+  <nav aria-label="Menu"><ol class="mnav__list"><li style="--d:0"><a href="/"><span class="mnav__n">01</span><span class="mnav__t">Home</span><span class="mnav__s">The promise</span></a></li><li style="--d:1"><a href="/rebuild"><span class="mnav__n">02</span><span class="mnav__t">Full Rebuild</span><span class="mnav__s">52 weeks, 3 places</span></a></li><li style="--d:2"><a href="/coaching"><span class="mnav__n">03</span><span class="mnav__t">Coaching</span><span class="mnav__s">Plans and what's included</span></a></li><li style="--d:3"><a href="/results"><span class="mnav__n">04</span><span class="mnav__t">Results</span><span class="mnav__s">Client transformations</span></a></li><li style="--d:4"><a href="/about"><span class="mnav__n">05</span><span class="mnav__t">About</span><span class="mnav__s">My story</span></a></li><li style="--d:5"><a href="/terms-coaching"><span class="mnav__n">06</span><span class="mnav__t">Terms</span><span class="mnav__s">In plain English</span></a></li></ol></nav>
+  <div class="mnav__foot"><a class="btn" href="/apply">Apply for 1:1 coaching <span class="arr">→</span></a><p class="label">Structure over motivation</p></div>
+</div>
+
+<main>
+    <section class="hero" style="padding-bottom:40px;">
+      <div class="wrap center">
+        <p class="eyebrow" style="justify-content:center;">Free Tool</p>
+        <h1 style="max-width:20ch;margin-inline:auto;">Body Recomposition Calculator: lose fat and build <span class="grad">muscle</span>.</h1>
+        <p class="lead" style="margin:0 auto;">A recomp runs at maintenance calories with high protein, and lets the training do the work. Add your body fat % and see your calories and protein straight away. The macro split and how to run it come with your name and email.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0;">
+      <div class="wrap">
+        <div class="calc-grid">
+
+          <!-- INPUTS -->
+          <div class="lp-form-card">
+            <div class="field" style="margin-bottom:18px;">
+              <label>Units</label>
+              <div class="seg" id="seg-units">
+                <button type="button" data-unit="metric" class="active">Metric (kg/cm)</button>
+                <button type="button" data-unit="imperial">Imperial (lb/ft)</button>
+              </div>
+            </div>
+
+            <div class="field" style="margin-bottom:18px;">
+              <label>Sex</label>
+              <div class="seg" id="seg-sex">
+                <button type="button" data-sex="male" class="active">Male</button>
+                <button type="button" data-sex="female">Female</button>
+              </div>
+            </div>
+
+            <div class="field-row" style="margin-bottom:18px;">
+              <div class="field">
+                <label for="age">Age</label>
+                <input class="input" id="age" type="number" inputmode="numeric" value="30" min="14" max="100" />
+              </div>
+              <div class="field" id="weight-wrap">
+                <label for="weight">Weight (<span class="u-weight">kg</span>)</label>
+                <input class="input" id="weight" type="number" inputmode="decimal" value="85" min="30" max="350" />
+              </div>
+            </div>
+
+            <div class="field bf-must" id="bf-must" style="margin-bottom:18px;">
+              <label for="user-bf">Body fat % <span class="bf-req">needed for your numbers</span></label>
+              <input class="input" id="user-bf" type="number" inputmode="decimal" placeholder="e.g. 25" min="3" max="60" required aria-describedby="bf-why" />
+              <p class="note" id="bf-why" style="margin-top:8px;"><b>Why I need it:</b> your macros are worked out from it. Two men can both weigh 95kg, but if one is carrying a lot more fat, setting protein off his full weight runs it far too high. At 15% body fat or under, I use your full weight. From 25% up, I use your lean mass. In between, it shifts gradually from one to the other, so there's no sudden jump.</p>
+              <p class="note bf-err" id="bf-msg" hidden></p>
+              <details class="bf-help">
+                <summary>Not sure? How to estimate it</summary>
+                <ul>
+                  <li><b>Smart scale:</b> weigh first thing in the morning, after the toilet and before food or drink. It is a rough read, so treat it as a guide.</li>
+                  <li><b>Tape measure:</b> use the <a href="/tdee-calculator#bodyfat" style="color:var(--green);text-decoration:underline;">tape method on the TDEE calculator</a>. Neck and waist, about two minutes.</li>
+                  <li><b>Mirror check (men, rough guide):</b> abs clearly showing, roughly 10 to 14%. Flat stomach with a faint ab outline in good light, roughly 15 to 19%. Soft stomach with no outline, roughly 20 to 25%. Stomach over the belt, 25% and up.</li>
+                  <li><b>Women:</b> add roughly 8 to 10 points to those mirror ranges.</li>
+                  <li>Stuck between two? Pick the higher one. Guessing low pushes your numbers up.</li>
+                </ul>
+              </details>
+            </div>
+
+            <!-- height: metric -->
+            <div class="field" id="height-metric" style="margin-bottom:18px;">
+              <label for="height-cm">Height (cm)</label>
+              <input class="input" id="height-cm" type="number" inputmode="numeric" value="178" min="120" max="230" />
+            </div>
+            <!-- height: imperial -->
+            <div class="field" id="height-imperial" style="margin-bottom:18px;" hidden>
+              <label>Height (ft / in)</label>
+              <div class="field-row">
+                <input class="input" id="height-ft" type="number" inputmode="numeric" value="5" min="4" max="7" placeholder="ft" />
+                <input class="input" id="height-in" type="number" inputmode="numeric" value="10" min="0" max="11" placeholder="in" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="activity">Activity level</label>
+              <select class="select" id="activity">
+                <option value="1.2">Sedentary: desk job, little exercise</option>
+                <option value="1.375">Light: train 1 to 3 days / week</option>
+                <option value="1.55" selected>Moderate: train 3 to 5 days / week</option>
+                <option value="1.725">Very active: train 6 to 7 days / week</option>
+                <option value="1.9">Athlete: physical job + daily training</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- RESULTS -->
+          <div class="calc-result">
+            <div class="calc-wait" id="rc-wait">
+              <p class="tagline" style="color:var(--green);margin-top:0;">Your recomp numbers</p>
+              <p style="margin:0;"><b>Add your body fat % to see your numbers.</b> Your protein is set from it, so I don't show anything without it. Not sure what yours is? Open "How to estimate it" under the box.</p>
+            </div>
+            <div id="rc-out" hidden>
+            <p class="tagline" style="color:var(--green);">Your recomp calories (maintenance)</p>
+            <div class="calc-big"><span id="rc-cals">…</span> <span style="font-size:20px;color:var(--body);">kcal/day</span></div>
+            <p class="calc-sub">A starting estimate. BMR: <span id="rc-bmr">…</span> kcal</p>
+            <p class="calc-sub">Protein: <b id="rc-protein" style="color:var(--ink);">…</b> g a day</p>
+
+            <div class="calc-gate" data-event="Recomp">
+              <p class="calc-gate__lead">The calories and protein above are free. Leave your first name and email for the macro split, how to find your true maintenance, and what to track week to week.</p>
+              <div class="calc-gate__locked">
+                <button class="btn" type="button" data-calc-open aria-expanded="false" aria-controls="rc-gate-form">See the full setup</button>
+              </div>
+              <form class="leadf" id="rc-gate-form" data-src="recomp-calculator" novalidate hidden>
+                <div class="leadf__row">
+                  <label class="sr" for="rc-name">First name</label>
+                  <input id="rc-name" name="name" type="text" autocomplete="given-name" placeholder="First name" required>
+                  <label class="sr" for="rc-email">Email</label>
+                  <input id="rc-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="Your email" required>
+                  <input class="hp" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+                </div>
+                <label class="consent">
+                  <input type="checkbox" name="marketing-consent" value="yes">
+                  <span>Email me Callum's coaching tips. Unsubscribe any time. <a class="tlink" href="/privacy">Privacy</a></span>
+                </label>
+                <p class="label leadf__msg" role="status" aria-live="polite">Free. The setup stays on this device.</p>
+                <div class="calc-gate__actions">
+                  <button class="btn" type="submit">Show my setup</button>
+                  <button class="calc-gate__close" type="button" data-calc-close>Not now</button>
+                </div>
+              </form>
+              <div class="calc-detail" hidden>
+                <h3>Macro split at maintenance</h3>
+                <div class="macro-grid">
+                  <div class="macro"><div class="g"><span id="m-protein">…</span>g</div><div class="l">Protein</div></div>
+                  <div class="macro"><div class="g"><span id="m-carbs">…</span>g</div><div class="l">Carbs</div></div>
+                  <div class="macro"><div class="g"><span id="m-fat">…</span>g</div><div class="l">Fat</div></div>
+                </div>
+                <p class="note" id="m-basis"></p>
+                <p class="note">Protein at the top of the 2 to 2.2 g per kg range. Fat and carbs are set the same way as the maintenance split on the TDEE calculator. Keep most of your carbs around your training.</p>
+                <h3>How to run it</h3>
+                <ol class="calc-steps">
+                  <li><b>Find your true maintenance.</b> Eat the calories above for 2 to 3 weeks and watch your weekly average weight. If it drifts more than about 0.5 kg either way, adjust steps first, then food.</li>
+                  <li><b>Train with double progression.</b> If the lifts are not going up, it isn't a recomp. It's just maintenance.</li>
+                  <li><b>Fix your steps and cardio</b> at a set level, so they don't hide what's happening.</li>
+                  <li><b>Track the right things.</b> Weekly average weight within about 1 kg. Waist coming down slowly or holding. Rep PRs. Photos every 4 weeks.</li>
+                  <li><b>Judge it in blocks of 8 to 12 weeks,</b> never week to week.</li>
+                </ol>
+                <a class="btn calc-guide" href="/guides/the-five-foundations.pdf" target="_blank" rel="noopener">Open the Five Foundations guide</a>
+                <p class="note">You won't see this form again on this device.</p>
+              </div>
+            </div>
+            </div>
+
+            <div class="callout" style="margin:22px 0;">
+              A recomp is slow and the scale won't tell you if it's working. Having someone read your waist, lifts and photos with you is exactly what coaching is for.
+            </div>
+
+            <div style="display:grid;gap:10px;">
+              <a class="btn btn-pri btn-lg" href="/nutrition">Get this built around me →</a>
+              <a class="btn btn-ghost" href="/coaching">See 1:1 online coaching</a>
+            </div>
+          </div>
+
+        </div>
+
+        <p class="note center" style="margin-top:28px;max-width:70ch;margin-inline:auto;">
+          Calculated with the Mifflin-St Jeor equation. Estimates only and not medical or dietary
+          advice. Individual needs vary. If you have a health condition, are pregnant, or are unsure,
+          check with your GP before changing your diet.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="how-recomp-works" style="padding-top:0;">
+      <div class="wrap" style="max-width:760px;">
+        <div class="sec-head center">
+          <p class="eyebrow" style="justify-content:center;">How it works</p>
+          <h2>How I coach a recomp.</h2>
+          <p class="lead" style="margin:0 auto;">Maintenance calories, high protein, and training that keeps progressing. Here is the whole method in plain English.</p>
+        </div>
+        <div class="faq"><details><summary>What is body recomposition?<span class="pm"></span></summary><p class="ans">Losing fat and building muscle at the same time. Because one goes down while the other goes up, the scale barely moves. So you judge a recomp on your waist and your lifts, not your weight.</p></details><details><summary>How many calories should I eat for a recomp?<span class="pm"></span></summary><p class="ans">Maintenance. Not a deficit, not a surplus. The training and the protein drive the change. The calculator gives you a starting estimate. Your true maintenance comes from 2 to 3 weeks of a stable weekly average weight. If your weight drifts more than about 0.5 kg either way, adjust your steps first and your food second.</p></details><details><summary>How much protein do I need for a recomp?<span class="pm"></span></summary><p class="ans">High: around 2 to 2.2 g per kg. The calculator works that out from a reference weight, the same way as my other calculators. At 15% body fat or under it uses your full weight. From 25% up it uses your lean mass. In between, it blends from one to the other. Keep most of your carbs around your training.</p></details><details><summary>What training do I need to do?<span class="pm"></span></summary><p class="ans">Double progression: work up the reps in a set range, then add weight and start again at the bottom of the range. If your lifts are not going up, it is not a recomp. It is just maintenance.</p></details><details><summary>How do I know if my recomp is working?<span class="pm"></span></summary><p class="ans">Your weekly average weight stays within about 1 kg. Your waist comes down slowly or holds. Rep PRs keep coming. Take photos every 4 weeks. Keep your steps and cardio fixed at a set level, so they do not hide what is happening.</p></details><details><summary>How long does a recomp take?<span class="pm"></span></summary><p class="ans">Judge it in blocks of 8 to 12 weeks, never week to week. A single week tells you almost nothing when the scale is meant to stay still.</p></details><details><summary>Who is a recomp good for?<span class="pm"></span></summary><p class="ans">Beginners, people coming back after time off, men on TRT, and anyone carrying extra fat with a decent training base. It is slow for a trained lifter who is already lean. If that is you, a fat loss or muscle gain phase from the <a class="tlink" href="/tdee-calculator">TDEE calculator</a> will move faster.</p></details></div>
+        <p class="note center" style="margin-top:22px;">Want a fat loss or muscle gain target instead? Use the <a class="tlink" href="/tdee-calculator">TDEE calculator</a>. Just want your protein number? Use the <a class="tlink" href="/protein-calculator">protein calculator</a>.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+  <div class="wrap">
+    <div class="foot__grid">
+      <div class="stack">
+        <a class="mark" href="/"><img src="/brand_assets/lion-420.webp" alt="">CALLUM<i>.</i>B</a>
+        <p class="body" style="max-width:34ch">Structured physique development for men who are done guessing.</p>
+        <p class="label">J3 University Level 1 Certified Coach</p>
+      </div>
+      <div><h4>Coaching</h4><ul><li><a href="/pricing">The four ways in</a></li><li><a href="/rebuild">The Full Rebuild</a></li><li><a href="/coaching">Premium 1:1</a></li><li><a href="/apply">Apply</a></li><li><a href="/the-ninety/">The Ninety</a></li><li><a href="https://coach.everfit.io/package/NW877413">Physique OS</a></li></ul></div>
+      <div><h4>Explore</h4><ul><li><a href="/results">Results</a></li><li><a href="/about">About</a></li><li><a href="/tdee-calculator">TDEE calculator</a></li><li><a href="/trt-starter/">TRT framework</a></li><li><a href="/online-personal-trainer-cost">What online PT costs</a></li><li><a href="/online-personal-trainer-stockport">Based in Stockport</a></li></ul></div>
+      <div><h4>Connect</h4><ul><li><a href="https://instagram.com/callum.transformation.coach" target="_blank" rel="noopener">Instagram</a></li><li><a href="/links/">All links</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/terms-coaching">Coaching terms</a></li><li><a href="/terms">Site terms</a></li></ul></div>
+    </div>
+    <div class="foot__base"><span class="label">© <span id="year">2026</span> CALLUM.B · Online Transformation Coach · United Kingdom</span><span class="label it" style="font-family:var(--didot);text-transform:none;letter-spacing:0;font-size:15px;color:var(--gold)">Structure over motivation.</span></div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js?v=6"></script>
+  <script>
+    (function () {
+      var unit = 'metric', sex = 'male';
+      var $ = function (id) { return document.getElementById(id); };
+
+      function bind(segId, setter) {
+        document.querySelectorAll('#' + segId + ' button').forEach(function (b) {
+          b.addEventListener('click', function () {
+            document.querySelectorAll('#' + segId + ' button').forEach(function (x) { x.classList.remove('active'); });
+            b.classList.add('active');
+            setter(b);
+            calc();
+          });
+        });
+      }
+      bind('seg-units', function (b) {
+        unit = b.getAttribute('data-unit');
+        var metric = unit === 'metric';
+        $('height-metric').hidden = !metric;
+        $('height-imperial').hidden = metric;
+        document.querySelector('.u-weight').textContent = metric ? 'kg' : 'lb';
+        var w = parseFloat($('weight').value) || 0;
+        $('weight').value = metric ? Math.round(w / 2.2046) : Math.round(w * 2.2046);
+      });
+      bind('seg-sex', function (b) { sex = b.getAttribute('data-sex'); });
+
+      function getKg() {
+        var w = parseFloat($('weight').value) || 0;
+        return unit === 'metric' ? w : w / 2.2046;
+      }
+      function getCm() {
+        if (unit === 'metric') return parseFloat($('height-cm').value) || 0;
+        var ft = parseFloat($('height-ft').value) || 0;
+        var inch = parseFloat($('height-in').value) || 0;
+        return (ft * 12 + inch) * 2.54;
+      }
+      var r10 = function (n) { return Math.round(n / 10) * 10; };
+
+      function calc() {
+        var kg = getKg(), cm = getCm(), age = parseFloat($('age').value) || 0;
+        if (kg <= 0 || cm <= 0 || age <= 0) return;
+        // Maintenance: same Mifflin-St Jeor TDEE as /tdee-calculator. A recomp runs at maintenance.
+        var bmr = 10 * kg + 6.25 * cm - 5 * age + (sex === 'male' ? 5 : -161);
+        var tdee = bmr * parseFloat($('activity').value);
+
+        var lb = kg * 2.2046;
+        var bf = parseFloat($('user-bf').value);
+        var bfOk = bf >= 3 && bf <= 60;
+        $('rc-out').hidden = !bfOk;
+        $('rc-wait').hidden = bfOk;
+        var raw = $('user-bf').value.trim();
+        $('bf-msg').hidden = bfOk || !raw;
+        $('bf-msg').textContent = (!bfOk && raw) ? 'Check that number. It needs to be between 3 and 60.' : '';
+        if (!bfOk) return;
+        // Reference weight, same rule as /tdee-calculator and /protein-calculator.
+        var mode = bf <= 15 ? 'bw' : (bf >= 25 ? 'lean' : 'blend');
+        var t = mode === 'bw' ? 0 : (mode === 'lean' ? 1 : (bf - 15) / 10);
+        var leanLb = lb * (1 - bf / 100);
+        var ref = lb * (1 - t) + leanLb * t;          // reference weight in lb
+        var refKg = ref / 2.2046;
+        // Callum's recomp protein: 2 to 2.2 g per kg (21 Nov 2026). The split uses the top of the range.
+        var pLo = 2.0 * refKg, pHi = 2.2 * refKg;
+        var protein = pHi;
+        // Fat and carbs: same rules as the maintenance split on /tdee-calculator.
+        var carbFloor = 1.0 * ref;
+        var fat = 0.4 * ref;
+        var carbs = (tdee - protein * 4 - fat * 9) / 4;
+        if (carbs < carbFloor) {
+          fat = Math.max(0.3 * ref, (tdee - protein * 4 - carbFloor * 4) / 9);
+          carbs = (tdee - protein * 4 - fat * 9) / 4;
+        }
+        carbs = Math.max(0, carbs);
+        var perKg = function (g) { return (g / refKg).toFixed(1); };
+
+        $('rc-bmr').textContent = r10(bmr);
+        $('rc-cals').textContent = r10(tdee);
+        $('rc-protein').textContent = Math.round(pLo) + ' to ' + Math.round(pHi);
+        $('m-protein').textContent = Math.round(protein);
+        $('m-carbs').textContent = Math.round(carbs);
+        $('m-fat').textContent = Math.round(fat);
+        var refKgTxt = Math.round(refKg), leanKgTxt = Math.round(leanLb / 2.2046);
+        var basis = mode === 'lean' ? 'lean mass' : (mode === 'bw' ? 'body weight' : 'reference weight');
+        $('m-basis').textContent = 'Per kg of ' + basis + ': protein ' + perKg(protein) + 'g, carbs ' + perKg(carbs) + 'g, fat ' + perKg(fat) + 'g.' +
+          (mode === 'lean' ? ' Worked off your lean mass (' + refKgTxt + ' kg), as your body fat is 25% or over.'
+            : mode === 'bw' ? ' Worked off your full body weight, as your body fat is 15% or under.'
+            : ' Adjusted for your body fat: worked off a reference weight of ' + refKgTxt + ' kg, between your full weight and your lean mass (' + leanKgTxt + ' kg).');
+      }
+
+      ['age', 'weight', 'height-cm', 'height-ft', 'height-in', 'activity', 'user-bf'].forEach(function (id) {
+        var el = $(id); if (el) el.addEventListener('input', calc);
+      });
+      calc();
+    })();
+  </script>
+<script src="/assets/js/calc-gate.js?v=2"></script>
+<script src="/heritage.js?v=cf7edf40"></script>
+<script>
+addEventListener("load",function(){var n=0;function l(){if(n)return;n=1;var c=document.createElement("link");c.rel="stylesheet";c.href="/chat/widget.css";document.head.appendChild(c);var s=document.createElement("script");s.src="/chat/widget.js";document.body.appendChild(s);}(window.requestIdleCallback?requestIdleCallback(l,{timeout:2200}):setTimeout(l,1400));});
+</script>
+</body>
+</html>

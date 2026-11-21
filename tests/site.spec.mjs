@@ -8,6 +8,7 @@ const pages = [
   { path: "/apply", title: /Apply/, h1: /where you're at/i },
   { path: "/rebuild", title: /The Full Rebuild/, h1: /drank every night/i },
   { path: "/terms-coaching", title: /Terms/, h1: /The terms/i },
+  { path: "/body-recomposition-calculator", title: /Body Recomposition Calculator/, h1: /lose fat and build/i },
 ];
 
 // scroll to the bottom in steps so scroll-triggered reveals and lazy images run
@@ -701,6 +702,39 @@ test("TDEE coaching button opens 1:1 coaching", async ({ page }) => {
   await expect(page.locator("h1")).toContainText("Your numbers checked in on");
   await expect(page.getByText("Premium 1:1 coaching", { exact: false }).first()).toBeVisible();
   await expect(page.locator("main")).not.toContainText(/in-person/i);
+});
+
+test("recomp calculator runs at maintenance with 2 to 2.2 g/kg protein", async ({ page }) => {
+  const posted = await watchLead(page);
+  await page.goto("/body-recomposition-calculator");
+  await expect(page.locator("#rc-wait")).toBeVisible();
+  await expect(page.locator("#rc-cals")).toBeHidden();
+  await page.locator("#user-bf").fill("70");
+  await expect(page.locator("#bf-msg")).toContainText("between 3 and 60");
+  await page.locator("#user-bf").fill("25");
+  await expect(page.locator("#rc-wait")).toBeHidden();
+  // Same maintenance as /tdee-calculator for the same inputs.
+  await expect(page.locator("#rc-cals")).toHaveText("2820");
+  await expect(page.locator("#rc-bmr")).toHaveText("1820");
+  await expect(page.locator("#rc-protein")).toHaveText("128 to 140");
+  await expect(page.locator(".calc-gate .calc-detail")).toBeHidden();
+  await page.getByRole("button", { name: "See the full setup" }).click();
+  await page.locator("#rc-name").fill("Sam");
+  await page.locator("#rc-email").fill("sam@example.com");
+  await page.getByRole("button", { name: "Show my setup" }).click();
+  await expect(page.locator(".calc-gate .calc-detail")).toBeVisible();
+  await expect(page.locator("#m-protein")).toHaveText("140");
+  await expect(page.locator("#m-carbs")).toHaveText("438");
+  await expect(page.locator("#m-fat")).toHaveText("56");
+  await expect(page.locator("#m-basis")).toContainText("lean mass (64 kg)");
+  expect(posted).toHaveLength(1);
+  expect(posted[0].body.src).toBe("recomp-calculator");
+  await page.locator("#user-bf").fill("10");
+  await expect(page.locator("#rc-protein")).toHaveText("170 to 187");
+  const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
+  expect(ld.some((t) => JSON.parse(t)["@type"] === "FAQPage")).toBe(true);
+  await page.goto("/tdee-calculator");
+  await expect(page.locator('#how-tdee-works a[href="/body-recomposition-calculator"]')).toHaveCount(1);
 });
 
 test("TDEE keeps the calorie result and gates the breakdown", async ({ page }) => {

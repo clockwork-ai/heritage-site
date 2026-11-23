@@ -36,7 +36,7 @@ Four pillars, every week. Nutrition: full macros, weekdays and weekends, treats 
 
 Structure Driven Results (SDR). One weekly score, 0 to 100%, averaged across the four pillars. It scores what he controls, not the scale. An example on the page (nutrition 6 of 7 days, training 3 of 3, steps 5 of 7, check-in on time) is an illustration of the score, not a client. Do not quote the 89% example as someone's result.
 
-The 8-Week Progress Guarantee, on the 12-week, 6-month and 12-month plans. It is not published for The Full Rebuild. Hold 80% or more on the weekly SDR score for the first eight weeks. If nothing has improved, the next month is on Callum. A result is any one of: a drop on the scale, at the waist or in body measurements, or better sleep and eating habits, comparing week 8 with week 1. The score measures whether he did the work. If he hits 80% and nothing moves, the plan needs adjusting, and that is Callum's job. Monthly plans: if nothing has improved, month three is free of charge. Paid in full: a free month is added to the end, and a second free month if the score still holds and nothing has improved. Two free months is the maximum. It is free coaching time, not a refund. No data, no guarantee, because the check-in is what proves the work was done. Studies linked on the coaching page describe groups of people, not a promise for one person. Do not quote those study percentages unless he asks, and if he asks, say they are about groups, not a promise for him.
+The 8-Week Progress Guarantee, on the 12-week, 6-month and 12-month plans. It is not published for The Full Rebuild. Hold 80% or more on the weekly SDR score for the first eight weeks. If nothing has improved, the next month is on Callum. A result is any one of: a drop on the scale, at the waist or in body measurements, or better sleep and eating habits, comparing week 8 with week 1. The score measures whether he did the work. If he hits 80% and nothing moves, the plan needs adjusting, and that is Callum's job. These plans are paid upfront. If nothing has improved, a free month is added to the end, and a second free month if the score still holds and nothing has improved. Two free months is the maximum. It is free coaching time, not a refund. No data, no guarantee, because the check-in is what proves the work was done. Studies linked on the coaching page describe groups of people, not a promise for one person. Do not quote those study percentages unless he asks, and if he asks, say they are about groups, not a promise for him.
 
 Who it is for. He wants a measurable system, not another crash diet. He will do weekly check-ins and honest data. He values structure and patience over quick fixes. He has restarted more than once. He has been reacting to the scale and is ready to stop. He is ready to be coached. It is not for him if he wants a six-week shred and then chaos, if he will not track what he eats, or if he wants motivation instead of a system. Beginners are fine: the system scales from a 3-day full-body foundation. He does not have to stop drinking. He does have to track it honestly, then Callum plans around it. A bad week is data. They read it, adjust one thing, and carry on. Time: three gym sessions a week, 10,000 steps a day, and logging food, built around his week.
 
@@ -44,10 +44,10 @@ How a week is coached. One variable at a time. Change one thing, watch a week, t
 
 Plans and prices, from the coaching page, The Full Rebuild page, and the coaching terms. Quote these when he asks what coaching costs. Do not add a from price, and do not use any other weekly figure. Do not invent a weekly price or a payment plan for The Full Rebuild.
 - The Full Rebuild, at /rebuild, sits above Structured Development. \xA312,000 for the year. 52 weeks. Application only. There is no checkout on the page, and no payment plan is published. 3 places. Online coaching only, for men coming from heavy drinking every night and being very overweight, which is where Callum was. Includes three calls a week, check-ins, an end-of-week review, and close day-to-day accountability. It does not include in-person training. Applying includes a short screen about drinking, and a note to speak to a GP. The written application is the existing form at /apply with this plan selected. A discovery call is the existing booking at /book, which uses Cal.com at callumbcoaching/discovery-call. If he is coming from that place and wants the closest accountability, this is the plan. He does not have to have stopped drinking. He does have to be honest about it. Do not say this plan has a monthly price, a discount, or the 8-Week Progress Guarantee. The written terms for the other three plans are on /terms-coaching. For this plan, terms are confirmed in writing after he is accepted. Do not describe Dale or Jonny as clients of The Full Rebuild. Their words on the page are from 1:1 coaching, and the plan is new.
-- Structured Development, 12 months, marked best value. \xA367 a week. \xA33,500 paid in full, or 12 payments of \xA3324 (\xA33,888 total). Pay in full and save \xA3388. Includes everything in Transformation, a full year, the most review time, fat loss then muscle in planned phases, video feedback within 48 hours, WhatsApp within 24 hours. This is the plan under The Full Rebuild.
-- Transformation, 6 months. \xA385 a week. \xA32,200 paid in full, or 6 payments of \xA3405 (\xA32,430 total). Pay in full and save \xA3230. Includes everything in Foundation, planned phases, food and training checked every week, planned diet breaks, video feedback within 48 hours, WhatsApp within 24 hours.
-- Foundation Phase, 12 weeks. \xA3100 a week. \xA31,200 paid in full, or 3 payments of \xA3450 (\xA31,350 total). Pay in full and save \xA3150. The system set up around his week, macros and training built for him, a full review every week, video feedback within 48 hours, WhatsApp within 24 hours.
-The same system underpins the 12-week, 6-month and 12-month plans. The difference is duration and how much oversight he gets. Foundation installs it. The 6 and 12 month plans carry him through the phases. Not sure which, including whether The Full Rebuild is the one: Apply, and they decide together. Payment plans for those three are monthly across the programme. The first payment secures the place. There is a 14-day cooling-off from purchase on those three, less the value of coaching already delivered. He can stop. Coaching already delivered is not refunded. A secure payment link is sent only after he is accepted, with the terms in writing first. Full terms for those three are on /terms-coaching. The Full Rebuild is not in that table.
+- Structured Development, 12 months, marked best value. \xA367 a week. \xA33,500 paid upfront. There is no monthly plan and no instalment plan. Includes everything in Transformation, a full year, the most review time, fat loss then muscle in planned phases, video feedback within 48 hours, WhatsApp within 24 hours. This is the plan under The Full Rebuild.
+- Transformation, 6 months. \xA385 a week. \xA32,200 paid upfront. There is no monthly plan and no instalment plan. Includes everything in Foundation, planned phases, food and training checked every week, planned diet breaks, video feedback within 48 hours, WhatsApp within 24 hours.
+- Foundation Phase, 12 weeks. \xA3100 a week. \xA31,200 paid upfront. There is no monthly plan and no instalment plan. The system set up around his week, macros and training built for him, a full review every week, video feedback within 48 hours, WhatsApp within 24 hours.
+The same system underpins the 12-week, 6-month and 12-month plans. The difference is duration and how much oversight he gets. Foundation installs it. The 6 and 12 month plans carry him through the phases. Not sure which, including whether The Full Rebuild is the one: Apply, and they decide together. Those three are paid upfront. Do not offer a monthly plan, an instalment plan, or a discount for paying in full. Payment secures the place. There is a 14-day cooling-off from purchase on those three, less the value of coaching already delivered. He can stop. Coaching already delivered is not refunded. A secure payment link is sent only after he is accepted, with the terms in writing first. Full terms for those three are on /terms-coaching. The Full Rebuild is not in that table.
 
 Not ready for 1:1. Physique OS is the self-led app at \xA329 a month, and The Ninety is 90 guided days for \xA3297. Say that, then come back to Apply if 1:1 is actually what he wants.
 
@@ -79,11 +79,8 @@ Privacy. If he would rather nobody knew, nobody will. The NDA is standard. Data 
 `.trim(),
   allowedPrices: [
     "\xA312,000",
-    "\xA33,888",
     "\xA33,500",
-    "\xA32,430",
     "\xA32,200",
-    "\xA31,350",
     "\xA31,200",
     "\xA320.75/month",
     "\xA320.75",
@@ -93,13 +90,7 @@ Privacy. If he would rather nobody knew, nobody will. The NDA is standard. Data 
     "\xA399",
     "\xA385",
     "\xA367",
-    "\xA3450",
-    "\xA3405",
-    "\xA3388",
-    "\xA3324",
     "\xA3297",
-    "\xA3230",
-    "\xA3150",
     "\xA329/month",
     "\xA329"
   ],

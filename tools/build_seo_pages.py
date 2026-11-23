@@ -89,9 +89,9 @@ PAGES = [
             ]),
             ("The cost", "What it costs", [
                 table(["Plan", "Price", "What it is"], [
-                    ["12 Week Foundation", "£1,200, or 3 × £450", "1:1 coaching. Installs and proves the system."],
-                    ["6 Month Transformation", "£2,200, or 6 × £405", "1:1 coaching through full phase progression."],
-                    ["12 Month Structured Development", "£3,500, or 12 × £324", "1:1 coaching for the full year."],
+                    ["12 Week Foundation", "£1,200", "1:1 coaching. Installs and proves the system."],
+                    ["6 Month Transformation", "£2,200", "1:1 coaching through full phase progression."],
+                    ["12 Month Structured Development", "£3,500", "1:1 coaching for the full year."],
                     ["The Ninety", "£297, one payment", "90 days, guided. Starts any time."],
                     ["Physique OS", "£29 a month", "Run the system yourself. 7 days free."],
                 ], "money"),
@@ -101,7 +101,7 @@ PAGES = [
         faq=[
             ("Do I need to live in Stockport?", "No. I'm based in Stockport, but coaching is online, so it works the same wherever you are in the UK. Clients train in their own gym, on their own schedule."),
             ("Can I train at my own gym?", "Yes. Your programme is written for the gym you already use, whether that's a big chain, a leisure centre or kit at home. You log every session in the app and I review it."),
-            ("How much does an online personal trainer cost?", "My 1:1 coaching starts at £1,200 for 12 weeks, about £100 a week, with monthly payment plans on every package. The Ninety is £297 for 90 days, and Physique OS is £29 a month."),
+            ("How much does an online personal trainer cost?", "My 1:1 coaching starts at £1,200 for 12 weeks, about £100 a week, paid upfront. The Ninety is £297 for 90 days, and Physique OS is £29 a month."),
             ("I'm a beginner. Is this too advanced?", "Not at all. The system scales from a 3-day full-body foundation upward. Beginners often progress fastest because the structure removes the guesswork from day one."),
             ("How do I start?", "Apply. It's a short form, about two minutes, and I read every application myself. If I don't think I'm the right coach for you, I'll tell you straight."),
         ],
@@ -116,14 +116,14 @@ PAGES = [
         kind="article",
         sections=[
             ("Short answer", "The short answer", [
-                p("Published UK guides put standard online coaching at roughly £60 to £200 a month (" + cite("trainera") + "; " + cite("gymguide") + "). App-only plans start lower. One-to-one coaching where the coach personally reads your data every week sits above that range. Mine works out at £67 to £113 a week, depending on the plan."),
+                p("Published UK guides put standard online coaching at roughly £60 to £200 a month (" + cite("trainera") + "; " + cite("gymguide") + "). App-only plans start lower. One-to-one coaching where the coach personally reads your data every week sits above that range. Mine works out at £67 to £100 a week, depending on the plan."),
                 p("An in-person personal trainer is usually priced by the session, at about £35 to £65 in a gym (" + cite("gymguide") + "). In Stockport, where I'm based, Bark's listed average is £47 a session (" + cite("bark") + ")."),
             ]),
             ("Price levels", "What you get at each price", [
                 table(["Type", "Typical UK price", "What you usually get"], [
                     ["App or template plan", "£10 to £30 a month", "A programme and tracking app. Nobody reads your data, or only loosely."],
                     ["Standard online coaching", "£60 to £200 a month", "A personalised plan, a check-in form, and messages answered when the coach can."],
-                    ["1:1 coaching, like mine", "£67 to £113 a week (£292 to £450 a month)", "The coach personally reviews your food, training, steps and recovery every week, adjusts the plan, reviews your lifts on video and answers you directly."],
+                    ["1:1 coaching, like mine", "£67 to £100 a week", "The coach personally reviews your food, training, steps and recovery every week, adjusts the plan, reviews your lifts on video and answers you directly."],
                     ["In-person PT, 2 sessions a week", "About £70 to £130 a week (£300 to £560 a month)", "Two supervised hours a week. Food and the rest of the week are usually on you."],
                     ["In-person PT, 3 sessions a week", "About £105 to £195 a week (£450 to £850 a month)", "Three supervised hours a week. Same again for the rest of the week."],
                 ]),
@@ -150,10 +150,11 @@ PAGES = [
             ]),
             ("My prices", "My prices, plainly", [
                 p("I cost more than most online coaching, and less than an in-person PT. I'd rather show you exactly where."),
-                table(["Plan", "Paid in full", "Payment plan", "Works out at"], [
-                    ["12 Week Foundation", "£1,200", "3 × £450", "£100 to £113 a week"],
-                    ["6 Month Transformation", "£2,200", "6 × £405", "£85 to £94 a week"],
-                    ["12 Month Structured Development", "£3,500", "12 × £324", "£67 to £75 a week"],
+                table(["Plan", "Paid upfront", "Works out at"], [
+                    ["12 Week Foundation", "£1,200", "£100 a week"],
+                    ["6 Month Transformation", "£2,200", "£85 a week"],
+                    ["12 Month Structured Development", "£3,500", "£67 a week"],
+                    ['<a href="/rebuild">The Full Rebuild</a>', "£12,000", "52 weeks. Paid quarterly, first quarter upfront."],
                 ], "money"),
                 p("For comparison, two sessions a week with a Stockport PT at the £47 average is about £94 a week, and that covers two hours. The 12-month plan costs less than that and covers the whole week: your food, training, steps, sleep and recovery, read by me every week."),
                 p("That buys me personally, every week: every check-in, every video review, every WhatsApp answer. No assistants. Every 1:1 plan comes with the <a href=\"/terms-coaching\">8-Week Progress Guarantee</a>: hold 80% on your weekly structure score for eight weeks, and if nothing has improved, the next month is on me."),
@@ -173,8 +174,8 @@ PAGES = [
         faq=[
             ("Is online personal training cheaper than a gym PT?", "Usually, yes. Standard online coaching is about £60 to £200 a month, while three in-person sessions a week costs roughly £450 to £850 a month. Online coaching also covers your food, steps and recovery, not just the hours in the gym."),
             ("Why do some online coaches charge £300 or more a month?", "Mostly because of time. It's still usually less than seeing a PT in person twice a week. At that level the coach personally reviews your data every week and adjusts your plan, gives form feedback, and answers messages directly. Cheaper plans usually mean less of that, or none."),
-            ("Can I pay monthly?", "With most coaches, yes. Every one of my 1:1 packages has a monthly payment plan, spread across the whole programme rather than front-loaded."),
-            ("Are there contracts?", "It varies, so ask before you pay. With me you can stop at any time. Nothing further is owed beyond instalments already due, and there's a 14-day cooling-off period."),
+            ("Can I pay monthly?", "With most coaches, yes. Mine are paid upfront. The 12-week, 6-month and 12-month plans have no monthly plan and no instalment plan. The Full Rebuild is £12,000 for the year, application only. It can be paid quarterly, with the first quarter paid upfront."),
+            ("Are there contracts?", "It varies, so ask before you pay. With me you can stop at any time. Coaching already delivered isn't refunded, and there's a 14-day cooling-off period."),
         ],
     ),
     dict(
@@ -239,7 +240,7 @@ PAGES = [
         sections=[
             ("Side by side", "How they compare", [
                 table(["", "1:1 online coaching, like mine", "In-person PT", "Standard online plan"], [
-                    ["Typical UK cost", "£67 to £113 a week, depending on the plan", "£35 to £65 a session. Twice a week is about £70 to £130 a week", "£60 to £200 a month"],
+                    ["Typical UK cost", "£67 to £100 a week, depending on the plan", "£35 to £65 a session. Twice a week is about £70 to £130 a week", "£60 to £200 a month"],
                     ["Hours covered", "Your whole week: food, training, steps, sleep", "The sessions you book", "Your week, loosely"],
                     ["Who reads your data", "Me, every week", "The PT, during the session", "Varies: the coach, an assistant or nobody"],
                     ["Form coaching", "Video notes back within 48 hours", "Live, hands-on", "Sometimes"],
@@ -247,7 +248,7 @@ PAGES = [
                     ["Getting an answer", "WhatsApp, within 24 hours", "At the next session", "When the coach can"],
                 ]),
                 note("<b>Prices:</b> " + cite("gymguide") + "; " + cite("trainera") + ". In-person weekly figures are two sessions at £35 to £65."),
-                p('Online coaching isn\'t one price because it isn\'t one service. A £60 plan and one-to-one coaching both get called "online", but they aren\'t the same thing. My 12-month plan works out at about £75 a week. That\'s less than two sessions a week with a Stockport PT at the £47 average, and it covers the whole week, not two hours of it. The full breakdown is in <a href="/online-personal-trainer-cost">what an online personal trainer costs</a>.'),
+                p('Online coaching isn\'t one price because it isn\'t one service. A £60 plan and one-to-one coaching both get called "online", but they aren\'t the same thing. My 12-month plan works out at about £67 a week. That\'s less than two sessions a week with a Stockport PT at the £47 average, and it covers the whole week, not two hours of it. The full breakdown is in <a href="/online-personal-trainer-cost">what an online personal trainer costs</a>.'),
             ]),
             ("In-person", "When in-person is the better choice", [
                 ul([
@@ -277,7 +278,7 @@ PAGES = [
         faq=[
             ("Is an online personal trainer as good as a real one?", "For most people who can already train safely, yes, and often better value, because online coaching covers food, steps and recovery as well as training. For a complete beginner, a few in-person sessions to learn technique first can help."),
             ("How do online trainers check your form?", "You film your working sets and upload them. A good coach sends back timestamped notes on set-up, tempo and range. I aim to return video feedback within 48 hours."),
-            ("Which is cheaper?", "Online coaching, usually. Two in-person sessions a week costs roughly £70 to £130 a week in the UK. Standard online plans are about £60 to £200 a month, and one-to-one online coaching like mine is £67 to £113 a week, while covering the whole week rather than two hours of it."),
+            ("Which is cheaper?", "Online coaching, usually. Two in-person sessions a week costs roughly £70 to £130 a week in the UK. Standard online plans are about £60 to £200 a month, and one-to-one online coaching like mine is £67 to £100 a week, while covering the whole week rather than two hours of it."),
             ("Can I have an online coach and still train at my gym?", "Yes. That's the normal set-up. Your programme is written for the gym you already use, and you log every session for review."),
         ],
     ),

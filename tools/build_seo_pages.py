@@ -154,7 +154,7 @@ PAGES = [
                     ["12 Week Foundation", "£1,200", "£100 a week"],
                     ["6 Month Transformation", "£2,200", "£85 a week"],
                     ["12 Month Structured Development", "£3,500", "£67 a week"],
-                    ['<a href="/rebuild">The Full Rebuild</a>', "£12,000", "52 weeks. Paid quarterly, first quarter upfront."],
+                    ['<a href="/rebuild">The Full Rebuild</a>', "£12,000 for the year, paid in full or quarterly as 4 × £3,000, with the first £3,000 paid upfront", "52 weeks."],
                 ], "money"),
                 p("For comparison, two sessions a week with a Stockport PT at the £47 average is about £94 a week, and that covers two hours. The 12-month plan costs less than that and covers the whole week: your food, training, steps, sleep and recovery, read by me every week."),
                 p("That buys me personally, every week: every check-in, every video review, every WhatsApp answer. No assistants. Every 1:1 plan comes with the <a href=\"/terms-coaching\">8-Week Progress Guarantee</a>: hold 80% on your weekly structure score for eight weeks, and if nothing has improved, the next month is on me."),
@@ -174,7 +174,7 @@ PAGES = [
         faq=[
             ("Is online personal training cheaper than a gym PT?", "Usually, yes. Standard online coaching is about £60 to £200 a month, while three in-person sessions a week costs roughly £450 to £850 a month. Online coaching also covers your food, steps and recovery, not just the hours in the gym."),
             ("Why do some online coaches charge £300 or more a month?", "Mostly because of time. It's still usually less than seeing a PT in person twice a week. At that level the coach personally reviews your data every week and adjusts your plan, gives form feedback, and answers messages directly. Cheaper plans usually mean less of that, or none."),
-            ("Can I pay monthly?", "With most coaches, yes. Mine are paid upfront. The 12-week, 6-month and 12-month plans have no monthly plan and no instalment plan. The Full Rebuild is £12,000 for the year, application only. It can be paid quarterly, with the first quarter paid upfront."),
+            ("Can I pay monthly?", "With most coaches, yes. Mine are paid upfront. The 12-week, 6-month and 12-month plans have no monthly plan and no instalment plan. The Full Rebuild is £12,000 for the year, paid in full or quarterly as 4 × £3,000, with the first £3,000 paid upfront. Application only."),
             ("Are there contracts?", "It varies, so ask before you pay. With me you can stop at any time. Coaching already delivered isn't refunded, and there's a 14-day cooling-off period."),
         ],
     ),

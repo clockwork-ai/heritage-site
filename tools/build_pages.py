@@ -478,18 +478,17 @@ tm += tsec(1, "What acceptance means", '''<ul class="tl2">
 tm += tsec(2, "The standard: what's tracked", '''<p class="body">Premium runs on data. The same five inputs are tracked and scored at every weekly check-in. It's how the coaching stays honest, and everything that's scored is visible to you at all times.</p>''' +
   tbl(["Input", "What counts", "Weight"], [["Nutrition logged", "Days your food is logged, out of 7", "35%"], ["Daily weigh-ins", "Days you weigh in, out of 7 (aim for 6+)", "25%"], ["Weekly check-in", "Submitted on time", "15%"], ["Progress photo", "Submitted each Sunday", "12.5%"], ["Body measurements", "Taken and submitted each week", "12.5%"]]) +
   '''<p class="tnote"><b>If adherence drops:</b> three weeks in a row below 80% triggers a review call. If nothing changes after it, the programme moves to the £99 a month fallback (nutrition and tracking only) until the standard returns.</p>''', "The standard")
-tm += tsec(3, "The 8-Week Progress Guarantee", '''<p class="lede" style="font-size:clamp(17px,1.6vw,19px)">Hold 80%+ on your weekly score for the first eight weeks. <b>Do your part and see no results, and month three is free.</b></p>
+tm += tsec(3, "The 8-Week Progress Guarantee", '''<p class="lede" style="font-size:clamp(17px,1.6vw,19px)">Hold 80%+ on your weekly SDR score for the first eight weeks. <b>If nothing has improved, the next month is on me.</b></p>
 <ul class="tl2">
 <li><b>Applies to</b> every 1:1 package.</li>
 <li><b>The window</b> is your first eight weeks of coaching.</li>
 <li><b>The condition</b> is a score of 80% or more at every weekly check-in in that window, using the inputs in section 2.</li>
-<li><b>The remedy</b> is your third month of coaching free of charge. It's a free month, not a refund.</li></ul>''', "Guarantee")
-tm += tsec(4, "The money", tbl(["Package", "Paid in full", "Payment plan", "Saving in full"], [["12 Week Foundation", "£1,200", "3 × £450 (£1,350)", "£150"], ["6 Month Transformation", "£2,200", "6 × £405 (£2,430)", "£230"], ["12 Month Structured Development", "£3,500", "12 × £324 (£3,888)", "£388"]], "money") +
-  '''<ul class="tl2">
-<li><b>Payment plans are spread monthly</b> across the whole programme, not front-loaded: 3 payments across 12 weeks, 6 across 6 months, 12 across 12 months. The first payment secures your place, and the rest fall on the same date each month.</li>
+<li><b>Paid upfront:</b> if nothing has improved, a free month is added to the end of your plan. If the score holds 80%+ through that month and still nothing has improved, a second free month is added. Two free months is the maximum.</li></ul>''', "Guarantee")
+tm += tsec(4, "The money", tbl(["Package", "Paid upfront"], [["12 Week Foundation", "£1,200"], ["6 Month Transformation", "£2,200"], ["12 Month Structured Development", "£3,500"]], "money") +
+  '''<p class="body">These three packages are paid upfront. There is no monthly plan and no instalment plan. <a href="/rebuild">The Full Rebuild</a> is separate: £12,000 for the year, paid in full or quarterly as 4 × £3,000, with the first £3,000 paid upfront. 52 weeks, application only, with no checkout on the site. If you're accepted, the terms for that place are confirmed in writing before any payment link.</p><ul class="tl2">
+<li><b>Payment for these three is upfront.</b> It secures your place. You get the payment link after you're accepted, with these terms confirmed in writing first.</li>
 <li><b>14-day cooling-off</b> from the day of purchase, less the value of coaching already delivered.</li>
-<li><b>Missed instalment:</b> you get a 7-day grace window to settle. After that, your place moves to the fallback rules until the balance is up to date.</li>
-<li><b>Leaving early:</b> you can stop at any time. Nothing further is owed beyond instalments already due, and coaching already delivered isn't refunded.</li></ul>''', "The money")
+<li><b>Leaving early:</b> you can stop at any time. Coaching already delivered isn't refunded.</li></ul>''', "The money")
 tm += tsec(5, "Application and fit", '''<p class="body">Coaching is application only because the fit has to be right for both of us. I read every application myself. If I don't think I'm the right coach for you, I'll tell you straight rather than take your money.</p>''', "Fit")
 tm += tsec(6, "Your data", '''<ul class="tl2">
 <li>Everything that scores you is visible to you: every weigh-in, every log, every percentage, at all times.</li>

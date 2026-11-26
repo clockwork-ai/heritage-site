@@ -9,8 +9,25 @@ http.createServer((req,res)=>{
     res.end();
     return;
   }
-  if (u === "/physique-os" || u === "/physique-os/") {
-    res.writeHead(301, { Location: "/start" });
+  const gone = {
+    "/pricing": "/rebuild",
+    "/pricing/": "/rebuild",
+    "/start": "/rebuild",
+    "/start/": "/rebuild",
+    "/os-setup": "/rebuild",
+    "/os-setup/": "/rebuild",
+    "/the-ninety": "/rebuild",
+    "/the-ninety/": "/rebuild",
+    "/muscle": "/rebuild",
+    "/muscle/": "/rebuild",
+    "/magnum-opus": "/rebuild",
+    "/magnum-opus/": "/rebuild",
+    "/physique-os": "/rebuild",
+    "/physique-os/": "/rebuild"
+  };
+  if (gone[u]) {
+    const q = req.url.includes("?") ? req.url.slice(req.url.indexOf("?")) : "";
+    res.writeHead(301, { Location: gone[u] + q });
     res.end();
     return;
   }

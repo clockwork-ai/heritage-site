@@ -107,12 +107,12 @@ test("apply form builds the WhatsApp message", async ({ page }) => {
   await page.fill("#f-contact", "dave@example.com");
   await page.getByText("Lose fat", { exact: true }).click();
   await page.fill("#f-tried", "Fall off by week three.");
-  await page.getByText("12 months", { exact: true }).click();
+  await page.locator("#applyForm").getByText("The Full Rebuild", { exact: true }).click();
   await page.getByRole("button", { name: /send my application/i }).click();
   await expect(page.locator("#applyDone")).toBeVisible();
   await expect(page.locator("#doneHead")).toHaveText("Got it. I'll be in touch within 24 hours.");
   await expect(page.locator("#applyText")).toContainText("Name: Dave");
-  await expect(page.locator("#applyText")).toContainText("Plan: 12 months");
+  await expect(page.locator("#applyText")).toContainText("Plan: The Full Rebuild");
   const href = await page.locator("#applySend").getAttribute("href");
   expect(href).toMatch(/^https:\/\/wa\.me\/447359838866\?text=/);
   expect(decodeURIComponent(href)).toContain("Fall off by week three.");
@@ -123,7 +123,7 @@ test("apply form builds the WhatsApp message", async ({ page }) => {
     marketingConsent: "",
     website: "",
   });
-  expect(forwarded[0].plan).toBe("12 months, Structured Development");
+  expect(forwarded[0].plan).toBe("The Full Rebuild");
   expect(forwarded[0].drinking).toBeUndefined();
   expect(forwarded[0].healthConsent).toBeUndefined();
   expect(direct).toBe(0);
@@ -496,97 +496,28 @@ test("links page shows one offer and keeps the campaign", async ({ page }) => {
   expect(downloaded.props.page).toBe("/links/");
 });
 
-test("pricing Head Start uses the live cohort dates", async ({ page }) => {
-  await page.goto("/pricing");
-  const head = page.locator("article.plan", { has: page.getByRole("heading", { name: "Head Start" }) });
-  await expect(head).toContainText("£47");
-  await expect(head).toContainText("Cohort, 9 Nov 2026 to 3 Jan 2027. Late joiners finish with the group.");
-  await expect(head).not.toContainText(/8[- ]weeks?/i);
-  await expect(head).not.toContainText(/check-?in/i);
-  await expect(head).toContainText("Paused until January");
-  await expect(head.locator("a.btn")).toHaveCount(0);
-  await expect(head.locator('a[href*="everfit.io"]')).toHaveCount(0);
-  const pricingHtml = await page.content();
-  expect(pricingHtml).toContain("HEAD START PAUSED");
-  expect(pricingHtml).toContain("https://coach.everfit.io/package/GK689386");
-  const pricingLive = pricingHtml.replace(/<!--[\s\S]*?-->/g, "");
-  expect(pricingLive).not.toContain("GK689386");
-  expect(pricingLive).not.toContain("Get your spot");
-  const os = page.locator("article.plan", { has: page.getByRole("heading", { name: "Physique OS" }) });
-  await expect(os).toContainText("£29");
-  await expect(os).toContainText("Run the system yourself.");
-  await expect(os.locator("a.btn")).toHaveAttribute("href", "https://coach.everfit.io/package/NW877413");
-  const ninety = page.locator("article.plan", { has: page.getByRole("heading", { name: "The Ninety" }) });
-  await expect(ninety).toContainText("£297");
-  await expect(ninety).toContainText("90 days with a monthly call and review.");
-  const coaching = page.locator("article.plan", { has: page.getByRole("heading", { name: "1:1 coaching" }) });
-  await expect(coaching).toContainText("£67");
-  await expect(coaching).toContainText("Application only, for men 30 and over.");
-  const text = await page.locator("main").innerText();
-  expect(text).not.toContain("\u2014");
-  expect(text).not.toContain("\u2013");
-  expect(text).not.toMatch(/8[- ]weeks?/i);
-});
-
-test("Physique OS trial buttons go to the Everfit checkout", async ({ page }) => {
-  const checkout = "https://coach.everfit.io/package/NW877413";
-  await page.goto("/start");
-  await expect(page.locator("h1")).toContainText(/yourself/i);
-  await expect(page.locator("main")).toContainText("the 4-weekly self-review that keeps progress moving");
-  const trials = page.locator("a.btn-solid", { hasText: /start/i });
-  expect(await trials.count()).toBeGreaterThan(0);
-  const n = await trials.count();
-  for (let i = 0; i < n; i++) await expect(trials.nth(i)).toHaveAttribute("href", checkout);
-  await page.locator("#ptMonthly").click();
-  await expect(page.locator("#ptCta")).toHaveAttribute("href", checkout);
-  await expect(page.locator("#ptPrice")).toHaveText("£29");
-  await page.locator("#ptAnnual").click();
-  await expect(page.locator("#ptCta")).toHaveAttribute("href", checkout);
-  await expect(page.locator("#ptPrice")).toHaveText("£249");
-  await expect(page.locator('nav a[href="/the-ninety/"]')).toHaveCount(1);
-  await expect(page.locator('a[href="/coaching"]')).toHaveCount(1);
-  const programmes = [
-    "Home or Minimal Equipment 3-Day",
-    "Beginner 3-Day Full Body",
-    "Intermediate 4-Day Upper/Lower",
-    "Advanced 5-Day Split",
-    "Fat Loss 3-Day Strength + Conditioning",
+test("retired offer pages redirect to The Full Rebuild", async ({ request }) => {
+  const paths = [
+    "/pricing",
+    "/pricing/",
+    "/start",
+    "/start/",
+    "/os-setup",
+    "/os-setup/",
+    "/the-ninety",
+    "/the-ninety/",
+    "/muscle",
+    "/muscle/",
+    "/magnum-opus",
+    "/magnum-opus/",
+    "/physique-os",
+    "/physique-os/",
   ];
-  for (const name of programmes) await expect(page.locator("main")).toContainText(name);
-  await expect(page.locator("main")).toContainText("7 days free");
-  await expect(page.locator("main")).toContainText("SAVE £99");
-  await expect(page.locator("main")).not.toContainText("I'll activate the next rung");
-  const quotes = await page.locator("main").innerText();
-  expect(quotes).toContain("Waist went 119cm to 101cm");
-  expect(quotes).toContain("Fed up of feeling heavy on site");
-  expect(quotes).toContain("Never trained properly before");
-  expect(quotes).not.toContain("\u2014");
-  expect(quotes).not.toContain("\u2013");
-});
-
-test("physique-os redirects to the start page", async ({ request }) => {
-  for (const path of ["/physique-os", "/physique-os/"]) {
+  for (const path of paths) {
     const res = await request.get(path, { maxRedirects: 0 });
     expect(res.status(), path).toBe(301);
-    expect(res.headers().location).toBe("/start");
+    expect(res.headers().location, path).toBe("/rebuild");
   }
-});
-
-test("os-setup is self-led and does not offer to load the plan", async ({ page }) => {
-  await page.goto("/os-setup");
-  await expect(page.locator("h1")).toContainText("in");
-  const text = await page.locator("body").innerText();
-  await expect(page.locator("body")).toContainText("Set your numbers");
-  await expect(page.locator("body")).toContainText("Where are you starting?");
-  await expect(page.locator("body")).toContainText("Nobody builds a plan from it.");
-  await expect(page.locator("body")).toContainText("Home or Minimal Equipment 3-Day");
-  await expect(page.locator("body")).toContainText("Fat Loss 3-Day Strength + Conditioning");
-  expect(text).not.toContain("I'll have your macros");
-  expect(text).not.toContain("I'm loading your macros");
-  expect(text).not.toContain("Build my setup");
-  expect(text).not.toContain("\u2014");
-  expect(text).not.toContain("\u2013");
-  await expect(page.locator("#setup")).toHaveCount(0);
 });
 
 function noDashes(text) {
@@ -993,17 +924,6 @@ test("held copy uses the check-in wording and drops the unsourced muscle figures
   expect(guide).not.toContain("40%");
   expect(guide).not.toContain("twelve years");
   expect(guide).not.toContain("Mark:");
-
-  await page.goto("/muscle/");
-  const loss = page.locator(".hgrid .cell").nth(0);
-  const fix = page.locator(".hgrid .cell").nth(2);
-  await expect(loss).toContainText("Some of it can be muscle");
-  await expect(loss).not.toContainText("40%");
-  await expect(fix).toContainText("helps you keep more of it");
-  await expect(fix).not.toContainText("15 to 20%");
-  const muscle = await page.locator("main").innerText();
-  expect(muscle).not.toContain("40%");
-  expect(muscle).not.toContain("15 to 20%");
 
   await page.goto("/protein-calculator");
   const protein = await page.locator(".pc-edu").last().textContent();

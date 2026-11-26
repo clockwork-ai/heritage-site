@@ -4,8 +4,14 @@ DirectoryIndex index.html
 Options -Indexes +FollowSymLinks
 RewriteEngine On
 
-# Emails can use /physique-os. The page is /start.
-RewriteRule ^physique-os/?$ /start [R=301,L]
+# Retired offers. The coaching is The Full Rebuild.
+RewriteRule ^pricing/?$ /rebuild [R=301,L]
+RewriteRule ^start/?$ /rebuild [R=301,L]
+RewriteRule ^os-setup/?$ /rebuild [R=301,L]
+RewriteRule ^the-ninety/?$ /rebuild [R=301,L]
+RewriteRule ^muscle/?$ /rebuild [R=301,L]
+RewriteRule ^magnum-opus/?$ /rebuild [R=301,L]
+RewriteRule ^physique-os/?$ /rebuild [R=301,L]
 
 # Emails already sent still use this path. Send them to the new guide.
 # The file at the old path is the same PDF, if this rewrite is not applied.

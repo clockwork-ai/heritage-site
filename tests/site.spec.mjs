@@ -413,8 +413,7 @@ test("guide form posts to lead.php on this origin", async ({ page }) => {
   expect(body["marketing-consent"]).toBe("no");
 });
 
-test("links page keeps the content loop and the campaign", async ({ page }) => {
-  const events = [];
+test("links page shows one offer and keeps the campaign", async ({ page }) => {
   await page.addInitScript(() => {
     window.__events = [];
     window.plausible = (name, opts) => {
@@ -422,146 +421,79 @@ test("links page keeps the content loop and the campaign", async ({ page }) => {
     };
   });
   await page.route("**/plausible.io/**", (route) => route.abort());
-  let body = null;
-  await page.route("**/api/lead.php", async (route) => {
-    body = route.request().postDataJSON();
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({ ok: true, download: "/guides/the-five-foundations.pdf" }),
-    });
-  });
   await page.goto("/links/?utm_source=instagram&utm_medium=bio");
-  await expect(page.locator("h1")).toContainText("already full");
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /coaching options/i);
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /package/i);
+  await expect(page.locator("h1")).toHaveText("Twelve months. One structure. Built properly.");
+  await expect(page.locator("main .hook")).toHaveText(
+    "Structure over motivation. It's what got me back after I lost the system through a difficult period, even though I knew exactly what to do. This is 12 months of structured coaching for men who've trained before and want to build it properly this time.",
+  );
+  await expect(page.locator("main .pay")).toHaveText(
+    "£3,000 a quarter, with the first quarter paid up front. £12,000 for the year.",
+  );
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    "Twelve months of structured coaching. £3,000 a quarter, with the first quarter paid up front. £12,000 for the year.",
+  );
+  const apply = page.locator('a[data-ev="Apply click"]');
+  await expect(apply).toHaveText(/Apply for a place/);
+  await expect(apply).toHaveAttribute(
+    "href",
+    /\/apply\?plan=The(?:%20|\+)Full(?:%20|\+)Rebuild(?:&|&amp;)utm_source=instagram&utm_medium=bio#form/,
+  );
+  const guide = page.locator('a[data-ev="Guide download"]');
+  await expect(guide).toHaveText("Not ready yet? Get the free Five Foundations guide.");
+  await expect(guide).toHaveAttribute(
+    "href",
+    "/guides/the-five-foundations.pdf?utm_source=instagram&utm_medium=bio",
+  );
+  await expect(page.locator("main a.btn")).toHaveCount(1);
+  await expect(page.locator('a[href="/book"]')).toHaveCount(0);
   const text = await page.locator("main").innerText();
-  const folded = text.toLowerCase();
-  const order = [
-    "coaching options",
-    "physique os",
-    "the 90",
-    "one-to-one",
-    "the full rebuild",
-    "get the five foundations",
-    "book a free call",
-    "free tools",
-    "tdee calculator",
-    "protein calculator",
-    "more guides",
-    "5 signs guide",
-    "glp-1 blueprint",
-    "trt starter",
-    "instagram",
-  ];
-  let at = -1;
-  for (const label of order) {
-    const next = folded.indexOf(label);
-    expect(next, label).toBeGreaterThan(at);
-    at = next;
-  }
-  await expect(page.locator('a[data-ev="Head Start click"]')).toHaveCount(0);
-  await expect(page.locator('a[href*="GK689386"]')).toHaveCount(0);
   const linksHtml = await page.content();
-  expect(linksHtml).toContain("HEAD START PAUSED");
-  expect(linksHtml).toContain("£47 one-off");
-  expect(linksHtml).toContain("9 Nov 2026 to 3 Jan 2027");
-  expect(linksHtml).toContain("Late joiners finish with the group");
-  const linksLive = linksHtml.replace(/<!--[\s\S]*?-->/g, "");
-  expect(linksLive).not.toContain("GK689386");
-  expect(linksLive).toContain("https://coach.everfit.io/package/NW877413");
-  await expect(page.locator('a[data-ev="Physique OS click"]')).toHaveAttribute(
-    "href",
-    /https:\/\/coach\.everfit\.io\/package\/NW877413\?.*utm_source=instagram/,
-  );
-  await expect(page.locator('a[data-ev="Physique OS click"]')).toHaveAttribute("rel", "noopener");
-  await expect(page.locator('a[data-ev="Physique OS click"]')).toContainText("£29 a month");
-  await expect(page.locator('a[data-ev="The 90 click"]')).toHaveAttribute(
-    "href",
-    "/the-ninety?utm_source=instagram&utm_medium=bio",
-  );
-  await expect(page.locator('a[data-ev="The 90 click"]')).toContainText("£297 one-off");
-  await expect(page.locator('a[data-ev="Apply click"]')).toHaveAttribute(
-    "href",
-    "/apply?utm_source=instagram&utm_medium=bio",
-  );
-  await expect(page.locator('a[data-ev="Apply click"]')).toContainText("Application only");
-  await expect(page.locator('a[data-ev="Rebuild click"]')).toHaveAttribute(
-    "href",
-    "/rebuild?utm_source=instagram&utm_medium=bio",
-  );
-  await expect(page.locator('a[data-ev="Rebuild click"]')).toContainText("£12,000");
-  await expect(page.locator('a[data-ev="Rebuild click"]')).not.toContainText(/8 weeks/i);
-  await expect(page.locator('a[data-ev="Rebuild click"]')).not.toContainText(/check-?in/i);
-  const fold = await page.locator('a[data-ev="Apply click"]').evaluate((el) => {
-    const rect = el.getBoundingClientRect();
-    return { bottom: rect.bottom, top: rect.top, height: window.innerHeight, width: window.innerWidth };
-  });
-  expect(fold.top, "one-to-one starts on screen").toBeGreaterThanOrEqual(0);
-  expect(fold.bottom, "four packages fit above the fold").toBeLessThanOrEqual(fold.height);
-  await expect(page.locator('a[data-ev="TDEE click"]')).toHaveAttribute(
-    "href",
-    "/tdee-calculator?utm_source=instagram&utm_medium=bio",
-  );
-  await expect(page.locator('a[data-ev="Protein click"]')).toHaveAttribute(
-    "href",
-    "/protein-calculator?utm_source=instagram&utm_medium=bio",
-  );
-  await expect(page.locator('a[data-ev="5 Signs click"]')).toHaveAttribute(
-    "href",
-    "/guide/?utm_source=instagram&utm_medium=bio",
-  );
-  await expect(page.locator('a[data-ev="GLP-1 click"]')).toHaveAttribute(
-    "href",
-    "/glp1-blueprint?utm_source=instagram&utm_medium=bio",
-  );
-  await expect(page.locator('a[data-ev="TRT click"]')).toHaveAttribute(
-    "href",
-    "/trt-starter/?utm_source=instagram&utm_medium=bio",
-  );
-  await expect(page.locator('a[data-ev="Instagram click"]')).toHaveAttribute(
-    "href",
-    /utm_source=instagram/,
-  );
-  await page.locator("#lf-email-links").fill("test@example.com");
-  await page.locator('#guide button[type=submit]').click();
-  await expect(page.locator("#guide .leadok")).toBeVisible();
-  expect(body).toMatchObject({
-    email: "test@example.com",
-    src: "links",
-    utm_source: "instagram",
-    utm_medium: "bio",
-    "marketing-consent": "no",
-  });
+  for (const gone of [
+    "The Full Rebuild",
+    "Physique OS",
+    "Head Start",
+    "The 90",
+    "The Ninety",
+    "One-to-one",
+    "GK689386",
+    "NW877413",
+    "5 Signs",
+    "GLP-1",
+    "TRT",
+    "£29",
+    "£47",
+    "£297",
+    "8-Week",
+    "8 weeks",
+    "guarantee",
+    "check-in",
+  ]) {
+    expect(text, gone).not.toContain(gone);
+    expect(linksHtml, gone).not.toContain(gone);
+  }
   expect(text).not.toContain("\u2014");
   expect(text).not.toContain("\u2013");
+  expect(linksHtml).not.toContain("\u2014");
+  expect(linksHtml).not.toContain("\u2013");
+  const fold = await apply.evaluate((el) => {
+    const rect = el.getBoundingClientRect();
+    return { bottom: rect.bottom, top: rect.top, height: window.innerHeight };
+  });
+  expect(fold.top, "the apply button starts on screen").toBeGreaterThanOrEqual(0);
+  expect(fold.bottom, "the apply button fits on screen").toBeLessThanOrEqual(fold.height);
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(overflow).toBeLessThanOrEqual(1);
-  const tracked = await page.evaluate(() => window.__events.map((event) => event.name));
-  expect(tracked).toContain("Guide form click");
-  expect(tracked).toContain("Guide signup");
-  await page.locator('a[data-ev="TDEE click"]').evaluate((a) => {
+  await guide.evaluate((a) => {
     a.addEventListener("click", (event) => event.preventDefault(), true);
   });
-  await page.locator('a[data-ev="TDEE click"]').click();
-  const tdee = await page.evaluate(() => window.__events.find((event) => event.name === "TDEE click"));
-  expect(tdee.props.utm_source).toBe("instagram");
-  expect(tdee.props.utm_medium).toBe("bio");
-  expect(tdee.props.page).toBe("/links/");
-  await page.locator('a[data-ev="Protein click"]').evaluate((a) => {
-    a.addEventListener("click", (event) => event.preventDefault(), true);
-  });
-  await page.locator('a[data-ev="Protein click"]').click();
-  const protein = await page.evaluate(() => window.__events.find((event) => event.name === "Protein click"));
-  expect(protein.props.utm_source).toBe("instagram");
-  await page.locator('a[data-ev="5 Signs click"]').evaluate((a) => {
-    a.addEventListener("click", (event) => event.preventDefault(), true);
-  });
-  await page.locator('a[data-ev="5 Signs click"]').click();
-  const signs = await page.evaluate(() => window.__events.find((event) => event.name === "5 Signs click"));
-  expect(signs.props.utm_medium).toBe("bio");
+  await guide.click();
+  const downloaded = await page.evaluate(() => window.__events.find((event) => event.name === "Guide download"));
+  expect(downloaded.props.utm_source).toBe("instagram");
+  expect(downloaded.props.utm_medium).toBe("bio");
+  expect(downloaded.props.page).toBe("/links/");
 });
 
 test("pricing Head Start uses the live cohort dates", async ({ page }) => {
@@ -1031,7 +963,7 @@ test("book page offers the Cal.com call", async ({ page }) => {
   expect(over).toBeLessThanOrEqual(1);
 });
 
-for (const path of ["/", "/coaching", "/apply", "/links"]) {
+for (const path of ["/", "/coaching", "/apply"]) {
   test(`${path} offers a free call next to apply`, async ({ page }) => {
     await page.goto(path);
     const book = page.locator('a.btn[href="/book"]', { hasText: /book a free call/i });

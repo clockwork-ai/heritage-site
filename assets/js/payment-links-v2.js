@@ -18,7 +18,6 @@ window.payLink = function (key, fallback) {
 document.addEventListener('DOMContentLoaded', function () {
   var MAP = {
     'Physique OS: Monthly': 'os-monthly',
-    'Physique OS: Annual': 'os-annual',
     'Keep the Muscle: Monthly': 'ktm-monthly',
     'Keep the Muscle: Annual': 'ktm-annual',
     'Nutrition Blueprint': 'blueprint-nutrition',

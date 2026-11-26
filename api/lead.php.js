@@ -36,7 +36,7 @@ Four pillars, every week. Nutrition: full macros, weekdays and weekends, treats 
 
 Structure Driven Results (SDR). One weekly score, 0 to 100%, averaged across the four pillars. It scores what he controls, not the scale. An example on the page (nutrition 6 of 7 days, training 3 of 3, steps 5 of 7, check-in on time) is an illustration of the score, not a client. Do not quote the 89% example as someone's result.
 
-The 8-Week Progress Guarantee is not part of The Full Rebuild. Do not offer it. Do not say the next month is free. The coaching terms page still describes that guarantee for packages that are no longer sold. If he asks, say it is not on The Full Rebuild.
+There is no progress guarantee on The Full Rebuild. Do not offer one, and do not promise extra free coaching time.
 
 Who it is for. He wants a measurable system, not another crash diet. He will do weekly check-ins and honest data. He values structure and patience over quick fixes. He has restarted more than once. He has been reacting to the scale and is ready to stop. He is ready to be coached. It is not for him if he wants a six-week shred and then chaos, if he will not track what he eats, or if he wants motivation instead of a system. Beginners are fine. He does not have to stop drinking. He does have to track it honestly, then Callum plans around it. A bad week is data. They read it, adjust one thing, and carry on. Time: three gym sessions a week, 10,000 steps a day, and logging food, built around his week.
 

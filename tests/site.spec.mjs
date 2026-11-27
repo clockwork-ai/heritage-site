@@ -1195,7 +1195,7 @@ test("the GLP-1 nutrition form subscribes only when the box is ticked", async ({
   await page.locator("#g1-name").fill("Sam");
   await page.locator("#g1-email").fill("sam@example.com");
   await page.getByRole("button", { name: /Send Me the Guide/ }).click();
-  await expect(page.locator('a[href="assets/downloads/CallumB-GLP1-5-Signs.pdf"]')).toBeVisible();
+  await expect(page.locator('a[href="/guide/5-signs-guide.pdf"]')).toBeVisible();
   await expect(page.locator("[data-inbox-copy]")).toBeHidden();
   expect(hits).toEqual([]);
 
@@ -1204,7 +1204,7 @@ test("the GLP-1 nutrition form subscribes only when the box is ticked", async ({
   await page.locator("#g1-email").fill("sam@example.com");
   await page.locator('form.form input[name="marketing-consent"]').check();
   await page.getByRole("button", { name: /Send Me the Guide/ }).click();
-  await expect(page.locator('a[href="assets/downloads/CallumB-GLP1-5-Signs.pdf"]')).toBeVisible();
+  await expect(page.locator('a[href="/guide/5-signs-guide.pdf"]')).toBeVisible();
   await expect(page.locator("[data-inbox-copy]")).toBeVisible();
   expect(hits.length).toBe(1);
 });

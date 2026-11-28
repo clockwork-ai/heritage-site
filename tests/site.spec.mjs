@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
 
 const pages = [
   { path: "/", title: /Online Personal Trainer/, h1: /started/i },
@@ -496,28 +498,111 @@ test("links page shows one offer and keeps the campaign", async ({ page }) => {
   expect(downloaded.props.page).toBe("/links/");
 });
 
+const retiredOfferPaths = [
+  "/pricing",
+  "/pricing/",
+  "/start",
+  "/start/",
+  "/os-setup",
+  "/os-setup/",
+  "/the-ninety",
+  "/the-ninety/",
+  "/muscle",
+  "/muscle/",
+  "/magnum-opus",
+  "/magnum-opus/",
+  "/physique-os",
+  "/physique-os/",
+];
+
+const oldOfferAliases = [
+  "head-start",
+  "headstart",
+  "the-head-start",
+  "new-year-head-start",
+  "head-start-challenge",
+  "8-week",
+  "8-week-challenge",
+  "8-week-guarantee",
+  "eight-week",
+  "eight-week-challenge",
+  "challenge",
+  "the-standard",
+  "standard",
+  "the-90",
+  "the90",
+  "ninety",
+  "90-day",
+  "foundation",
+  "transformation",
+  "structured",
+  "physique",
+  "physiqueos",
+  "magnum",
+  "opus",
+];
+
 test("retired offer pages redirect to The Full Rebuild", async ({ request }) => {
-  const paths = [
-    "/pricing",
-    "/pricing/",
-    "/start",
-    "/start/",
-    "/os-setup",
-    "/os-setup/",
-    "/the-ninety",
-    "/the-ninety/",
-    "/muscle",
-    "/muscle/",
-    "/magnum-opus",
-    "/magnum-opus/",
-    "/physique-os",
-    "/physique-os/",
-  ];
-  for (const path of paths) {
-    const res = await request.get(path, { maxRedirects: 0 });
-    expect(res.status(), path).toBe(301);
-    expect(res.headers().location, path).toBe("/rebuild");
+  for (const route of retiredOfferPaths) {
+    const res = await request.get(route, { maxRedirects: 0 });
+    expect(res.status(), route).toBe(301);
+    expect(res.headers().location, route).toBe("/rebuild");
   }
+});
+
+test("old offer aliases redirect to The Full Rebuild", async ({ request }) => {
+  const vercel = JSON.parse(fs.readFileSync("vercel.json", "utf8"));
+  const htaccess = fs.readFileSync(".htaccess", "utf8");
+  const bySource = new Map(vercel.redirects.map((rule) => [rule.source, rule]));
+  for (const alias of oldOfferAliases) {
+    for (const route of [`/${alias}`, `/${alias}/`]) {
+      const res = await request.get(route, { maxRedirects: 0 });
+      expect(res.status(), route).toBe(301);
+      expect(res.headers().location, route).toBe("/rebuild");
+      const rule = bySource.get(route);
+      expect(rule, route).toBeTruthy();
+      expect(rule.destination, route).toBe("/rebuild");
+      expect(rule.permanent, route).toBe(true);
+    }
+    expect(htaccess, alias).toContain(`RewriteRule ^${alias}/?$ /rebuild [R=301,L]`);
+  }
+  const kept = await request.get("/head-start?from=old", { maxRedirects: 0 });
+  expect(kept.status()).toBe(301);
+  expect(kept.headers().location).toBe("/rebuild?from=old");
+});
+
+test("retired checkout links point at The Full Rebuild", async ({ page }) => {
+  await page.goto("/protein-calculator");
+  const system = page.locator("a.btn-startfree");
+  await expect(system).toHaveCount(1);
+  await expect(system).toHaveAttribute("href", "/rebuild");
+  await expect(system).toHaveText(/See the full system that does this for you/);
+
+  const banned = ["NW877413", "GK689386", "coach.everfit.io"];
+  const skip = new Set(["node_modules", ".git", "tests", "cpanel", "public"]);
+  const hits = [];
+  function walk(dir) {
+    for (const name of fs.readdirSync(dir)) {
+      if (skip.has(name)) continue;
+      const full = path.join(dir, name);
+      const stat = fs.statSync(full);
+      if (stat.isDirectory()) {
+        walk(full);
+        continue;
+      }
+      if (!/\.(html|js|mjs|css|json)$/.test(name)) continue;
+      const text = fs.readFileSync(full, "utf8");
+      for (const token of banned) {
+        if (text.includes(token)) hits.push(`${full} ${token}`);
+      }
+    }
+  }
+  walk(".");
+  expect(hits).toEqual([]);
+
+  const pdf = fs.readFileSync("assets/downloads/CallumB-Protein-Per-Meal-Guide.pdf");
+  expect(pdf.includes(Buffer.from("https://callumbcoaching.co.uk/rebuild"))).toBe(true);
+  expect(pdf.includes(Buffer.from("https://callumbcoaching.co.uk/muscle"))).toBe(false);
 });
 
 function noDashes(text) {

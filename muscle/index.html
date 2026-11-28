@@ -292,7 +292,7 @@
             <li>The off-ramp: keep your result</li>
             <li>Cancel anytime · no contract</li>
           </ul>
-          <a class="btn btn-solid" id="ptCta" style="width:100%;" href="/coaching?plan=Keep%20the%20Muscle%3A%20Annual%20(%C2%A3249)#apply">Start 7-day free trial <span class="arr">→</span></a>
+          <a class="btn btn-solid" id="ptCta" style="width:100%;" href="/rebuild">Start 7-day free trial <span class="arr">→</span></a>
           <div class="trust">7 days free, then <b id="ptTrustPrice">£249/year</b>. Cancel any time before your trial ends and you're <b>never charged</b>.</div>
           <p class="note" style="margin-top:10px;">By starting your trial you agree to the <a href="/terms" target="_blank" style="color:var(--green);text-decoration:underline;">Terms</a>.</p>
         </div>
@@ -347,8 +347,8 @@
     document.querySelectorAll('.rv:not(.in)').forEach(function(el){io.observe(el);});
 
     var LINKS={
-      monthly:payLink('ktm-monthly','/coaching?plan='+encodeURIComponent('Keep the Muscle: Monthly (£29)')+'#apply'),
-      annual:payLink('ktm-annual','/coaching?plan='+encodeURIComponent('Keep the Muscle: Annual (£249)')+'#apply')
+      monthly:payLink('ktm-monthly','/rebuild'),
+      annual:payLink('ktm-annual','/rebuild')
     };
     var PLANS={
       monthly:{price:'£29',per:'/month',sub:'Billed monthly · cancel anytime',trust:'£29/month',sticky:'Start 7-day free trial · £29/mo'},

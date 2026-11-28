@@ -169,9 +169,9 @@
     <div class="nav__in">
       <a class="mark" href="/" aria-label="CALLUM.B home"><img src="/brand_assets/lion-420.webp" alt="">CALLUM<i>.</i>B</a>
       <nav class="nav__links">
-        <a class="hide-m" href="/the-ninety/">The Ninety</a>
+        <a class="hide-m" href="/rebuild">The Ninety</a>
         <a class="hide-m" href="/coaching">Premium Coaching</a>
-        <a class="btn btn-solid" style="padding:12px 24px;font-size:14px;" href="https://coach.everfit.io/package/NW877413">Start free <span class="arr">→</span></a>
+        <a class="btn btn-solid" style="padding:12px 24px;font-size:14px;" href="/rebuild">Start free <span class="arr">→</span></a>
       </nav>
     </div>
   </header>
@@ -184,7 +184,7 @@
         <h1 class="display rv in">Run the system <span class="grad">yourself.</span></h1>
         <p class="lead rv in rv-d1">The exact system my 1:1 clients run: your macros, the app, the recipe and exercise libraries, and the 4-weekly self-review that keeps progress moving. You drive it. No coaching fees.</p>
         <div class="hero-cta rv in rv-d2">
-          <a class="btn btn-solid" href="https://coach.everfit.io/package/NW877413">Start 7-day free trial <span class="arr">→</span></a>
+          <a class="btn btn-solid" href="/rebuild">Start 7-day free trial <span class="arr">→</span></a>
           <a class="btn btn-line" href="#inside">What's inside <span class="arr">↓</span></a>
         </div>
         <p class="hero-trust rv in rv-d2">From £29/month after your trial · cancel anytime · no long-term contract.</p>
@@ -309,11 +309,11 @@
             <li>Lift, cardio &amp; progress tracking</li>
             <li>Cancel anytime · no contract</li>
           </ul>
-          <a class="btn btn-solid" id="ptCta" style="width:100%;" href="https://coach.everfit.io/package/NW877413">Start 7-day free trial <span class="arr">→</span></a>
+          <a class="btn btn-solid" id="ptCta" style="width:100%;" href="/rebuild">Start 7-day free trial <span class="arr">→</span></a>
           <div class="trust">7 days free. Your card is saved and <b id="ptTrustPrice">£249/year</b> is taken when your trial ends: <b>a week after you join</b>. Cancel any time before then (just message me, a day early to be safe) and you're <b>never charged</b>.</div>
           <p class="note" style="margin-top:10px;">By starting your trial you agree to the <a href="/terms" target="_blank" style="color:var(--green);text-decoration:underline;">Terms</a>.</p>
         </div>
-        <p class="note rv rv-d3" style="text-align:center;margin-top:26px;">Want eyes on your data as you go? <a href="/the-ninety/" style="color:var(--green);text-decoration:underline;">The Ninety</a> adds a monthly one-to-one call and a written review, £297 for 90 days.</p>
+        <p class="note rv rv-d3" style="text-align:center;margin-top:26px;">Want eyes on your data as you go? <a href="/rebuild" style="color:var(--green);text-decoration:underline;">The Ninety</a> adds a monthly one-to-one call and a written review, £297 for 90 days.</p>
       </div>
     </section>
 
@@ -341,12 +341,12 @@
         <p class="eyebrow" style="justify-content:center;">7 days free · from £29/month</p>
         <h2 class="display">Stop guessing. <span class="grad">Start running the system.</span></h2>
         <p class="lead" style="max-width:520px;margin:0 auto 30px;">Seven days free to see if it's for you. Structure over motivation. The rest is just consistency.</p>
-        <a class="btn btn-solid" href="https://coach.everfit.io/package/NW877413">Start 7-day free trial <span class="arr">→</span></a>
+        <a class="btn btn-solid" href="/rebuild">Start 7-day free trial <span class="arr">→</span></a>
       </div>
     </section>
   </main>
 
-  <div class="sticky"><a class="btn btn-solid" id="ptStickyCta" href="https://coach.everfit.io/package/NW877413">Start 7-day free trial · £249/yr</a></div>
+  <div class="sticky"><a class="btn btn-solid" id="ptStickyCta" href="/rebuild">Start 7-day free trial · £249/yr</a></div>
 
   <footer class="footer">
     <div class="wrap">
@@ -365,8 +365,8 @@
     document.querySelectorAll('.rv:not(.in)').forEach(function(el){io.observe(el);});
 
     var PLANS={
-      monthly:{price:'£29',per:'/month',sub:'Billed monthly · cancel anytime',trust:'£29/month',sticky:'Start 7-day free trial · £29/mo',cta:payLink('os-monthly','https://coach.everfit.io/package/NW877413')},
-      annual:{price:'£249',per:'/year',sub:'Works out £20.75/month · billed yearly',trust:'£249/year',sticky:'Start 7-day free trial · £249/yr',cta:payLink('os-annual','https://coach.everfit.io/package/NW877413')}
+      monthly:{price:'£29',per:'/month',sub:'Billed monthly · cancel anytime',trust:'£29/month',sticky:'Start 7-day free trial · £29/mo',cta:payLink('os-monthly','/rebuild')},
+      annual:{price:'£249',per:'/year',sub:'Works out £20.75/month · billed yearly',trust:'£249/year',sticky:'Start 7-day free trial · £249/yr',cta:payLink('os-annual','/rebuild')}
     };
     setPlan('annual');
     function setPlan(k){

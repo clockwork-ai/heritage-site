@@ -41,6 +41,29 @@
   @media (max-width:760px){
     #top .hero__media{order:2;width:min(78%,320px) !important;margin:28px auto 0 !important;}
   }
+  #dale .story{margin-top:var(--s5);}
+  #dale .story__pair .cap .label{min-width:0;letter-spacing:.04em;line-height:1.35;font-size:10px;white-space:normal;}
+  #dale .dale-evidence,#dale .dale-note{grid-column:1 / -1;min-width:0;}
+  #dale .bpev{grid-template-columns:1fr;align-items:start;}
+  #dale .bpev__img{width:min(100%,240px);}
+  #dale .dale-wrist{display:block;margin:var(--s2) 0 0;max-width:28ch;letter-spacing:.06em;line-height:1.45;white-space:normal;}
+  #dale .dale-figs{display:grid;gap:18px;margin:var(--s3) 0 0;}
+  #dale .dale-figs div{display:grid;gap:6px;min-width:0;}
+  #dale .dale-figs dt{letter-spacing:.08em;line-height:1.4;white-space:normal;}
+  #dale .dale-figs dd{margin:0;font-family:var(--sans);font-weight:300;font-size:clamp(20px,2vw,28px);letter-spacing:-.03em;line-height:1.2;color:var(--cream);font-variant-numeric:tabular-nums;}
+  #dale .dale-figs .was{color:var(--bad);}
+  #dale .dale-figs .now{color:var(--good);}
+  #dale .dale-more{font-family:var(--sans);font-weight:400;font-size:16px;letter-spacing:0;line-height:1.4;color:var(--sage);}
+  #dale .dale-note{margin:0;max-width:68ch;}
+  @media (min-width:960px){
+    #dale .story{column-gap:var(--s5);row-gap:var(--s4);}
+    #dale .dale-evidence{grid-template-columns:minmax(180px,240px) minmax(0,1fr);align-items:end;}
+    #dale .dale-figs{grid-template-columns:1fr 1fr;margin-top:0;gap:22px 28px;}
+  }
+  @media (max-width:600px){
+    #dale .bpev{grid-template-columns:1fr;gap:var(--s2);}
+    #dale .dale-figs dd{font-size:22px;}
+  }
 </style>
 <!-- Privacy-friendly analytics by Plausible -->
 <script async src="https://plausible.io/js/pa-YpqMGTgErTGeztJgwL1aw.js"></script>
@@ -326,6 +349,54 @@
   </div>
 </section>
 
+<section class="chap g3" id="dale" data-chap="Dale">
+  <div class="wrap">
+    <div class="stack" style="max-width:760px">
+      <h2 class="h-md rv">Dale: 10 weeks in</h2>
+      <p class="body rv" style="--d:1">Dale did 10 weeks of 1:1 coaching with me. That was before The Full Rebuild existed, so this isn't a Rebuild result, and I won't dress it up as one. He's said I can share his story, so here it is in his words, with his own readings.</p>
+    </div>
+    <article class="story story--wide panel rv" style="--d:2">
+      <div class="story__left">
+        <div class="story__pair">
+          <div class="media photo"><img src="assets/photos/dale-before.webp" alt="Dale before coaching, side view" loading="lazy" width="720" height="960"><div class="cap"><span class="label">Before.</span></div></div>
+          <div class="media photo"><img src="assets/photos/dale-8-weeks.webp" alt="Dale after 8 weeks of 1:1 coaching, side view" loading="lazy" width="720" height="960"><div class="cap"><span class="label">8 weeks into 1:1 coaching.</span></div></div>
+        </div>
+      </div>
+      <div class="story__body">
+        <div class="review">
+          <blockquote>I'd been on blood pressure tablets for 12 years, maxed on the dosage. After just two weeks with Callum I genuinely feel like a new man. No more takeaways, no more excuses, and finally living a good life again.</blockquote>
+          <div class="who"><span class="ava" aria-hidden="true">D</span><div><b>Dale.</b><span>1:1 coaching client.</span></div></div>
+        </div>
+      </div>
+      <div class="bpev dale-evidence">
+        <div>
+          <div class="media photo bpev__img"><img src="assets/photos/dale-bp-10wk.webp" alt="Dale's wrist monitor reading 114 over 74, pulse 74, at 10 weeks" loading="lazy" width="560" height="594"></div>
+          <p class="label dale-wrist">His own wrist monitor at 10 weeks: 114/74.</p>
+        </div>
+        <dl class="dale-figs">
+          <div>
+            <dt class="label">Blood pressure in hospital</dt>
+            <dd class="was">180/126</dd>
+          </div>
+          <div>
+            <dt class="label">Blood pressure at 10 weeks</dt>
+            <dd class="now">114/74<span class="dale-more">, on his own wrist monitor</span></dd>
+          </div>
+          <div>
+            <dt class="label">Weight</dt>
+            <dd>102kg to 93.3kg</dd>
+          </div>
+          <div>
+            <dt class="label">Coaching</dt>
+            <dd>10 weeks of 1:1</dd>
+          </div>
+        </dl>
+      </div>
+      <p class="body dale-note">These are Dale's own readings. Coaching supports lifestyle change. It isn't medical treatment, and medication decisions stay with your GP.</p>
+    </article>
+  </div>
+</section>
+
 <section class="chap g3" id="faq" data-chap="Questions" aria-label="Questions">
   <div class="wrap">
     <div class="stack">
@@ -375,6 +446,7 @@
     </div>
   </div>
 </section>
+
 
 <section class="chap g2" id="screen" data-chap="Before you apply">
   <div class="wrap">
